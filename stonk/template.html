@@ -844,19 +844,28 @@
     const barW = Math.max(2, Math.min(24, f.bandW - 3));
     const GAP = 2; // surface gap between stacked segments
 
+    // Draw the whole bar as the total, then paint the burn share over it from the
+    // baseline, and only carve the surface gap where the bar is tall enough to
+    // spare it. Subtracting the gap from a segment instead makes small segments
+    // negative, so a real value silently renders as nothing - one $2M day here
+    // compresses every ordinary day to a few pixels, which is exactly where that
+    // goes wrong.
     days.forEach((d, i) => {
       const x = f.bandX(i) + (f.bandW - barW) / 2;
-      const yBurn = f.yScale(d.holders);
-      const hBurn = f.y1 - yBurn;
-      const yTop = f.yScale(d.revenue);
-      const hProto = Math.max(0, yBurn - yTop - (hBurn > 0 ? GAP : 0));
-      if (hProto > 0.4) {
+      const total = f.y1 - f.yScale(d.revenue);
+      if (total <= 0) return;
+      const radius = Math.min(4, barW / 2);
+
+      f.svg.appendChild(s("rect", { x, y: f.y1 - total, width: barW, height: total, fill: neutral, rx: radius }));
+
+      if (d.holders > 0) {
+        const burn = Math.min(total, Math.max(1, f.y1 - f.yScale(d.holders)));
         f.svg.appendChild(
-          s("rect", { x, y: yTop, width: barW, height: hProto, fill: neutral, rx: Math.min(4, barW / 2) })
+          s("rect", { x, y: f.y1 - burn, width: barW, height: burn, fill: accent, rx: burn >= total ? radius : 0 })
         );
-      }
-      if (hBurn > 0.4) {
-        f.svg.appendChild(s("rect", { x, y: yBurn, width: barW, height: hBurn, fill: accent, rx: 0 }));
+        if (total - burn > GAP + 0.5 && total > 6) {
+          f.svg.appendChild(s("rect", { x, y: f.y1 - burn - GAP, width: barW, height: GAP, fill: surface }));
+        }
       }
     });
 
@@ -1836,7 +1845,15 @@
         );
       }
     } catch (err) {
-      showError(String(err.message || err), "error");
+      // A blocked request throws TypeError with no status: the Artifact sandbox
+      // forbids outbound fetch, and so does an offline browser.
+      const blocked = err instanceof TypeError || /Failed to fetch|NetworkError/i.test(String(err.message || err));
+      showError(
+        blocked
+          ? "当前环境不允许页面直接调用外部接口（例如 Artifact 沙箱），或网络不可达。实时更新请打开 https://stonk-burn-board.vercel.app"
+          : String(err.message || err),
+        "error"
+      );
     } finally {
       button.disabled = false;
       button.textContent = "更新数据";
