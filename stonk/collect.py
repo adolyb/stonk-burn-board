@@ -4,7 +4,7 @@ import json
 from collections import OrderedDict
 from datetime import datetime, timezone
 
-from . import config
+from . import config, ledger
 from .api import StonkFunClient, get_token_supply
 
 
@@ -173,6 +173,10 @@ def collect(mint=config.MINT, rpc_url=config.RPC_URL):
   recon = reconcile(chain, burns_payload["totals"])
   append_recon_log(recon)
 
+  # Merge both event streams into the local ledgers before building the snapshot,
+  # so the intraday block reflects this fetch too.
+  ledger_update = ledger.update(burns_payload["burns"], revenue_payload["recentBuybacks"])
+
   return {
     "generatedAt": _utc_now(),
     "mint": mint,
@@ -185,6 +189,8 @@ def collect(mint=config.MINT, rpc_url=config.RPC_URL):
     "burnTotals": burns_payload["totals"],
     "recentBurns": burns_payload["burns"],
     "sourceMix": source_mix(burns_payload["burns"]),
+    "intraday": ledger.build_intraday(),
+    "ledgerUpdate": ledger_update,
     "daily": build_daily_series(history_payload),
     "historyMeta": {
       "start": history_payload.get("start"),

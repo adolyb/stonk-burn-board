@@ -15,6 +15,19 @@ SNAPSHOT_PATH = DATA_DIR / "snapshot.json"
 RECON_LOG_PATH = DATA_DIR / "recon_history.jsonl"
 DASHBOARD_PATH = DIST_DIR / "dashboard.html"
 
+# Intraday ledgers. The API pages at 100 records and cannot backfill, so these
+# accumulate locally; coverage.json records which ranges were actually observed.
+BURN_LEDGER_PATH = DATA_DIR / "burns.jsonl"
+BUYBACK_LEDGER_PATH = DATA_DIR / "buybacks.jsonl"
+COVERAGE_PATH = DATA_DIR / "coverage.json"
+
+# How much of the local ledger gets embedded in the page.
+INTRADAY_WINDOW_HOURS = int(os.getenv("STONK_INTRADAY_HOURS", "48"))
+
+# Poll interval for `main.py watch`. 100 burns is ~25 min at ordinary activity but
+# only a few minutes during a burst, so the default leaves headroom.
+WATCH_INTERVAL = int(os.getenv("STONK_WATCH_INTERVAL", "180"))
+
 MINT = os.getenv("STONK_MINT", "6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx")
 API_BASE = os.getenv("STONK_API_BASE", "https://www.stonkfun.xyz/api/public/v1")
 

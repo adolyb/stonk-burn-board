@@ -195,6 +195,13 @@
   .tile-note.down { color: var(--neg); }
 
   /* ---------- generic card ---------- */
+  .tiles.wide { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (max-width: 900px) { .tiles.wide { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  .section-head { display: flex; flex-direction: column; gap: 3px; }
+  .section-head h2 { margin: 0; font-size: 16px; font-weight: 600; }
+  .section-head p { margin: 0; font-size: 12.5px; color: var(--ink-3); max-width: 76ch; }
+
   .card {
     background: var(--surface);
     border: 1px solid var(--rule);
@@ -510,17 +517,68 @@
     </div>
   </section>
 
-  <section class="card">
-    <div class="card-head">
-      <div>
-        <h2>最近销毁明细</h2>
-        <p id="burns-sub"></p>
-      </div>
-      <button class="link-btn" data-toggle="burns-table">收起表格</button>
+  <section style="display:flex;flex-direction:column;gap:16px">
+    <div class="section-head">
+      <h2>回购销毁分时</h2>
+      <p>API 单页上限 100 条且无法回补历史，所以分时序列由本地台账按签名去重累积。没有采集到的时间段会画成空档，不会跟"这段没有销毁"混为一谈。</p>
     </div>
-    <div class="plot" id="plot-burns"></div>
-    <div class="legend" id="source-legend"></div>
-    <div class="table-wrap scroll-y" id="burns-table"></div>
+    <div class="toolbar">
+      <span class="eyebrow">分箱</span>
+      <div class="segmented" id="bin-picker" role="group" aria-label="分箱粒度">
+        <button type="button" data-bin="1">1 分</button>
+        <button type="button" data-bin="5" aria-pressed="true">5 分</button>
+        <button type="button" data-bin="15">15 分</button>
+        <button type="button" data-bin="60">1 小时</button>
+      </div>
+      <span class="eyebrow">窗口</span>
+      <div class="segmented" id="window-picker" role="group" aria-label="时间窗口">
+        <button type="button" data-window="1">1 时</button>
+        <button type="button" data-window="6">6 时</button>
+        <button type="button" data-window="24">24 时</button>
+        <button type="button" data-window="all" aria-pressed="true">全部</button>
+      </div>
+      <span class="eyebrow" id="intraday-note"></span>
+    </div>
+    <div class="tiles wide" id="intraday-tiles"></div>
+    <div class="charts">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h2>每箱销毁枚数</h2>
+            <p>枚数口径——日线端点只给美元，这条曲线只能靠本地累积得到。</p>
+          </div>
+          <button class="link-btn" data-toggle="intraday-table">表格视图</button>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--accent)"></i>销毁枚数 STONK</span>
+          <span><i style="background:var(--neutral-series);opacity:0.45"></i>未采集时段</span>
+        </div>
+        <div class="plot" id="plot-intraday-burn"></div>
+        <div class="table-wrap scroll-y" id="intraday-table" hidden></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h2>回购成交均价</h2>
+            <p>每箱按成交量加权：boughtValueUsd ÷ boughtTokens，即国库实际买入 STONK 的价格。</p>
+          </div>
+          <button class="link-btn" data-toggle="price-table">表格视图</button>
+        </div>
+        <div class="plot" id="plot-intraday-price"></div>
+        <div class="table-wrap scroll-y" id="price-table" hidden></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>最近销毁明细（逐笔）</h2>
+          <p id="burns-sub"></p>
+        </div>
+        <button class="link-btn" data-toggle="burns-table">收起表格</button>
+      </div>
+      <div class="legend" id="source-legend"></div>
+      <div class="table-wrap scroll-y" id="burns-table"></div>
+    </div>
   </section>
 
   <section class="split">
@@ -845,47 +903,296 @@
     hit.addEventListener("pointerleave", () => { hair.setAttribute("opacity", 0); dot.setAttribute("opacity", 0); tip.hide(); });
   }
 
-  /* ---------- chart: recent burns ---------- */
-  function drawBurns(burns) {
-    const plot = document.getElementById("plot-burns");
-    const tip = plot.__tip || (plot.__tip = makeTip(plot));
-    const pad = { t: 12, r: 10, b: 26, l: 52 };
-    const f = frame(plot, 190, pad);
-    const rows = burns.slice().reverse(); // oldest -> newest, left to right
-    if (!rows.length) return;
+  /* ---------- intraday: local ledger, binned ---------- */
+  const INTRA = SNAPSHOT.intraday || { burns: [], buybacks: [], coverage: {}, generatedAtMs: Date.now() };
+  let binMinutes = 5;
+  let intraWindow = "all";
 
-    const max = Math.max(...rows.map((b) => b.amountTokens || 0), 1);
+  const ms = (iso) => Date.parse(iso);
+  const clock = (t) => new Date(t).toISOString().slice(11, 16);
+
+  function intradayDomain() {
+    const now = INTRA.generatedAtMs;
+    if (intraWindow !== "all") return [now - Number(intraWindow) * 3600000, now];
+    const starts = [];
+    if (INTRA.burns.length) starts.push(ms(INTRA.burns[0].t));
+    if (INTRA.buybacks.length) starts.push(ms(INTRA.buybacks[0].t));
+    (INTRA.coverage.burns || []).forEach((seg) => starts.push(ms(seg[0])));
+    return [starts.length ? Math.min(...starts) : now - 3600000, now];
+  }
+
+  function overlaps(segments, a, b) {
+    return (segments || []).some((seg) => ms(seg[0]) < b && ms(seg[1]) > a);
+  }
+
+  // Bins the two event streams over one shared time domain. `covered` records
+  // whether the range was actually polled - an empty covered bin is a true zero,
+  // an empty uncovered bin is unknown, and they must not render the same way.
+  function bucketise() {
+    const domain = intradayDomain();
+    let binMs = binMinutes * 60000;
+    let widened = false;
+    while ((domain[1] - domain[0]) / binMs > 900) { binMs *= 2; widened = true; }
+
+    const start = Math.floor(domain[0] / binMs) * binMs;
+    const bins = [];
+    for (let t = start; t < domain[1]; t += binMs) {
+      bins.push({ t, tokens: 0, usd: 0, count: 0, bought: 0, boughtUsd: 0, spent: 0, buys: 0 });
+    }
+    if (!bins.length) return { bins, binMs, widened, domain };
+
+    const index = (ts) => Math.floor((ts - start) / binMs);
+    INTRA.burns.forEach((b) => {
+      const bin = bins[index(ms(b.t))];
+      if (bin) { bin.tokens += b.a; bin.usd += b.u; bin.count += 1; }
+    });
+    INTRA.buybacks.forEach((b) => {
+      const bin = bins[index(ms(b.t))];
+      if (bin) { bin.bought += b.bt; bin.boughtUsd += b.bu; bin.spent += b.su; bin.buys += 1; }
+    });
+    bins.forEach((bin) => {
+      bin.coveredBurn = overlaps(INTRA.coverage.burns, bin.t, bin.t + binMs);
+      bin.coveredBuy = overlaps(INTRA.coverage.buybacks, bin.t, bin.t + binMs);
+      bin.vwap = bin.bought > 0 ? bin.boughtUsd / bin.bought : null;
+    });
+    return { bins, binMs, widened, domain };
+  }
+
+  // Contiguous runs of uncovered bins, drawn as shaded "not polled" bands.
+  function gapBands(bins, key) {
+    const bands = [];
+    let run = null;
+    bins.forEach((bin, i) => {
+      if (!bin[key]) {
+        if (!run) run = { from: i, to: i };
+        else run.to = i;
+      } else if (run) { bands.push(run); run = null; }
+    });
+    if (run) bands.push(run);
+    return bands;
+  }
+
+  function drawGaps(f, bins, bands) {
+    const muted = css("--neutral-series");
+    bands.forEach((band) => {
+      const x = f.bandX(band.from);
+      const w = f.bandX(band.to) + f.bandW - x;
+      f.svg.appendChild(s("rect", { x, y: f.y0, width: Math.max(1, w), height: f.y1 - f.y0, fill: muted, "fill-opacity": 0.16 }));
+      if (w > 58) {
+        f.svg.appendChild(
+          s("text", { x: x + w / 2, y: (f.y0 + f.y1) / 2, "text-anchor": "middle", "font-size": 10, fill: css("--ink-3") }, "未采集")
+        );
+      }
+    });
+  }
+
+  function drawIntradayBurn(model) {
+    const plot = document.getElementById("plot-intraday-burn");
+    const tip = plot.__tip || (plot.__tip = makeTip(plot));
+    const pad = { t: 12, r: 10, b: 26, l: 56 };
+    const f = frame(plot, 250, pad);
+    const bins = model.bins;
+    if (!bins.length) return;
+
+    const max = Math.max(...bins.map((b) => b.tokens), 1);
     const ticks = niceTicks(max);
     const top = ticks[ticks.length - 1];
     f.yScale = (v) => f.y1 - (v / top) * (f.y1 - f.y0);
-    const inner = f.x1 - f.x0;
-    f.bandW = inner / rows.length;
+    f.bandW = (f.x1 - f.x0) / bins.length;
     f.bandX = (i) => f.x0 + i * f.bandW;
+
+    drawGaps(f, bins, gapBands(bins, "coveredBurn"));
     yAxis(f, ticks, (v) => compact(v));
-    // Every burn on this page lands within a day or two, so the clock is what
-    // separates them; the date lives in the tooltip and the table.
-    xLabels(f, rows, (b) => shortTime(b.burnedAt).slice(6, 11));
+    xLabels(f, bins, (b) => clock(b.t));
 
     const accent = css("--accent");
-    const barW = Math.max(2, Math.min(24, f.bandW - 2));
-    rows.forEach((b, i) => {
-      const y = f.yScale(b.amountTokens || 0);
+    const barW = Math.max(1.5, Math.min(24, f.bandW - 2));
+    bins.forEach((bin, i) => {
+      if (!bin.coveredBurn || bin.tokens <= 0) return;
+      const y = f.yScale(bin.tokens);
       const x = f.bandX(i) + (f.bandW - barW) / 2;
-      const rect = s("rect", { x, y, width: barW, height: Math.max(1, f.y1 - y), fill: accent, rx: Math.min(4, barW / 2) });
-      f.svg.appendChild(rect);
-      const hit = s("rect", { x: f.bandX(i), y: f.y0, width: f.bandW, height: f.y1 - f.y0, fill: "transparent" });
-      f.svg.appendChild(hit);
-      hit.addEventListener("pointerenter", () => {
-        rect.setAttribute("fill-opacity", 0.72);
-        tip.show(x + barW / 2, y, shortTime(b.burnedAt), [
-          { label: "销毁数量", value: nf(b.amountTokens, 2) + " STONK", color: accent },
-          { label: "当时价值", value: usd(b.valueUsdAtBurn || 0) },
-          { label: "来源", value: String(b.source || "—") },
-        ]);
-      });
-      hit.addEventListener("pointerleave", () => { rect.removeAttribute("fill-opacity"); tip.hide(); });
+      f.svg.appendChild(s("rect", { x, y, width: barW, height: Math.max(1, f.y1 - y), fill: accent, rx: Math.min(4, barW / 2) }));
     });
     f.svg.appendChild(s("line", { x1: f.x0, x2: f.x1, y1: f.y1, y2: f.y1, stroke: css("--rule"), "stroke-width": 1 }));
+
+    const hair = s("line", { y1: f.y0, y2: f.y1, stroke: css("--ink-3"), "stroke-width": 1, opacity: 0 });
+    f.svg.appendChild(hair);
+    const hit = s("rect", { x: f.x0, y: f.y0, width: f.x1 - f.x0, height: f.y1 - f.y0, fill: "transparent" });
+    f.svg.appendChild(hit);
+    hit.addEventListener("pointermove", (evt) => {
+      const box = f.svg.getBoundingClientRect();
+      const px = ((evt.clientX - box.left) / box.width) * f.width;
+      const i = Math.max(0, Math.min(bins.length - 1, Math.floor((px - f.x0) / f.bandW)));
+      const bin = bins[i];
+      const cx = f.bandX(i) + f.bandW / 2;
+      hair.setAttribute("x1", cx); hair.setAttribute("x2", cx); hair.setAttribute("opacity", 0.35);
+      const label = clock(bin.t) + "–" + clock(bin.t + model.binMs);
+      tip.show(cx, f.yScale(bin.tokens), label, bin.coveredBurn
+        ? [
+            { label: "销毁枚数", value: nf(bin.tokens, 2), color: accent },
+            { label: "销毁价值", value: usd(bin.usd) },
+            { label: "笔数", value: nf(bin.count) },
+          ]
+        : [{ label: "未采集", value: "无数据" }]);
+    });
+    hit.addEventListener("pointerleave", () => { hair.setAttribute("opacity", 0); tip.hide(); });
+  }
+
+  function drawIntradayPrice(model) {
+    const plot = document.getElementById("plot-intraday-price");
+    const tip = plot.__tip || (plot.__tip = makeTip(plot));
+    const pad = { t: 16, r: 58, b: 26, l: 56 };
+    const f = frame(plot, 250, pad);
+    const bins = model.bins;
+    if (!bins.length) return;
+
+    const priced = bins.filter((b) => b.vwap !== null);
+    if (!priced.length) {
+      f.svg.appendChild(
+        s("text", { x: (f.x0 + f.x1) / 2, y: (f.y0 + f.y1) / 2, "text-anchor": "middle", "font-size": 12, fill: css("--ink-3") }, "窗口内还没有采集到回购成交")
+      );
+      return;
+    }
+
+    const lo = Math.min(...priced.map((b) => b.vwap));
+    const hi = Math.max(...priced.map((b) => b.vwap));
+    const padY = (hi - lo) * 0.18 || hi * 0.05 || 0.01;
+    const yMin = Math.max(0, lo - padY);
+    const yMax = hi + padY;
+    f.yScale = (v) => f.y1 - ((v - yMin) / (yMax - yMin)) * (f.y1 - f.y0);
+    f.bandW = (f.x1 - f.x0) / bins.length;
+    f.bandX = (i) => f.x0 + i * f.bandW;
+
+    drawGaps(f, bins, gapBands(bins, "coveredBuy"));
+
+    const gridColor = css("--grid");
+    const muted = css("--ink-3");
+    for (let k = 0; k <= 3; k += 1) {
+      const v = yMin + ((yMax - yMin) * k) / 3;
+      const y = f.yScale(v);
+      f.svg.appendChild(s("line", { x1: f.x0, x2: f.x1, y1: y, y2: y, stroke: gridColor, "stroke-width": 1 }));
+      f.svg.appendChild(s("text", { x: f.x0 - 8, y: y + 3.5, "text-anchor": "end", "font-size": 10, fill: muted }, "$" + v.toFixed(4)));
+    }
+    xLabels(f, bins, (b) => clock(b.t));
+
+    // One polyline per unbroken run: a bin with no buyback is a hole, not a value.
+    const accent = css("--accent");
+    let run = [];
+    const flush = () => {
+      if (run.length > 1) {
+        f.svg.appendChild(s("polyline", { points: run.map((p) => p.join(",")).join(" "), fill: "none", stroke: accent, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+      } else if (run.length === 1) {
+        f.svg.appendChild(s("circle", { cx: run[0][0], cy: run[0][1], r: 2.5, fill: accent }));
+      }
+      run = [];
+    };
+    bins.forEach((bin, i) => {
+      if (bin.vwap === null) { flush(); return; }
+      run.push([f.bandX(i) + f.bandW / 2, f.yScale(bin.vwap)]);
+    });
+    flush();
+
+    const lastPriced = priced[priced.length - 1];
+    const lastIndex = bins.indexOf(lastPriced);
+    const lx = f.bandX(lastIndex) + f.bandW / 2;
+    const ly = f.yScale(lastPriced.vwap);
+    f.svg.appendChild(s("circle", { cx: lx, cy: ly, r: 5, fill: accent, stroke: css("--surface"), "stroke-width": 2 }));
+    f.svg.appendChild(
+      s("text", { x: Math.min(lx + 9, f.width - 4), y: ly + 4, "font-size": 11.5, "font-weight": 600, fill: css("--ink") }, "$" + lastPriced.vwap.toFixed(4))
+    );
+
+    const hair = s("line", { y1: f.y0, y2: f.y1, stroke: muted, "stroke-width": 1, opacity: 0 });
+    f.svg.appendChild(hair);
+    const hit = s("rect", { x: f.x0, y: f.y0, width: f.x1 - f.x0, height: f.y1 - f.y0, fill: "transparent" });
+    f.svg.appendChild(hit);
+    hit.addEventListener("pointermove", (evt) => {
+      const box = f.svg.getBoundingClientRect();
+      const px = ((evt.clientX - box.left) / box.width) * f.width;
+      const i = Math.max(0, Math.min(bins.length - 1, Math.floor((px - f.x0) / f.bandW)));
+      const bin = bins[i];
+      const cx = f.bandX(i) + f.bandW / 2;
+      hair.setAttribute("x1", cx); hair.setAttribute("x2", cx); hair.setAttribute("opacity", 0.35);
+      const label = clock(bin.t) + "–" + clock(bin.t + model.binMs);
+      tip.show(cx, bin.vwap !== null ? f.yScale(bin.vwap) : f.y0 + 20, label, bin.vwap !== null
+        ? [
+            { label: "回购均价", value: "$" + bin.vwap.toFixed(5), color: accent },
+            { label: "买入枚数", value: nf(bin.bought, 2) },
+            { label: "花费", value: usd(bin.spent) },
+            { label: "笔数", value: nf(bin.buys) },
+          ]
+        : [{ label: bin.coveredBuy ? "该区间无回购" : "未采集", value: "—" }]);
+    });
+    hit.addEventListener("pointerleave", () => { hair.setAttribute("opacity", 0); tip.hide(); });
+  }
+
+  function renderIntraday() {
+    const model = bucketise();
+    drawIntradayBurn(model);
+    drawIntradayPrice(model);
+
+    const bins = model.bins;
+    const covered = bins.filter((b) => b.coveredBurn).length;
+    const tokens = bins.reduce((sum, b) => sum + b.tokens, 0);
+    const spent = bins.reduce((sum, b) => sum + b.spent, 0);
+    const bought = bins.reduce((sum, b) => sum + b.bought, 0);
+    const boughtUsd = bins.reduce((sum, b) => sum + b.boughtUsd, 0);
+    const burnUsd = bins.reduce((sum, b) => sum + b.usd, 0);
+
+    const binLabel = model.binMs >= 3600000 ? model.binMs / 3600000 + " 小时" : model.binMs / 60000 + " 分";
+    const domain = model.domain;
+    document.getElementById("intraday-note").textContent =
+      `${clock(domain[0])} → ${clock(domain[1])} · 每箱 ${binLabel}` +
+      (model.widened ? "（已自动放大分箱）" : "") +
+      ` · 采集覆盖 ${bins.length ? ((covered / bins.length) * 100).toFixed(0) : 0}%`;
+
+    // The two streams are polled from different endpoints and can have different
+    // coverage, so each tile carries its own - otherwise a 5h burn total sitting
+    // beside a 25min buyback total reads as a shortfall that isn't there.
+    const pct = (n) => (bins.length ? ((n / bins.length) * 100).toFixed(0) : "0") + "%";
+    const coveredBuy = bins.filter((b) => b.coveredBuy).length;
+
+    const tiles = [
+      { label: "窗口内销毁枚数", value: compact(tokens), note: nf(tokens, 2) + " STONK · 采集 " + pct(covered) },
+      { label: "窗口内销毁价值", value: usd(burnUsd), note: "按销毁时价 · 采集 " + pct(covered) },
+      { label: "窗口内回购花费", value: usd(spent), note: nf(bought, 0) + " STONK 买入 · 采集 " + pct(coveredBuy) },
+      {
+        label: "回购加权均价",
+        value: bought > 0 ? "$" + (boughtUsd / bought).toFixed(5) : "—",
+        note: "boughtValueUsd ÷ boughtTokens",
+      },
+    ];
+    const host = document.getElementById("intraday-tiles");
+    host.replaceChildren();
+    tiles.forEach((tile) => {
+      const node = el("div", { class: "tile" });
+      node.appendChild(el("div", { class: "tile-label" }, tile.label));
+      node.appendChild(el("div", { class: "tile-value" }, tile.value));
+      node.appendChild(el("div", { class: "tile-note" }, tile.note));
+      host.appendChild(node);
+    });
+
+    table(
+      document.getElementById("intraday-table"),
+      ["区间 (UTC)", "销毁枚数", "价值 USD", "笔数", "采集"],
+      bins.map((b) => [
+        clock(b.t) + "–" + clock(b.t + model.binMs),
+        b.coveredBurn ? nf(b.tokens, 4) : "—",
+        b.coveredBurn ? "$" + nf(b.usd, 2) : "—",
+        b.coveredBurn ? nf(b.count) : "—",
+        b.coveredBurn ? "已采集" : "空档",
+      ])
+    );
+    table(
+      document.getElementById("price-table"),
+      ["区间 (UTC)", "回购均价", "买入枚数", "花费 USD", "笔数"],
+      bins.map((b) => [
+        clock(b.t) + "–" + clock(b.t + model.binMs),
+        b.vwap !== null ? "$" + b.vwap.toFixed(5) : "—",
+        b.vwap !== null ? nf(b.bought, 4) : "—",
+        b.vwap !== null ? "$" + nf(b.spent, 2) : "—",
+        b.buys ? nf(b.buys) : "—",
+      ])
+    );
   }
 
   /* ---------- chart: reconciliation drift (diverging around zero) ---------- */
@@ -1181,7 +1488,7 @@
 
   function drawAll() {
     drawRangeCharts();
-    drawBurns(SNAPSHOT.recentBurns);
+    renderIntraday();
     drawDrift(SNAPSHOT.reconHistory);
   }
 
@@ -1194,6 +1501,19 @@
     );
     drawRangeCharts();
   });
+
+  function bindPicker(id, attr, apply) {
+    const host = document.getElementById(id);
+    host.addEventListener("click", (evt) => {
+      const btn = evt.target.closest(`button[data-${attr}]`);
+      if (!btn) return;
+      apply(btn.dataset[attr]);
+      host.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+      renderIntraday();
+    });
+  }
+  bindPicker("bin-picker", "bin", (v) => { binMinutes = Number(v); });
+  bindPicker("window-picker", "window", (v) => { intraWindow = v; });
 
   document.querySelectorAll("[data-toggle]").forEach((btn) => {
     const target = document.getElementById(btn.dataset.toggle);

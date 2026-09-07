@@ -32,10 +32,30 @@ python main.py
 ## 命令
 
 ```bash
-python main.py          # 抓取 + 重建看板（默认）
-python main.py fetch    # 只抓取，并追加一条对账记录
-python main.py build    # 用已有 snapshot 重建 HTML
+python main.py                        # 抓取 + 重建看板（默认）
+python main.py fetch                  # 只抓取，并追加一条对账记录
+python main.py build                  # 用已有 snapshot 重建 HTML
+python main.py watch --interval 180   # 按间隔持续抓取，累积分时数据
 ```
+
+## 分时看板与本地台账
+
+`/burns` 和 `/revenue` 的明细都是单页 100 条，**无法回补历史**——想看分时就只能自己攒。每次抓取会把两个流按签名去重合并进本地台账：
+
+| 文件 | 内容 |
+|---|---|
+| `data/burns.jsonl` | 逐笔销毁（时间 / 枚数 / USD / 来源） |
+| `data/buybacks.jsonl` | 逐笔回购（买入枚数 / 成交额 / 报价币） |
+| `data/coverage.json` | **实际采集到的时间区间**，按流分别记录 |
+
+看板里分时区块可切 1/5/15/60 分钟分箱与 1/6/24 小时窗口，两条曲线：
+
+- **每箱销毁枚数** —— 枚数口径。日线端点只给美元，枚数只能靠本地累积
+- **回购成交均价** —— `boughtValueUsd ÷ boughtTokens`，国库实际买入 STONK 的价格
+
+`coverage.json` 是这套东西的诚实性保证：**没采集到的区间会画成"未采集"空档，而不是画成 0**。两者含义完全不同，混在一起等于编数据。每个 tile 也各自标注所属流的采集覆盖率，因为两个流的覆盖可能差很远。
+
+**轮询间隔怎么定**：100 条在平时约等于 25 分钟，但爆量时可能只有几分钟。默认 180 秒留了余量。如果某次返回的 100 条全是没见过的记录（且台账原本非空），说明轮询已经落后、有记录在没看到之前就被挤出去了——这时 `fetch` 会往 stderr 打 `WARNING polling fell behind`，看板上对应区间也会显示成空档。
 
 ## 配置（全部走环境变量）
 
@@ -45,6 +65,8 @@ python main.py build    # 用已有 snapshot 重建 HTML
 | `STONK_RPC_URL` | `https://api.mainnet-beta.solana.com` | **跑定时任务务必换成 Helius / QuickNode**，公共 RPC 限速很紧 |
 | `STONK_INITIAL_SUPPLY` | `1000000000` | 初始供应假设，看板会显式标注并反推校验 |
 | `STONK_API_BASE` | `https://www.stonkfun.xyz/api/public/v1` | API 根路径 |
+| `STONK_WATCH_INTERVAL` | `180` | `watch` 轮询间隔（秒） |
+| `STONK_INTRADAY_HOURS` | `48` | 嵌入页面的分时窗口长度 |
 
 ## 数据口径
 
@@ -66,6 +88,7 @@ API 300 次/分钟 per IP，响应带 `X-RateLimit-Remaining`，429 时带 `Retr
 main.py              CLI 入口
 stonk/config.py      配置（环境变量覆盖）
 stonk/api.py         StonkFun API 客户端 + Solana RPC
+stonk/ledger.py      分时台账：去重合并、采集区间记录
 stonk/collect.py     抓取、对账、派生指标
 stonk/render.py      snapshot + 模板 → 自包含 HTML
 stonk/template.html  看板模板（body-only，数据从 /*__SNAPSHOT__*/ 注入）
