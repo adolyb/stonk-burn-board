@@ -419,7 +419,11 @@
   td a { color: var(--accent); text-decoration: none; }
   td a:hover { text-decoration: underline; }
   .scroll-y { max-height: 380px; overflow-y: auto; }
+  .head-actions { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+
   #daily-detail tbody tr:last-child td {
+    position: sticky;
+    bottom: 0;
     font-weight: 600;
     color: var(--ink);
     border-top: 2px solid var(--rule);
@@ -558,9 +562,12 @@
           <h2>日线明细</h2>
           <p>上面两张图的数值表，跟随所选区间。日期沿用接口的 UTC 日分桶，未平移到 UTC+8。</p>
         </div>
-        <span class="eyebrow" id="daily-detail-note"></span>
+        <div class="head-actions">
+          <span class="eyebrow" id="daily-detail-note"></span>
+          <button class="link-btn" data-toggle="daily-detail" data-label-hidden="展开表格">收起表格</button>
+        </div>
       </div>
-      <div class="table-wrap" id="daily-detail"></div>
+      <div class="table-wrap scroll-y" id="daily-detail"></div>
     </div>
   </section>
 
@@ -1985,7 +1992,7 @@
       detailRows
     );
     document.getElementById("daily-detail-note").textContent =
-      days.length ? `${days.length} 天 · 新到旧 · 末行为区间合计` : "";
+      days.length ? `${days.length} 天 · 新到旧 · 合计行常驻底部` : "";
   }
 
   function drawAll() {
@@ -2019,7 +2026,7 @@
 
   document.querySelectorAll("[data-toggle]").forEach((btn) => {
     const target = document.getElementById(btn.dataset.toggle);
-    const labels = ["表格视图", "收起表格"];
+    const labels = [btn.dataset.labelHidden || "表格视图", btn.dataset.labelShown || "收起表格"];
     btn.addEventListener("click", () => {
       target.hidden = !target.hidden;
       btn.textContent = target.hidden ? labels[0] : labels[1];
