@@ -527,7 +527,7 @@
         <div class="card-head">
           <div>
             <h2>每日手续费去向</h2>
-            <p>入库手续费按天拆成回购销毁与协议留存两部分（USD，按入账时价）。</p>
+            <p>入库手续费按 <b>UTC 日</b>拆成回购销毁与协议留存两部分（USD，按入账时价）。日线沿用接口的 UTC 日分桶，未平移到 UTC+8。</p>
           </div>
           <button class="link-btn" data-toggle="daily-table">表格视图</button>
         </div>
@@ -674,10 +674,17 @@
   }
   const usd = (v) => compact(v, "$");
 
+  // All wall-clock readouts are shown in UTC+8. The daily series is deliberately
+  // exempt: /revenue/history is keyed by UTC day, so shifting those labels would
+  // put a day's number under the wrong date.
+  const TZ_OFFSET_MS = 8 * 3600000;
+  const TZ_LABEL = "UTC+8";
+
   function shortTime(iso) {
     if (!iso) return "—";
-    const d = new Date(iso);
-    return d.toISOString().slice(5, 16).replace("T", " ") + "Z";
+    const stamp = Date.parse(iso);
+    if (Number.isNaN(stamp)) return "—";
+    return new Date(stamp + TZ_OFFSET_MS).toISOString().slice(5, 16).replace("T", " ");
   }
   function ago(iso) {
     if (!iso) return "—";
@@ -944,7 +951,7 @@
   let intraWindow = "all";
 
   const ms = (iso) => Date.parse(iso);
-  const clock = (t) => new Date(t).toISOString().slice(11, 16);
+  const clock = (t) => new Date(t + TZ_OFFSET_MS).toISOString().slice(11, 16);
 
   function intradayDomain() {
     const now = INTRA.generatedAtMs;
@@ -1208,7 +1215,7 @@
 
     table(
       document.getElementById("intraday-table"),
-      ["区间 (UTC)", "销毁枚数", "价值 USD", "笔数", "采集"],
+      ["区间 (" + TZ_LABEL + ")", "销毁枚数", "价值 USD", "笔数", "采集"],
       bins.map((b) => [
         clock(b.t) + "–" + clock(b.t + model.binMs),
         b.coveredBurn ? nf(b.tokens, 4) : "—",
@@ -1219,7 +1226,7 @@
     );
     table(
       document.getElementById("price-table"),
-      ["区间 (UTC)", "回购均价", "买入枚数", "花费 USD", "笔数"],
+      ["区间 (" + TZ_LABEL + ")", "回购均价", "买入枚数", "花费 USD", "笔数"],
       bins.map((b) => [
         clock(b.t) + "–" + clock(b.t + model.binMs),
         b.vwap !== null ? "$" + b.vwap.toFixed(5) : "—",
@@ -1296,7 +1303,7 @@
     add("mint", trunc(d.mint, 6, 6));
     add("价格", "$" + Number(t.market.priceUsd).toPrecision(4));
     add("市值", usd(t.market.marketCapUsd));
-    add("数据时间", shortTime(d.generatedAt));
+    add("数据时间 " + TZ_LABEL, shortTime(d.generatedAt));
     document.getElementById("mast-eyebrow").textContent =
       `Solana ${d.network} · 交易对 ${t.quote.symbol} · ${t.launchpad}`;
   }
@@ -1399,7 +1406,7 @@
 
     table(
       document.getElementById("burns-table"),
-      ["时间 (UTC)", "数量 STONK", "价值 USD", "来源", "签名"],
+      ["时间 (" + TZ_LABEL + ")", "数量 STONK", "价值 USD", "来源", "签名"],
       d.recentBurns.map((b) => [
         shortTime(b.burnedAt),
         nf(b.amountTokens, 4),
@@ -1489,10 +1496,11 @@
     const f = document.getElementById("footer");
     f.replaceChildren();
     [
-      "snapshot " + shortTime(d.generatedAt),
+      "snapshot " + shortTime(d.generatedAt) + " " + TZ_LABEL,
       "rpc " + (d.rpcUrl || "").replace(/^https?:\/\//, ""),
       "rate-limit remaining " + (d.rateLimitRemaining ?? "—"),
       "history since " + (d.historyMeta.start || "—") + " · source " + (d.historyMeta.source || "—"),
+      "时刻均为 " + TZ_LABEL + " · 日线按 UTC 日 keyed，未做偏移",
     ].forEach((t) => f.appendChild(el("span", null, t)));
   }
 
@@ -1921,12 +1929,12 @@
       days.length ? `${days[0].date} → ${days[days.length - 1].date} · ${days.length} 天` : "";
     table(
       document.getElementById("daily-table"),
-      ["日期 (UTC)", "手续费 USD", "回购销毁", "协议留存"],
+      ["日期 (UTC 日)", "手续费 USD", "回购销毁", "协议留存"],
       days.map((d) => [d.date, "$" + nf(d.revenue, 0), "$" + nf(d.holders, 0), "$" + nf(d.protocol, 0)])
     );
     table(
       document.getElementById("cum-table"),
-      ["日期 (UTC)", "当日回购销毁", "累计"],
+      ["日期 (UTC 日)", "当日回购销毁", "累计"],
       days.map((d) => [d.date, "$" + nf(d.holders, 0), "$" + nf(d.cumulativeHolders, 0)])
     );
   }
