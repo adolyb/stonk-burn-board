@@ -419,6 +419,12 @@
   td a { color: var(--accent); text-decoration: none; }
   td a:hover { text-decoration: underline; }
   .scroll-y { max-height: 380px; overflow-y: auto; }
+  #daily-detail tbody tr:last-child td {
+    font-weight: 600;
+    color: var(--ink);
+    border-top: 2px solid var(--rule);
+    background: var(--surface-sunk);
+  }
   [hidden] { display: none !important; }
 
   .split { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 22px; }
@@ -529,14 +535,12 @@
             <h2>每日手续费去向</h2>
             <p>入库手续费按 <b>UTC 日</b>拆成回购销毁与协议留存两部分（USD，按入账时价）。日线沿用接口的 UTC 日分桶，未平移到 UTC+8。</p>
           </div>
-          <button class="link-btn" data-toggle="daily-table">表格视图</button>
         </div>
         <div class="legend">
           <span><i style="background:var(--accent)"></i>回购销毁 dailyHoldersRevenue</span>
           <span><i style="background:var(--neutral-series)"></i>协议留存 dailyProtocolRevenue</span>
         </div>
         <div class="plot" id="plot-daily"></div>
-        <div class="table-wrap scroll-y" id="daily-table" hidden></div>
       </div>
       <div class="card">
         <div class="card-head">
@@ -544,11 +548,19 @@
             <h2>累计回购销毁</h2>
             <p>dailyHoldersRevenue 的逐日累计，口径为花在回购并销毁上的美元。</p>
           </div>
-          <button class="link-btn" data-toggle="cum-table">表格视图</button>
         </div>
         <div class="plot" id="plot-cum"></div>
-        <div class="table-wrap scroll-y" id="cum-table" hidden></div>
       </div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>日线明细</h2>
+          <p>上面两张图的数值表，跟随所选区间。日期沿用接口的 UTC 日分桶，未平移到 UTC+8。</p>
+        </div>
+        <span class="eyebrow" id="daily-detail-note"></span>
+      </div>
+      <div class="table-wrap" id="daily-detail"></div>
     </div>
   </section>
 
@@ -1944,16 +1956,36 @@
     drawCumulative(days);
     document.getElementById("range-note").textContent =
       days.length ? `${days[0].date} → ${days[days.length - 1].date} · ${days.length} 天` : "";
+    // Newest first: the recent days are what gets read, and a 45-row block should
+    // not need scrolling to reach today.
+    const sum = (key) => days.reduce((total, d) => total + d[key], 0);
+    const share = (part, whole) => (whole > 0 ? ((part / whole) * 100).toFixed(1) + "%" : "—");
+    const detailRows = days
+      .slice()
+      .reverse()
+      .map((d) => [
+        d.date,
+        "$" + nf(d.revenue, 0),
+        "$" + nf(d.holders, 0),
+        "$" + nf(d.protocol, 0),
+        share(d.holders, d.revenue),
+        "$" + nf(d.cumulativeHolders, 0),
+      ]);
+    detailRows.push([
+      "合计",
+      "$" + nf(sum("revenue"), 0),
+      "$" + nf(sum("holders"), 0),
+      "$" + nf(sum("protocol"), 0),
+      share(sum("holders"), sum("revenue")),
+      days.length ? "$" + nf(days[days.length - 1].cumulativeHolders, 0) : "—",
+    ]);
     table(
-      document.getElementById("daily-table"),
-      ["日期 (UTC 日)", "手续费 USD", "回购销毁", "协议留存"],
-      days.map((d) => [d.date, "$" + nf(d.revenue, 0), "$" + nf(d.holders, 0), "$" + nf(d.protocol, 0)])
+      document.getElementById("daily-detail"),
+      ["日期 (UTC 日)", "手续费 USD", "回购销毁", "协议留存", "回购占比", "累计回购销毁"],
+      detailRows
     );
-    table(
-      document.getElementById("cum-table"),
-      ["日期 (UTC 日)", "当日回购销毁", "累计"],
-      days.map((d) => [d.date, "$" + nf(d.holders, 0), "$" + nf(d.cumulativeHolders, 0)])
-    );
+    document.getElementById("daily-detail-note").textContent =
+      days.length ? `${days.length} 天 · 新到旧 · 末行为区间合计` : "";
   }
 
   function drawAll() {
