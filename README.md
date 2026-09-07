@@ -27,7 +27,26 @@ python main.py
 |---|---|
 | `data/snapshot.json` | 一次抓取的全部原始 + 派生数据 |
 | `data/recon_history.jsonl` | 每次抓取一行的对账记录（差额时间序列） |
-| `dist/dashboard.html` | 自包含看板，数据内联，双击即可打开，离线可用 |
+| `dist/index.html` | 自包含看板，数据内联，双击即可打开，离线可用 |
+
+## 部署到 Vercel
+
+`dist/` 就是部署根目录，里面已经放好 `vercel.json` 和 `api/supply.js`。
+
+```bash
+vercel login          # 只需一次
+./deploy.sh           # 或 Windows 下 deploy.bat：拉最新数据 → 重建 → 部署
+```
+
+部署后页面右上角的**更新数据**按钮会让浏览器直接调 stonkfun API 和链上 RPC 重算全部指标，不需要服务端定时任务，Hobby 套餐免费即可。分时台账存在浏览器 localStorage 里，按签名去重，刷新页面不丢。
+
+**为什么需要 `api/supply.js`**：公共 Solana RPC 对带 `Origin` 头的请求一律返回 403，页面没法直连。这个函数在服务端代理一次 `getTokenSupply`——方法和 mint 都写死，不会变成别人的免费公共 RPC。想换成 Helius / QuickNode，在 Vercel 项目里配环境变量即可，页面不用动：
+
+```
+STONK_RPC_URL = https://mainnet.helius-rpc.com/?api-key=xxx
+```
+
+本地直接双击打开 `dist/index.html` 时没有这个函数，会自动回退到浏览器可用的公共节点（用 `text/plain` 规避 CORS 预检）。
 
 ## 命令
 

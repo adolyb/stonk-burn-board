@@ -2,4 +2,4 @@
 __pycache__/
 *.pyc
 dist/index.html
-dist/artifact.html
+build/
