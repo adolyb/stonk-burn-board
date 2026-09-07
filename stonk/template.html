@@ -1,0 +1,1226 @@
+<title>STONK Burn Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page: #eceef3;
+    --surface: #fbfbfd;
+    --surface-sunk: #f3f4f8;
+    --ink: #0d0e12;
+    --ink-2: #52555f;
+    --ink-3: #83868f;
+    --rule: #dcdee6;
+    --grid: #e6e8ee;
+    --accent: #2a78d6;
+    --accent-wash: rgba(42, 120, 214, 0.10);
+    --accent-track: #cde2fb;
+    --neutral-series: #9aa0ad;
+    --neg: #e34948;
+    --neg-wash: rgba(227, 73, 72, 0.10);
+    --good: #0ca30c;
+    --warning: #fab219;
+    --chip-bg: rgba(13, 14, 18, 0.05);
+    --shadow: 0 1px 2px rgba(13, 14, 18, 0.05), 0 8px 24px -16px rgba(13, 14, 18, 0.25);
+    --sans: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0b0c10;
+      --surface: #16171d;
+      --surface-sunk: #1c1e25;
+      --ink: #f4f5f8;
+      --ink-2: #b7bac4;
+      --ink-3: #83868f;
+      --rule: #2a2d38;
+      --grid: #23262f;
+      --accent: #3987e5;
+      --accent-wash: rgba(57, 135, 229, 0.14);
+      --accent-track: #17325c;
+      --neutral-series: #5a5f6d;
+      --neg: #e66767;
+      --neg-wash: rgba(230, 103, 103, 0.14);
+      --good: #0ca30c;
+      --warning: #fab219;
+      --chip-bg: rgba(255, 255, 255, 0.07);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -16px rgba(0, 0, 0, 0.8);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0b0c10;
+    --surface: #16171d;
+    --surface-sunk: #1c1e25;
+    --ink: #f4f5f8;
+    --ink-2: #b7bac4;
+    --ink-3: #83868f;
+    --rule: #2a2d38;
+    --grid: #23262f;
+    --accent: #3987e5;
+    --accent-wash: rgba(57, 135, 229, 0.14);
+    --accent-track: #17325c;
+    --neutral-series: #5a5f6d;
+    --neg: #e66767;
+    --neg-wash: rgba(230, 103, 103, 0.14);
+    --good: #0ca30c;
+    --warning: #fab219;
+    --chip-bg: rgba(255, 255, 255, 0.07);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -16px rgba(0, 0, 0, 0.8);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 24px 72px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  /* ---------- header ---------- */
+  .masthead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .masthead h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .masthead-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-2);
+  }
+  .masthead-meta b { font-weight: 500; color: var(--ink); }
+  .masthead-meta span { color: var(--ink-3); }
+
+  /* ---------- hero ---------- */
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(320px, 1.15fr) minmax(300px, 1fr);
+    gap: 24px 32px;
+    align-items: start;
+  }
+  .hero-figure { display: flex; flex-direction: column; gap: 4px; }
+  .hero-value {
+    font-size: 54px;
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+  }
+  .hero-value .unit {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--ink-3);
+    margin-left: 8px;
+    letter-spacing: 0;
+  }
+  .hero-sub { color: var(--ink-2); max-width: 46ch; }
+  .hero-sub b { color: var(--ink); font-weight: 600; }
+
+  .meter { margin-top: 12px; display: flex; flex-direction: column; gap: 7px; }
+  .meter-track {
+    height: 10px;
+    border-radius: 5px;
+    background: var(--accent-track);
+    overflow: hidden;
+  }
+  .meter-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 5px 2px 2px 5px;
+  }
+  .meter-scale {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .tile {
+    background: var(--surface);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-height: 84px;
+  }
+  .tile-label { font-size: 12px; color: var(--ink-3); }
+  .tile-value { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; }
+  .tile-note { font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+  .tile-note.up { color: var(--good); }
+  .tile-note.down { color: var(--neg); }
+
+  /* ---------- generic card ---------- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 20px 22px 18px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .card-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+  .card-head h2 { margin: 0; font-size: 15px; font-weight: 600; }
+  .card-head p { margin: 0; font-size: 12.5px; color: var(--ink-3); max-width: 62ch; }
+
+  /* ---------- reconciliation rail ---------- */
+  .rail { display: flex; flex-direction: column; }
+  .rail-row {
+    display: grid;
+    grid-template-columns: 168px minmax(0, 1fr) auto;
+    gap: 8px 20px;
+    align-items: baseline;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--grid);
+  }
+  .rail-row:last-child { border-bottom: 0; }
+  .rail-row.total {
+    border-top: 2px solid var(--ink);
+    border-bottom: 0;
+    margin-top: 4px;
+    padding-top: 13px;
+  }
+  .rail-key { font-size: 13px; color: var(--ink-2); }
+  .rail-expr { font-family: var(--mono); font-size: 12px; color: var(--ink-3); overflow-wrap: anywhere; }
+  .rail-num {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 500;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .rail-row.total .rail-num { font-size: 19px; font-weight: 600; }
+  .rail-row.total .rail-key { font-size: 14px; color: var(--ink); font-weight: 600; }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--chip-bg);
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .chip::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: none;
+  }
+  .chip.pos { color: var(--accent); background: var(--accent-wash); }
+  .chip.neg { color: var(--neg); background: var(--neg-wash); }
+  .chip.flat { color: var(--good); background: rgba(12, 163, 12, 0.12); }
+
+  .readout {
+    background: var(--surface-sunk);
+    border-radius: 9px;
+    padding: 13px 15px;
+    font-size: 13px;
+    color: var(--ink-2);
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .readout b { color: var(--ink); font-weight: 600; }
+  .readout .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* ---------- charts ---------- */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+  }
+  .segmented {
+    display: inline-flex;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .segmented button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--ink-2);
+    font-family: var(--sans);
+    font-size: 12.5px;
+    padding: 6px 13px;
+    cursor: pointer;
+    border-right: 1px solid var(--rule);
+  }
+  .segmented button:last-child { border-right: 0; }
+  .segmented button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .segmented button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  .link-btn {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 4px 2px;
+    font-family: var(--sans);
+    font-size: 12.5px;
+    color: var(--ink-2);
+    cursor: pointer;
+    border-bottom: 1px solid var(--rule);
+  }
+  .link-btn:hover { color: var(--ink); border-bottom-color: var(--ink-3); }
+  .link-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(430px, 1fr)); gap: 22px; }
+
+  .plot { position: relative; }
+  .plot svg { display: block; width: 100%; height: auto; }
+  .plot text { font-family: var(--mono); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12.5px; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend i { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+  .legend i.line { height: 3px; border-radius: 2px; width: 15px; }
+
+  .tip {
+    position: absolute;
+    z-index: 5;
+    pointer-events: none;
+    min-width: 132px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 9px 11px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+  }
+  .tip[data-open="true"] { opacity: 1; }
+  .tip-title { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin-bottom: 6px; }
+  .tip-row { display: flex; align-items: baseline; gap: 10px; justify-content: space-between; }
+  .tip-row + .tip-row { margin-top: 3px; }
+  .tip-key { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-2); font-size: 11.5px; }
+  .tip-key i { width: 12px; height: 3px; border-radius: 2px; flex: none; }
+  .tip-val { font-family: var(--mono); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* ---------- tables ---------- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 9px; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--surface-sunk);
+    text-align: right;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding: 8px 12px;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--rule);
+  }
+  thead th:first-child { text-align: left; }
+  tbody td {
+    padding: 7px 12px;
+    text-align: right;
+    border-bottom: 1px solid var(--grid);
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  tbody td:first-child { text-align: left; }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:hover td { background: var(--surface-sunk); }
+  td a { color: var(--accent); text-decoration: none; }
+  td a:hover { text-decoration: underline; }
+  .scroll-y { max-height: 380px; overflow-y: auto; }
+  [hidden] { display: none !important; }
+
+  .split { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 22px; }
+
+  .notes { font-size: 12.5px; color: var(--ink-2); display: flex; flex-direction: column; gap: 9px; }
+  .notes code {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    background: var(--surface-sunk);
+    padding: 1px 5px;
+    border-radius: 4px;
+    overflow-wrap: anywhere;
+  }
+  .notes b { color: var(--ink); font-weight: 600; }
+
+  footer {
+    font-size: 12px;
+    color: var(--ink-3);
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    font-family: var(--mono);
+  }
+
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-value { font-size: 40px; }
+    .rail-row { grid-template-columns: 1fr auto; }
+    .rail-expr { grid-column: 1 / -1; }
+    .charts, .split { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <div>
+      <div class="eyebrow" id="mast-eyebrow">Solana · SPL burn ledger</div>
+      <h1>STONK 销毁看板</h1>
+    </div>
+    <div class="masthead-meta" id="mast-meta"></div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-figure">
+      <div class="eyebrow">已销毁（链上口径）</div>
+      <div class="hero-value" id="hero-value"></div>
+      <p class="hero-sub" id="hero-sub"></p>
+      <div class="meter">
+        <div class="meter-track"><div class="meter-fill" id="meter-fill"></div></div>
+        <div class="meter-scale">
+          <span id="meter-left"></span>
+          <span id="meter-right"></span>
+        </div>
+      </div>
+    </div>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>链上 ↔ API 对账</h2>
+        <p>同一件事的两个独立计数：链上供应量的减少，和平台自己的销毁台账。差多少、往哪边差，比任何一个数本身更有信息量。</p>
+      </div>
+      <span class="chip" id="recon-chip"></span>
+    </div>
+    <div class="rail" id="recon-rail"></div>
+    <div class="readout" id="recon-readout"></div>
+    <div id="recon-drift-block">
+      <div class="card-head" style="margin-bottom:6px">
+        <div>
+          <h2 style="font-size:13.5px">差额漂移</h2>
+          <p>每次抓取记一行。围绕 0 抖动＝取数时点错位；单向漂移＝台账真的缺记或存在平台外销毁。</p>
+        </div>
+        <button class="link-btn" data-toggle="drift-table">表格视图</button>
+      </div>
+      <div class="plot" id="plot-drift"></div>
+      <div class="table-wrap" id="drift-table" hidden></div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:16px">
+    <div class="toolbar">
+      <span class="eyebrow">日线区间</span>
+      <div class="segmented" id="range-picker" role="group" aria-label="日线区间">
+        <button type="button" data-range="14">14 天</button>
+        <button type="button" data-range="30">30 天</button>
+        <button type="button" data-range="all" aria-pressed="true">全部</button>
+      </div>
+      <span class="eyebrow" id="range-note"></span>
+    </div>
+    <div class="charts">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h2>每日手续费去向</h2>
+            <p>入库手续费按天拆成回购销毁与协议留存两部分（USD，按入账时价）。</p>
+          </div>
+          <button class="link-btn" data-toggle="daily-table">表格视图</button>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--accent)"></i>回购销毁 dailyHoldersRevenue</span>
+          <span><i style="background:var(--neutral-series)"></i>协议留存 dailyProtocolRevenue</span>
+        </div>
+        <div class="plot" id="plot-daily"></div>
+        <div class="table-wrap scroll-y" id="daily-table" hidden></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h2>累计回购销毁</h2>
+            <p>dailyHoldersRevenue 的逐日累计，口径为花在回购并销毁上的美元。</p>
+          </div>
+          <button class="link-btn" data-toggle="cum-table">表格视图</button>
+        </div>
+        <div class="plot" id="plot-cum"></div>
+        <div class="table-wrap scroll-y" id="cum-table" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>最近销毁明细</h2>
+        <p id="burns-sub"></p>
+      </div>
+      <button class="link-btn" data-toggle="burns-table">收起表格</button>
+    </div>
+    <div class="plot" id="plot-burns"></div>
+    <div class="legend" id="source-legend"></div>
+    <div class="table-wrap scroll-y" id="burns-table"></div>
+  </section>
+
+  <section class="split">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>USD 三方交叉核对</h2>
+          <p>同一笔回购销毁活动在三个端点各报一次。彼此接近说明口径一致，差值即时间窗与归属差异。</p>
+        </div>
+      </div>
+      <div class="table-wrap" id="crosscheck-table"></div>
+      <div class="readout" id="crosscheck-note"></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>覆盖率（coverage）</h2>
+          <p>没有 USD 报价的 ledger 行按 0 计入。它直接决定上面的美元数被低估多少。</p>
+        </div>
+      </div>
+      <div class="table-wrap" id="coverage-table"></div>
+      <div class="readout" id="coverage-note"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>全平台销毁分布（非 STONK 单币口径）</h2>
+        <p><code>/revenue</code> 里的 burns 统计覆盖平台全部 mint，和上面 STONK 单币的数字不可混用。放在这里只作背景参照。</p>
+      </div>
+    </div>
+    <div class="table-wrap" id="platform-table"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h2>口径与来源</h2></div></div>
+    <div class="notes" id="source-notes"></div>
+  </section>
+
+  <footer id="footer"></footer>
+</div>
+
+<script>
+  const SNAPSHOT = /*__SNAPSHOT__*/ null;
+
+  /* ---------- formatting ---------- */
+  const nf = (v, d = 0) => Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const signed = (v, d = 2) => (v > 0 ? "+" : v < 0 ? "-" : "") + nf(Math.abs(v), d);
+
+  function compact(v, prefix = "") {
+    const n = Math.abs(v);
+    const sign = v < 0 ? "-" : "";
+    if (n >= 1e9) return sign + prefix + (n / 1e9).toFixed(2) + "B";
+    if (n >= 1e6) return sign + prefix + (n / 1e6).toFixed(2) + "M";
+    if (n >= 1e3) return sign + prefix + (n / 1e3).toFixed(1) + "K";
+    return sign + prefix + n.toFixed(n < 10 ? 2 : 0);
+  }
+  const usd = (v) => compact(v, "$");
+
+  function shortTime(iso) {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    return d.toISOString().slice(5, 16).replace("T", " ") + "Z";
+  }
+  function ago(iso) {
+    if (!iso) return "—";
+    const secs = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (secs < 90) return Math.max(0, Math.round(secs)) + " 秒前";
+    if (secs < 5400) return Math.round(secs / 60) + " 分钟前";
+    if (secs < 172800) return Math.round(secs / 3600) + " 小时前";
+    return Math.round(secs / 86400) + " 天前";
+  }
+  const trunc = (s, head = 6, tail = 6) => (!s ? "—" : s.length <= head + tail + 1 ? s : s.slice(0, head) + "…" + s.slice(-tail));
+
+  /* ---------- tiny DOM helpers (textContent only: API strings are untrusted) ---------- */
+  function el(tag, attrs, text) {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (k === "class") node.className = v;
+      else if (k === "style") node.setAttribute("style", v);
+      else node.setAttribute(k, v);
+    }
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+  const NS = "http://www.w3.org/2000/svg";
+  function s(tag, attrs, text) {
+    const node = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs || {})) node.setAttribute(k, v);
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+  function css(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+  function table(container, columns, rows) {
+    container.replaceChildren();
+    const t = el("table");
+    const thead = el("thead");
+    const hr = el("tr");
+    columns.forEach((c) => hr.appendChild(el("th", null, c)));
+    thead.appendChild(hr);
+    const tbody = el("tbody");
+    rows.forEach((row) => {
+      const tr = el("tr");
+      row.forEach((cell) => {
+        const td = el("td");
+        if (cell && cell.href) {
+          const a = el("a", { href: cell.href, target: "_blank", rel: "noopener noreferrer" }, cell.text);
+          td.appendChild(a);
+        } else {
+          td.textContent = cell === null || cell === undefined ? "—" : String(cell);
+        }
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    t.append(thead, tbody);
+    container.appendChild(t);
+  }
+
+  /* ---------- tooltip ---------- */
+  function makeTip(plot) {
+    const tip = el("div", { class: "tip" });
+    plot.appendChild(tip);
+    return {
+      node: tip,
+      show(x, y, title, rows) {
+        tip.replaceChildren();
+        tip.appendChild(el("div", { class: "tip-title" }, title));
+        rows.forEach((r) => {
+          const row = el("div", { class: "tip-row" });
+          const key = el("div", { class: "tip-key" });
+          if (r.color) key.appendChild(el("i", { style: `background:${r.color}` }));
+          key.appendChild(document.createTextNode(r.label));
+          row.append(key, el("div", { class: "tip-val" }, r.value));
+          tip.appendChild(row);
+        });
+        tip.dataset.open = "true";
+        const w = tip.offsetWidth;
+        const bounded = Math.min(Math.max(x - w / 2, 4), plot.clientWidth - w - 4);
+        tip.style.left = bounded + "px";
+        tip.style.top = Math.max(4, y - tip.offsetHeight - 14) + "px";
+      },
+      hide() { tip.dataset.open = "false"; },
+    };
+  }
+
+  /* ---------- chart scaffolding ---------- */
+  function niceTicks(max, count = 4) {
+    if (max <= 0) return [0];
+    const raw = max / count;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 2.5, 5, 10].find((m) => m * mag >= raw) * mag;
+    const ticks = [];
+    for (let v = 0; v <= max * 1.0001; v += step) ticks.push(v);
+    if (ticks[ticks.length - 1] < max) ticks.push(ticks[ticks.length - 1] + step);
+    return ticks;
+  }
+
+  function frame(plot, height, pad) {
+    plot.querySelectorAll("svg").forEach((n) => n.remove());
+    const width = Math.max(320, plot.clientWidth || 560);
+    const svg = s("svg", { width, height, viewBox: `0 0 ${width} ${height}`, role: "img" });
+    plot.insertBefore(svg, plot.firstChild);
+    return { svg, width, height, x0: pad.l, x1: width - pad.r, y0: pad.t, y1: height - pad.b };
+  }
+
+  function yAxis(f, ticks, fmt) {
+    const gridColor = css("--grid");
+    const muted = css("--ink-3");
+    ticks.forEach((t, i) => {
+      const y = f.yScale(t);
+      f.svg.appendChild(s("line", { x1: f.x0, x2: f.x1, y1: y, y2: y, stroke: gridColor, "stroke-width": 1 }));
+      const label = s("text", { x: f.x0 - 8, y: y + 3.5, "text-anchor": "end", "font-size": 10, fill: muted }, fmt(t));
+      f.svg.appendChild(label);
+      if (i === 0) label.setAttribute("fill", muted);
+    });
+  }
+
+  // Thin labels by pixel distance rather than index stride, so the final tick
+  // never collides with the one before it.
+  function xLabels(f, items, pick, minGap = 48) {
+    const muted = css("--ink-3");
+    const count = items.length;
+    const lastX = f.bandX(count - 1) + f.bandW / 2;
+    let prevX = -Infinity;
+    items.forEach((item, i) => {
+      const x = f.bandX(i) + f.bandW / 2;
+      const isLast = i === count - 1;
+      if (!isLast && (x - prevX < minGap || lastX - x < minGap)) return;
+      prevX = x;
+      f.svg.appendChild(
+        s("text", { x, y: f.y1 + 15, "text-anchor": "middle", "font-size": 10, fill: muted }, pick(item, i))
+      );
+    });
+  }
+
+  /* ---------- chart: daily fee split (stacked columns, emphasis on burn) ---------- */
+  function drawDaily(days) {
+    const plot = document.getElementById("plot-daily");
+    const tip = plot.__tip || (plot.__tip = makeTip(plot));
+    const pad = { t: 12, r: 10, b: 26, l: 52 };
+    const f = frame(plot, 260, pad);
+    if (!days.length) return;
+
+    const max = Math.max(...days.map((d) => d.revenue), 1);
+    const ticks = niceTicks(max);
+    const top = ticks[ticks.length - 1];
+    f.yScale = (v) => f.y1 - (v / top) * (f.y1 - f.y0);
+    const inner = f.x1 - f.x0;
+    f.bandW = inner / days.length;
+    f.bandX = (i) => f.x0 + i * f.bandW;
+    yAxis(f, ticks, (v) => usd(v));
+    xLabels(f, days, (d) => d.date.slice(5));
+
+    const accent = css("--accent");
+    const neutral = css("--neutral-series");
+    const surface = css("--surface");
+    const barW = Math.max(2, Math.min(24, f.bandW - 3));
+    const GAP = 2; // surface gap between stacked segments
+
+    days.forEach((d, i) => {
+      const x = f.bandX(i) + (f.bandW - barW) / 2;
+      const yBurn = f.yScale(d.holders);
+      const hBurn = f.y1 - yBurn;
+      const yTop = f.yScale(d.revenue);
+      const hProto = Math.max(0, yBurn - yTop - (hBurn > 0 ? GAP : 0));
+      if (hProto > 0.4) {
+        f.svg.appendChild(
+          s("rect", { x, y: yTop, width: barW, height: hProto, fill: neutral, rx: Math.min(4, barW / 2) })
+        );
+      }
+      if (hBurn > 0.4) {
+        f.svg.appendChild(s("rect", { x, y: yBurn, width: barW, height: hBurn, fill: accent, rx: 0 }));
+      }
+    });
+
+    // baseline
+    f.svg.appendChild(s("line", { x1: f.x0, x2: f.x1, y1: f.y1, y2: f.y1, stroke: css("--rule"), "stroke-width": 1 }));
+
+    // crosshair + hit layer
+    const hair = s("line", { y1: f.y0, y2: f.y1, stroke: css("--ink-3"), "stroke-width": 1, opacity: 0 });
+    f.svg.appendChild(hair);
+    const hit = s("rect", { x: f.x0, y: f.y0, width: inner, height: f.y1 - f.y0, fill: "transparent" });
+    f.svg.appendChild(hit);
+    const move = (evt) => {
+      const box = f.svg.getBoundingClientRect();
+      const px = ((evt.clientX - box.left) / box.width) * f.width;
+      const i = Math.max(0, Math.min(days.length - 1, Math.floor((px - f.x0) / f.bandW)));
+      const d = days[i];
+      const cx = f.bandX(i) + f.bandW / 2;
+      hair.setAttribute("x1", cx);
+      hair.setAttribute("x2", cx);
+      hair.setAttribute("opacity", 0.35);
+      tip.show(cx, f.yScale(d.revenue), d.date, [
+        { label: "回购销毁", value: usd(d.holders), color: accent },
+        { label: "协议留存", value: usd(d.protocol), color: neutral },
+        { label: "合计", value: usd(d.revenue) },
+      ]);
+    };
+    hit.addEventListener("pointermove", move);
+    hit.addEventListener("pointerleave", () => { hair.setAttribute("opacity", 0); tip.hide(); });
+  }
+
+  /* ---------- chart: cumulative burn spend (single-series area) ---------- */
+  function drawCumulative(days) {
+    const plot = document.getElementById("plot-cum");
+    const tip = plot.__tip || (plot.__tip = makeTip(plot));
+    const pad = { t: 16, r: 62, b: 26, l: 52 };
+    const f = frame(plot, 260, pad);
+    if (!days.length) return;
+
+    const max = Math.max(...days.map((d) => d.cumulativeHolders), 1);
+    const ticks = niceTicks(max);
+    const top = ticks[ticks.length - 1];
+    f.yScale = (v) => f.y1 - (v / top) * (f.y1 - f.y0);
+    const inner = f.x1 - f.x0;
+    f.bandW = days.length > 1 ? inner / (days.length - 1) : inner;
+    f.bandX = (i) => f.x0 + i * f.bandW;
+    yAxis(f, ticks, (v) => usd(v));
+    xLabels(f, days, (d) => d.date.slice(5));
+
+    const accent = css("--accent");
+    const pts = days.map((d, i) => [f.bandX(i), f.yScale(d.cumulativeHolders)]);
+    const line = pts.map((p) => p.join(",")).join(" ");
+    f.svg.appendChild(
+      s("polygon", { points: `${f.x0},${f.y1} ${line} ${pts[pts.length - 1][0]},${f.y1}`, fill: accent, "fill-opacity": 0.1 })
+    );
+    f.svg.appendChild(
+      s("polyline", { points: line, fill: "none", stroke: accent, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" })
+    );
+    f.svg.appendChild(s("line", { x1: f.x0, x2: f.x1, y1: f.y1, y2: f.y1, stroke: css("--rule"), "stroke-width": 1 }));
+
+    // endpoint marker + the one direct label
+    const last = pts[pts.length - 1];
+    f.svg.appendChild(s("circle", { cx: last[0], cy: last[1], r: 5, fill: accent, stroke: css("--surface"), "stroke-width": 2 }));
+    f.svg.appendChild(
+      s("text", { x: Math.min(last[0] + 9, f.width - 6), y: last[1] + 4, "font-size": 11.5, "font-weight": 600, fill: css("--ink") },
+        usd(days[days.length - 1].cumulativeHolders))
+    );
+
+    const hair = s("line", { y1: f.y0, y2: f.y1, stroke: css("--ink-3"), "stroke-width": 1, opacity: 0 });
+    const dot = s("circle", { r: 4.5, fill: accent, stroke: css("--surface"), "stroke-width": 2, opacity: 0 });
+    f.svg.append(hair, dot);
+    const hit = s("rect", { x: f.x0, y: f.y0, width: inner, height: f.y1 - f.y0, fill: "transparent" });
+    f.svg.appendChild(hit);
+    hit.addEventListener("pointermove", (evt) => {
+      const box = f.svg.getBoundingClientRect();
+      const px = ((evt.clientX - box.left) / box.width) * f.width;
+      const i = Math.max(0, Math.min(days.length - 1, Math.round((px - f.x0) / f.bandW)));
+      const d = days[i];
+      const [cx, cy] = pts[i];
+      hair.setAttribute("x1", cx); hair.setAttribute("x2", cx); hair.setAttribute("opacity", 0.35);
+      dot.setAttribute("cx", cx); dot.setAttribute("cy", cy); dot.setAttribute("opacity", 1);
+      tip.show(cx, cy, d.date, [
+        { label: "累计回购销毁", value: usd(d.cumulativeHolders), color: accent },
+        { label: "当日新增", value: usd(d.holders) },
+      ]);
+    });
+    hit.addEventListener("pointerleave", () => { hair.setAttribute("opacity", 0); dot.setAttribute("opacity", 0); tip.hide(); });
+  }
+
+  /* ---------- chart: recent burns ---------- */
+  function drawBurns(burns) {
+    const plot = document.getElementById("plot-burns");
+    const tip = plot.__tip || (plot.__tip = makeTip(plot));
+    const pad = { t: 12, r: 10, b: 26, l: 52 };
+    const f = frame(plot, 190, pad);
+    const rows = burns.slice().reverse(); // oldest -> newest, left to right
+    if (!rows.length) return;
+
+    const max = Math.max(...rows.map((b) => b.amountTokens || 0), 1);
+    const ticks = niceTicks(max);
+    const top = ticks[ticks.length - 1];
+    f.yScale = (v) => f.y1 - (v / top) * (f.y1 - f.y0);
+    const inner = f.x1 - f.x0;
+    f.bandW = inner / rows.length;
+    f.bandX = (i) => f.x0 + i * f.bandW;
+    yAxis(f, ticks, (v) => compact(v));
+    // Every burn on this page lands within a day or two, so the clock is what
+    // separates them; the date lives in the tooltip and the table.
+    xLabels(f, rows, (b) => shortTime(b.burnedAt).slice(6, 11));
+
+    const accent = css("--accent");
+    const barW = Math.max(2, Math.min(24, f.bandW - 2));
+    rows.forEach((b, i) => {
+      const y = f.yScale(b.amountTokens || 0);
+      const x = f.bandX(i) + (f.bandW - barW) / 2;
+      const rect = s("rect", { x, y, width: barW, height: Math.max(1, f.y1 - y), fill: accent, rx: Math.min(4, barW / 2) });
+      f.svg.appendChild(rect);
+      const hit = s("rect", { x: f.bandX(i), y: f.y0, width: f.bandW, height: f.y1 - f.y0, fill: "transparent" });
+      f.svg.appendChild(hit);
+      hit.addEventListener("pointerenter", () => {
+        rect.setAttribute("fill-opacity", 0.72);
+        tip.show(x + barW / 2, y, shortTime(b.burnedAt), [
+          { label: "销毁数量", value: nf(b.amountTokens, 2) + " STONK", color: accent },
+          { label: "当时价值", value: usd(b.valueUsdAtBurn || 0) },
+          { label: "来源", value: String(b.source || "—") },
+        ]);
+      });
+      hit.addEventListener("pointerleave", () => { rect.removeAttribute("fill-opacity"); tip.hide(); });
+    });
+    f.svg.appendChild(s("line", { x1: f.x0, x2: f.x1, y1: f.y1, y2: f.y1, stroke: css("--rule"), "stroke-width": 1 }));
+  }
+
+  /* ---------- chart: reconciliation drift (diverging around zero) ---------- */
+  function drawDrift(history) {
+    const plot = document.getElementById("plot-drift");
+    const tip = plot.__tip || (plot.__tip = makeTip(plot));
+    plot.querySelectorAll("p.thin").forEach((n) => n.remove());
+    const pad = { t: 14, r: 10, b: 26, l: 62 };
+    const f = frame(plot, 170, pad);
+    if (!history.length) return;
+
+    const maxAbs = Math.max(...history.map((r) => Math.abs(r.deltaTokens)), 1);
+    const ticks = niceTicks(maxAbs, 2);
+    const top = ticks[ticks.length - 1];
+    const mid = (f.y0 + f.y1) / 2;
+    f.yScale = (v) => mid - (v / top) * (f.y1 - f.y0) / 2;
+    const gridColor = css("--grid");
+    const muted = css("--ink-3");
+    [-top, -top / 2, 0, top / 2, top].forEach((t) => {
+      const y = f.yScale(t);
+      f.svg.appendChild(s("line", { x1: f.x0, x2: f.x1, y1: y, y2: y, stroke: t === 0 ? css("--rule") : gridColor, "stroke-width": 1 }));
+      f.svg.appendChild(s("text", { x: f.x0 - 8, y: y + 3.5, "text-anchor": "end", "font-size": 10, fill: muted }, signed(t, 0)));
+    });
+
+    const inner = f.x1 - f.x0;
+    f.bandW = inner / history.length;
+    f.bandX = (i) => f.x0 + i * f.bandW;
+    xLabels(f, history, (r) => shortTime(r.observedAt).slice(6, 11));
+
+    const accent = css("--accent");
+    const neg = css("--neg");
+    const barW = Math.max(3, Math.min(24, f.bandW - 3));
+    history.forEach((r, i) => {
+      const v = r.deltaTokens;
+      const y = f.yScale(Math.max(v, 0));
+      const h = Math.max(1.5, Math.abs(f.yScale(v) - f.yScale(0)));
+      const x = f.bandX(i) + (f.bandW - barW) / 2;
+      const rect = s("rect", { x, y, width: barW, height: h, fill: v >= 0 ? accent : neg, rx: Math.min(3, barW / 2) });
+      f.svg.appendChild(rect);
+      const hit = s("rect", { x: f.bandX(i), y: f.y0, width: f.bandW, height: f.y1 - f.y0, fill: "transparent" });
+      f.svg.appendChild(hit);
+      hit.addEventListener("pointerenter", () => {
+        rect.setAttribute("fill-opacity", 0.72);
+        tip.show(x + barW / 2, Math.min(y, f.yScale(0)), shortTime(r.observedAt), [
+          { label: "差额", value: signed(r.deltaTokens, 2) + " STONK", color: v >= 0 ? accent : neg },
+          { label: "链上已烧", value: nf(r.chainBurned, 2) },
+          { label: "API 已烧", value: nf(r.apiBurned, 2) },
+          { label: "slot", value: nf(r.slot) },
+        ]);
+      });
+      hit.addEventListener("pointerleave", () => { rect.removeAttribute("fill-opacity"); tip.hide(); });
+    });
+  }
+
+  /* ---------- static sections ---------- */
+  function renderHeader(d) {
+    const t = d.token;
+    const meta = document.getElementById("mast-meta");
+    meta.replaceChildren();
+    const add = (label, value) => {
+      const wrap2 = el("div");
+      wrap2.appendChild(el("span", null, label + " "));
+      wrap2.appendChild(el("b", null, value));
+      meta.appendChild(wrap2);
+    };
+    add("mint", trunc(d.mint, 6, 6));
+    add("价格", "$" + Number(t.market.priceUsd).toPrecision(4));
+    add("市值", usd(t.market.marketCapUsd));
+    add("数据时间", shortTime(d.generatedAt));
+    document.getElementById("mast-eyebrow").textContent =
+      `Solana ${d.network} · 交易对 ${t.quote.symbol} · ${t.launchpad}`;
+  }
+
+  function renderHero(d) {
+    const r = d.recon;
+    document.getElementById("hero-value").replaceChildren(
+      document.createTextNode(nf(r.chainBurned, 2)),
+      el("span", { class: "unit" }, "STONK")
+    );
+    const sub = document.getElementById("hero-sub");
+    sub.replaceChildren();
+    sub.appendChild(document.createTextNode("占假设初始供应 "));
+    sub.appendChild(el("b", null, r.burnedPctOfInitial.toFixed(3) + "%"));
+    sub.appendChild(document.createTextNode(`。口径为 ${nf(r.assumedInitialSupply)} − 链上 getTokenSupply，观测于 slot ${nf(r.slot)}。`));
+
+    document.getElementById("meter-fill").style.width = Math.min(100, r.burnedPctOfInitial).toFixed(2) + "%";
+    document.getElementById("meter-left").textContent = "已销毁 " + r.burnedPctOfInitial.toFixed(2) + "%";
+    document.getElementById("meter-right").textContent = "剩余流通 " + (100 - r.burnedPctOfInitial).toFixed(2) + "%";
+
+    const t = d.token;
+    const change = t.market.priceChange24h;
+    const tiles = [
+      { label: "当前流通供应", value: compact(r.supply), note: nf(r.supply, 2) + " STONK" },
+      { label: "累计销毁价值（按销毁时价）", value: usd(d.burnTotals.valueUsdAtBurn), note: "/burns totals" },
+      { label: "销毁笔数", value: nf(d.burnTotals.burnCount), note: "最近一次 " + ago(d.burnTotals.lastBurnAt) },
+      { label: "24h 价格变化", value: signed(change, 1) + "%", note: "现价 $" + Number(t.market.priceUsd).toPrecision(4), cls: change >= 0 ? "up" : "down" },
+    ];
+    const host = document.getElementById("tiles");
+    host.replaceChildren();
+    tiles.forEach((tile) => {
+      const node = el("div", { class: "tile" });
+      node.appendChild(el("div", { class: "tile-label" }, tile.label));
+      node.appendChild(el("div", { class: "tile-value" }, tile.value));
+      node.appendChild(el("div", { class: "tile-note " + (tile.cls || "") }, tile.note));
+      host.appendChild(node);
+    });
+  }
+
+  function renderRecon(d) {
+    const r = d.recon;
+    const rail = document.getElementById("recon-rail");
+    rail.replaceChildren();
+    const row = (key, expr, num, cls) => {
+      const node = el("div", { class: "rail-row" + (cls ? " " + cls : "") });
+      node.appendChild(el("div", { class: "rail-key" }, key));
+      node.appendChild(el("div", { class: "rail-expr" }, expr));
+      node.appendChild(el("div", { class: "rail-num" }, num));
+      rail.appendChild(node);
+    };
+    row("初始供应（假设）", "STONK_INITIAL_SUPPLY", nf(r.assumedInitialSupply, 0));
+    row("当前链上供应", `getTokenSupply @ slot ${nf(r.slot)} · ${shortTime(r.chainObservedAt)}`, "− " + nf(r.supply, 6));
+    row("链上口径已销毁", "initial − supply", nf(r.chainBurned, 6));
+    row("API 台账已销毁", `/tokens/{mint}/burns totals · ${nf(d.burnTotals.burnCount)} 笔 · 末笔 ${shortTime(r.apiLastBurnAt)}`, nf(r.apiBurned, 6));
+    row("差额（链上 − API）", `${r.deltaPctOfBurned >= 0 ? "+" : ""}${r.deltaPctOfBurned.toFixed(5)}% of burned`, signed(r.deltaTokens, 6), "total");
+
+    const chip = document.getElementById("recon-chip");
+    const labels = {
+      chain_ahead: "链上多烧 " + nf(Math.abs(r.deltaTokens), 2),
+      api_ahead: "API 多记 " + nf(Math.abs(r.deltaTokens), 2),
+      match: "完全一致",
+    };
+    chip.textContent = labels[r.direction];
+    chip.className = "chip " + (r.direction === "chain_ahead" ? "pos" : r.direction === "api_ahead" ? "neg" : "flat");
+
+    const out = document.getElementById("recon-readout");
+    out.replaceChildren();
+    const explain = {
+      chain_ahead: "链上供应减少得比平台台账记的多。可能是台账尚未落库最后几笔，或存在平台销毁流程之外的销毁（任何人都能烧自己手里的币）。",
+      api_ahead: "平台台账记的销毁量多于链上供应减少量。最常见的原因是取数时点错位——台账已入库、RPC 返回的 slot 还更早；若持续单向扩大，则说明初始供应假设偏大或台账重复计数。",
+      match: "两侧完全吻合。",
+    };
+    const line1 = el("div");
+    line1.appendChild(el("b", null, "方向解读："));
+    line1.appendChild(document.createTextNode(explain[r.direction]));
+    const line2 = el("div");
+    line2.appendChild(el("b", null, "反推初始供应："));
+    line2.appendChild(document.createTextNode("链上供应 + API 台账 = "));
+    line2.appendChild(el("span", { class: "mono" }, nf(r.impliedInitialSupply, 6)));
+    line2.appendChild(document.createTextNode("，与假设的 " + nf(r.assumedInitialSupply) + " 相差 "));
+    line2.appendChild(el("span", { class: "mono" }, signed(r.impliedVsAssumed, 2)));
+    line2.appendChild(document.createTextNode(
+      ` 枚（${(Math.abs(r.impliedVsAssumed) / r.assumedInitialSupply * 100).toFixed(6)}%）。偏差远小于一笔典型销毁量时，1e9 的假设是站得住的。`
+    ));
+    out.append(line1, line2);
+  }
+
+  function renderBurnsSection(d) {
+    document.getElementById("burns-sub").textContent =
+      `最近 ${d.recentBurns.length} 笔（API 单次上限 100，全量共 ${nf(d.burnTotals.burnCount)} 笔）。柱子按时间从左到右，左侧最早。`;
+
+    const legend = document.getElementById("source-legend");
+    legend.replaceChildren();
+    d.sourceMix.forEach((m) => {
+      const span = el("span");
+      span.appendChild(el("i", { style: "background:var(--accent)" }));
+      span.appendChild(document.createTextNode(`${m.source} · ${m.count} 笔 · ${nf(m.amountTokens, 0)} STONK · ${usd(m.valueUsd)}`));
+      legend.appendChild(span);
+    });
+
+    table(
+      document.getElementById("burns-table"),
+      ["时间 (UTC)", "数量 STONK", "价值 USD", "来源", "签名"],
+      d.recentBurns.map((b) => [
+        shortTime(b.burnedAt),
+        nf(b.amountTokens, 4),
+        "$" + nf(b.valueUsdAtBurn || 0, 2),
+        b.source || "—",
+        { href: "https://solscan.io/tx/" + b.signature, text: trunc(b.signature, 8, 8) },
+      ])
+    );
+  }
+
+  function renderCrossCheck(d) {
+    const c = d.usdCrossCheck;
+    table(
+      document.getElementById("crosscheck-table"),
+      ["口径", "端点", "USD"],
+      [
+        ["日线累计 holders 收入", "/revenue/history", "$" + nf(c.historyHoldersRevenueSum, 0)],
+        ["平台累计回购", "/revenue totalBuybackUsd", "$" + nf(c.revenueTotalBuybackUsd, 0)],
+        ["买入 STONK 的成交额", "/revenue boughtBackValueUsd", "$" + nf(c.revenueBoughtBackValueUsd, 0)],
+        ["STONK 销毁时价值", "/tokens/{mint}/burns", "$" + nf(c.tokenBurnValueUsdAtBurn, 0)],
+      ]
+    );
+    const note = document.getElementById("crosscheck-note");
+    note.replaceChildren();
+    const line = el("div");
+    line.appendChild(el("b", null, "已买入未销毁："));
+    line.appendChild(el("span", { class: "mono" }, signed(c.boughtNotYetBurnedTokens, 2)));
+    line.appendChild(document.createTextNode(
+      ` 枚 = 回购买到的 ${nf(c.boughtBackTokens, 0)} − 台账已烧的 ${nf(d.burnTotals.amountTokens, 0)}。正数代表回购已成交但尚未进入销毁交易的缓冲量。`
+    ));
+    note.appendChild(line);
+  }
+
+  function renderCoverage(d) {
+    const c = d.coverage;
+    table(
+      document.getElementById("coverage-table"),
+      ["ledger", "总行数", "无 USD 报价", "占比"],
+      [
+        ["revenue", nf(c.revenueRows), nf(c.revenueRowsUnpriced), c.revenueUnpricedPct.toFixed(3) + "%"],
+        ["buyback", nf(c.buybackRows), nf(c.buybackRowsUnpriced), c.buybackUnpricedPct.toFixed(3) + "%"],
+      ]
+    );
+    const note = document.getElementById("coverage-note");
+    note.replaceChildren();
+    const line = el("div");
+    line.appendChild(el("b", null, "怎么读："));
+    line.appendChild(document.createTextNode(
+      `无报价的行按 0 计入，所以本页所有美元金额都是下限。当前 revenue 侧 ${c.revenueUnpricedPct.toFixed(3)}%、buyback 侧 ${c.buybackUnpricedPct.toFixed(3)}% 的行未定价——量级可忽略，但这个字段要每次看，它变大时上面的收入和销毁价值会被系统性低估。`
+    ));
+    note.appendChild(line);
+  }
+
+  function renderPlatform(d) {
+    const by = d.platformBurns.bySource || {};
+    const rows = Object.entries(by)
+      .sort((a, b) => (b[1].valueUsd || 0) - (a[1].valueUsd || 0))
+      .map(([k, v]) => [k, nf(v.count), compact(v.amountTokens), "$" + nf(v.valueUsd, 0)]);
+    rows.push([
+      "合计",
+      nf(d.platformBurns.burnCount),
+      `${nf(d.platformBurns.mintCount)} 个 mint`,
+      "$" + nf(d.platformBurns.totalValueUsdAtBurn, 0),
+    ]);
+    table(document.getElementById("platform-table"), ["来源", "笔数", "数量（跨 mint，不可加总）", "价值 USD"], rows);
+  }
+
+  function renderNotes(d) {
+    const host = document.getElementById("source-notes");
+    host.replaceChildren();
+    const items = [
+      ["链上供应", "Solana JSON-RPC getTokenSupply，只信这一侧的供应量。公共 RPC 限速紧，跑定时任务请把 STONK_RPC_URL 指向 Helius / QuickNode。"],
+      ["销毁台账", "/tokens/{mint}/burns：totals 是全量累计，burns 列表单次上限 100 条。"],
+      ["日线收入", "/revenue/history：按 UTC 日 keyed，一次拉全，无日期参数。dailyRevenue 是入库手续费，dailyHoldersRevenue 是拿去回购销毁的部分，dailyProtocolRevenue 是留存。创作者与 reward 持仓的手续费直接从 Raydium 领取，不计入这里。"],
+      ["平台汇总", "/revenue 与 /stats：口径是平台全部 mint，不是 STONK 单币，两者不可混用。"],
+      ["字段依据", "全部字段名以 /openapi.json 为准；限速 300/min per IP，响应带 X-RateLimit-Remaining，429 时按 Retry-After 退避。"],
+    ];
+    items.forEach(([k, v]) => {
+      const p = el("div");
+      p.appendChild(el("b", null, k + "：" ));
+      p.appendChild(document.createTextNode(v));
+      host.appendChild(p);
+    });
+  }
+
+  function renderFooter(d) {
+    const f = document.getElementById("footer");
+    f.replaceChildren();
+    [
+      "snapshot " + shortTime(d.generatedAt),
+      "rpc " + (d.rpcUrl || "").replace(/^https?:\/\//, ""),
+      "rate-limit remaining " + (d.rateLimitRemaining ?? "—"),
+      "history since " + (d.historyMeta.start || "—") + " · source " + (d.historyMeta.source || "—"),
+    ].forEach((t) => f.appendChild(el("span", null, t)));
+  }
+
+  /* ---------- wiring ---------- */
+  let currentRange = "all";
+  function visibleDays() {
+    const days = SNAPSHOT.daily;
+    if (currentRange === "all") return days;
+    return days.slice(-Number(currentRange));
+  }
+  function drawRangeCharts() {
+    const days = visibleDays();
+    drawDaily(days);
+    drawCumulative(days);
+    document.getElementById("range-note").textContent =
+      days.length ? `${days[0].date} → ${days[days.length - 1].date} · ${days.length} 天` : "";
+    table(
+      document.getElementById("daily-table"),
+      ["日期 (UTC)", "手续费 USD", "回购销毁", "协议留存"],
+      days.map((d) => [d.date, "$" + nf(d.revenue, 0), "$" + nf(d.holders, 0), "$" + nf(d.protocol, 0)])
+    );
+    table(
+      document.getElementById("cum-table"),
+      ["日期 (UTC)", "当日回购销毁", "累计"],
+      days.map((d) => [d.date, "$" + nf(d.holders, 0), "$" + nf(d.cumulativeHolders, 0)])
+    );
+  }
+
+  function drawAll() {
+    drawRangeCharts();
+    drawBurns(SNAPSHOT.recentBurns);
+    drawDrift(SNAPSHOT.reconHistory);
+  }
+
+  document.getElementById("range-picker").addEventListener("click", (evt) => {
+    const btn = evt.target.closest("button[data-range]");
+    if (!btn) return;
+    currentRange = btn.dataset.range;
+    document.querySelectorAll("#range-picker button").forEach((b) =>
+      b.setAttribute("aria-pressed", String(b === btn))
+    );
+    drawRangeCharts();
+  });
+
+  document.querySelectorAll("[data-toggle]").forEach((btn) => {
+    const target = document.getElementById(btn.dataset.toggle);
+    const labels = ["表格视图", "收起表格"];
+    btn.addEventListener("click", () => {
+      target.hidden = !target.hidden;
+      btn.textContent = target.hidden ? labels[0] : labels[1];
+    });
+    btn.textContent = target.hidden ? labels[0] : labels[1];
+  });
+
+  renderHeader(SNAPSHOT);
+  renderHero(SNAPSHOT);
+  renderRecon(SNAPSHOT);
+  renderBurnsSection(SNAPSHOT);
+  renderCrossCheck(SNAPSHOT);
+  renderCoverage(SNAPSHOT);
+  renderPlatform(SNAPSHOT);
+  renderNotes(SNAPSHOT);
+  renderFooter(SNAPSHOT);
+  drawAll();
+
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(drawAll, 140);
+  });
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  mq.addEventListener("change", () => setTimeout(drawAll, 30));
+</script>

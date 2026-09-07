@@ -1,0 +1,1321 @@
+{
+  "generatedAt": "2026-09-07T01:49:21.786Z",
+  "mint": "6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx",
+  "network": "mainnet-beta",
+  "rpcUrl": "https://api.mainnet-beta.solana.com",
+  "rateLimitRemaining": 285,
+  "token": {
+    "mint": "6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx",
+    "pool": "7a8xxAJBELDo6P9dikSYctdw6ce8F4mWr3ahcAD8Ao49",
+    "name": "STONK",
+    "symbol": "STONK",
+    "quote": {
+      "mint": "XsoCS1TfEyfFhfvj8EtZ528L3CaKBDBRqRapnBbDF2W",
+      "symbol": "SPYX",
+      "name": "SP500",
+      "logoUrl": "/api/asset/quote-logo/XsoCS1TfEyfFhfvj8EtZ528L3CaKBDBRqRapnBbDF2W?v=c2b8ddb3",
+      "category": "xstock",
+      "categoryLabel": "xStock"
+    },
+    "creator": "H6qoWz4hxRb9a65nMXv1ERZWHmbG3foFZoK6CEm7acRQ",
+    "launchpad": "raydium",
+    "mode": "standard",
+    "quoteOnlyFees": false,
+    "imageUrl": "/api/asset/quote-logo/6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx?v=c3c81410",
+    "metadataUri": "https://gateway.irys.xyz/7HzAyVbL19x2RsKPwFD2NdESBDS1ZhawFojcVLvsFr5N",
+    "links": {},
+    "market": {
+      "priceUsd": 0.16842959912943561,
+      "marketCapUsd": 147529447.80290258,
+      "fdvUsd": 147529447.80290258,
+      "volume24hUsd": 6042843.014322565,
+      "priceChange24h": 147.96718583887966,
+      "peakMarketCapUsd": 185938295.74438265
+    },
+    "status": "graduated",
+    "graduationProgress": 1,
+    "graduatedAt": "2026-07-23T19:24:05.347Z",
+    "createdAt": "2026-07-23T19:08:03.348Z"
+  },
+  "recon": {
+    "assumedInitialSupply": 1000000000,
+    "decimals": 9,
+    "supply": 875887336.4188236,
+    "supplyRaw": "875887336418823571",
+    "chainBurned": 124112663.58117643,
+    "chainBurnedRaw": "124112663581176429",
+    "apiBurned": 124092147.99520032,
+    "apiBurnedRaw": "124092147995200327",
+    "deltaTokens": 20515.585976102,
+    "deltaRaw": "20515585976102",
+    "deltaPctOfBurned": 0.01652980879157725,
+    "direction": "chain_ahead",
+    "burnedPctOfInitial": 12.411266358117642,
+    "impliedInitialSupply": 999979484.4140239,
+    "impliedVsAssumed": -20515.585976102,
+    "chainObservedAt": "2026-09-07T01:49:21.422Z",
+    "apiLastBurnAt": "2026-09-07T01:48:23.366Z",
+    "slot": 444944327
+  },
+  "reconHistory": [
+    {
+      "observedAt": "2026-09-07T01:49:01.148Z",
+      "slot": 444944267,
+      "supply": 875887336.4188236,
+      "chainBurned": 124112663.58117643,
+      "apiBurned": 124092147.99520032,
+      "deltaTokens": 20515.585976102,
+      "direction": "chain_ahead"
+    },
+    {
+      "observedAt": "2026-09-07T01:49:20.162Z",
+      "slot": 444944323,
+      "supply": 875887336.4188236,
+      "chainBurned": 124112663.58117643,
+      "apiBurned": 124092147.99520032,
+      "deltaTokens": 20515.585976102,
+      "direction": "chain_ahead"
+    },
+    {
+      "observedAt": "2026-09-07T01:49:21.422Z",
+      "slot": 444944327,
+      "supply": 875887336.4188236,
+      "chainBurned": 124112663.58117643,
+      "apiBurned": 124092147.99520032,
+      "deltaTokens": 20515.585976102,
+      "direction": "chain_ahead"
+    }
+  ],
+  "burnTotals": {
+    "symbol": "STONK",
+    "amountRaw": "124092147995200327",
+    "amountTokens": 124092147.99520032,
+    "valueUsdAtBurn": 2015748.0864546376,
+    "burnCount": 10174,
+    "lastBurnAt": "2026-09-07T01:48:23.366Z"
+  },
+  "recentBurns": [
+    {
+      "signature": "2UaQ5fJU91bZj12CVKrwj44NT4UBKQBhwnSQxS19A11QBMNomabuV56aaBBGEosQCqoTyEWkGDwSeBkBSYFok1oC",
+      "symbol": "STONK",
+      "amountTokens": 0.688578705,
+      "valueUsdAtBurn": 0.11662589231918999,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:48:23.366Z"
+    },
+    {
+      "signature": "THo5pBAGcwsbkPvw7bxjhyNaqftbsL8mp6PYHetMG4jXDnSisYP3RLwE9GGRczZiXSWtHFe7nAb7H4qyMty8m2X",
+      "symbol": "STONK",
+      "amountTokens": 24311.233744812,
+      "valueUsdAtBurn": 4117.640159768087,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:48:08.705Z"
+    },
+    {
+      "signature": "63Xn6Q7fp8HbcxYBDWmRgu6kASBGgcLfDT6eqBALYnXfwDT5RHUKgmXhr4TJeFVgSXZSh3LSGH2TQ47RLqZzNPWD",
+      "symbol": "STONK",
+      "amountTokens": 3.169964613,
+      "valueUsdAtBurn": 0.5439965619092363,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:43:24.228Z"
+    },
+    {
+      "signature": "4pRaErK6im1mD3Dvr5V1SMTWUoEkysJ6AuaPXSUxtCYrFmhvkWDCbTdyTh8H283LWZpo3cUa1kpgHQ4b2dxyKRZ",
+      "symbol": "STONK",
+      "amountTokens": 17876.480933008,
+      "valueUsdAtBurn": 3067.7768851776036,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:43:08.679Z"
+    },
+    {
+      "signature": "qCZcGGwhqAx5GhcMwWpZdJ94obynyXmNK9W1e9YJ3Dn6SQNSuqqmToZyGPawnydvNxJEeFzTFd1HWGE5oRFnibc",
+      "symbol": "STONK",
+      "amountTokens": 0.677171123,
+      "valueUsdAtBurn": 0.11598746733762562,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:38:22.047Z"
+    },
+    {
+      "signature": "3vH9Fvba7W4SDJ6Bxw48vZmrATZcyVsNEdLAEP2keuB7ydvfbCAARRhwfmUfAXsN8vSLo2nityLWjeLAmWE9umDV",
+      "symbol": "STONK",
+      "amountTokens": 25132.44766245,
+      "valueUsdAtBurn": 4304.744920971777,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:38:08.471Z"
+    },
+    {
+      "signature": "4NNsrxixgxe1By2upn2MDHoA9Jwjb7TPtoPxAVaYUMnokKrmA3ucQgYR4eozqB2Pcz7ec4boNG5Cftnfmn71VCAE",
+      "symbol": "STONK",
+      "amountTokens": 0.830535327,
+      "valueUsdAtBurn": 0.14286062821464168,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:33:29.078Z"
+    },
+    {
+      "signature": "3hkMioNMHhqtyhLVspZ1b3aHHJCz6hEB2VRy3UN88kHiB1fh6wG8ksq9MKaVXTnUoGUAEwyJJCsHGadg7gNSKmjS",
+      "symbol": "STONK",
+      "amountTokens": 16123.780830039,
+      "valueUsdAtBurn": 2773.4563283357706,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:33:17.222Z"
+    },
+    {
+      "signature": "5xC7bu1qVhdiLcqc31HsNJ8jaMDdZo7xceMy87nnp5fkghumd8e3qWNuMuszni7nY4NXU8wxp9ctEmY9LXdbBua9",
+      "symbol": "STONK",
+      "amountTokens": 25573.234367606,
+      "valueUsdAtBurn": 4443.203396689011,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:28:17.176Z"
+    },
+    {
+      "signature": "4FeSpeh4Gs7CPxoobdZMwEjfJud62aWR7xnciQPM3sgqvmCP8hBzVifq19nSms43Wb85A95L2uUZa4yHyd6655G6",
+      "symbol": "STONK",
+      "amountTokens": 1.876604887,
+      "valueUsdAtBurn": 0.33243584453610936,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:23:15.941Z"
+    },
+    {
+      "signature": "2HbacgQrQgJntryhN58SKea47TMzvgUVGmMESpEKusMTFbQfcZaiqVjKCzYHGyeTKkyjDBHnNLGYfQ8nu88wsNfm",
+      "symbol": "STONK",
+      "amountTokens": 11164.056510896,
+      "valueUsdAtBurn": 1977.6845836640741,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:23:03.583Z"
+    },
+    {
+      "signature": "3YNm24FmirEB7hzqYB4JTNavfWq5JboT2NFzk4LRnKzPCpcRJU1HTwQoM14BfzkyufgN5ktGWeL7i4vkfcc9qcVX",
+      "symbol": "STONK",
+      "amountTokens": 1.20923266,
+      "valueUsdAtBurn": 0.21319689009205034,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:18:23.352Z"
+    },
+    {
+      "signature": "5Lz3aciPoyi38XRmRcAWe2WxnAcsrDNuv3Aq4KtK9tgHXxpsT3imv31PKX25mBxUvWwLQr5wJ3uet9drSFfzA7it",
+      "symbol": "STONK",
+      "amountTokens": 14904.092577774,
+      "valueUsdAtBurn": 2627.7045702895807,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:18:10.968Z"
+    },
+    {
+      "signature": "3xRp8CHSMbHYZ57yTk4Vffe4uJSrsVAHF17rfNSKp5yugP6GqkEESHvwea9Aejg9nNdYWkrDH9Q1UJJFL39E4NkF",
+      "symbol": "STONK",
+      "amountTokens": 0.750436405,
+      "valueUsdAtBurn": 0.13372029863854382,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:13:24.004Z"
+    },
+    {
+      "signature": "4W5TvD124kMUqxpZWPPjSxnMo8PxJBJ4uJbTakjq7pCnC5Xv5MNPNgzj7f8mjFn2JS6sWtuMhXKMicBuG8SQMEbP",
+      "symbol": "STONK",
+      "amountTokens": 14058.600916167,
+      "valueUsdAtBurn": 2505.10276477053,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:13:08.719Z"
+    },
+    {
+      "signature": "rk1QaC5SwZU13F789dqqSHpqE6BNPVoyTt6HaMLHgmXJWsWwncMUWc15oqBtfWfzD17i76m1swXoGWdB8musNpQ",
+      "symbol": "STONK",
+      "amountTokens": 17629.838717847,
+      "valueUsdAtBurn": 3263.190200954951,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:08:10.462Z"
+    },
+    {
+      "signature": "2azNDtgAZJoeLYFVEzQXunLWdGiXCiqjLEFme7PLyGWvVhJWUyv2jZYz4PoHzJReSrAHaGrf3FR9CuZCexsbUu9Q",
+      "symbol": "STONK",
+      "amountTokens": 31256.691332697,
+      "valueUsdAtBurn": 5655.037099590784,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T01:03:10.402Z"
+    },
+    {
+      "signature": "XTZh6XTbpVjFCx5Kdbb3p89UwZBRJFpMuH9s4mKq3ey5s4VgjVoXAbNMXwtRDzjaqU4gZgNiiiAqUsy3ceZ2ffD",
+      "symbol": "STONK",
+      "amountTokens": 17492.278664531,
+      "valueUsdAtBurn": 3145.1144976742107,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:58:09.999Z"
+    },
+    {
+      "signature": "4oXrMe3QCN3EdrqThFWR4EPufPfHndGHdJ3gScJFjqb8ngg7MDD9uvmKvvc8EEgNJw1sfwbHqZboJi28b5uyq1j3",
+      "symbol": "STONK",
+      "amountTokens": 11536.690438282,
+      "valueUsdAtBurn": 1984.3446778824105,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:53:11.279Z"
+    },
+    {
+      "signature": "4KWymhuXTmtmmQTzpB2BikC7AeJyLDMNjvzACdgCwwaPefxaB7DpNWiAgchwfFU9qHsbbPjZuN5xJcSJBrK7VLhL",
+      "symbol": "STONK",
+      "amountTokens": 24593.078870252,
+      "valueUsdAtBurn": 4200.994002647692,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:48:11.531Z"
+    },
+    {
+      "signature": "2bqAgTTywvbypLJLH43SV1AT3rhmhxRCTEbYiQh9ctdddzjQCB5rkMR3s5we7puRk5jeajNS2f6unP6CdPE6qnUk",
+      "symbol": "STONK",
+      "amountTokens": 0.628416021,
+      "valueUsdAtBurn": 0.10621466394201891,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:43:23.334Z"
+    },
+    {
+      "signature": "5hK5yBMWLBZjJ2CTM8DY68ST9QCGZU6XXCYGyY8KinDF2feqCVfkFbVvPjfmkpQa23N3Q97ZkPFHheLZg2SCADJ5",
+      "symbol": "STONK",
+      "amountTokens": 13821.884054242,
+      "valueUsdAtBurn": 2336.1701815473984,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:43:09.356Z"
+    },
+    {
+      "signature": "3WvpayS6dtmXCAYP26yC28TSyiMbxR9icMHuyB7MTMkjTBcknPBNe9S84CXTwokNE1xHzgGp7JHhKG9hDofZRzEN",
+      "symbol": "STONK",
+      "amountTokens": 0.723018472,
+      "valueUsdAtBurn": 0.12130310600445673,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:38:19.396Z"
+    },
+    {
+      "signature": "4NujdeouV8ugs3p9r7yes47q6VTu1kC3zgyex7fv1naGiNJ7NwSBurqri5wNajonzuzB25Va1BMRELKXwHjo2xcW",
+      "symbol": "STONK",
+      "amountTokens": 16731.623773924,
+      "valueUsdAtBurn": 2807.1176752383044,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:38:06.541Z"
+    },
+    {
+      "signature": "53FVQxTti38mMrWfYGn2JMwAWry1YNqQ2E83WS8SBYg9Pjd5NCYJnjf3nyBUPJSzkEBnhv6u9ASfyPLtHfH3q4Ln",
+      "symbol": "STONK",
+      "amountTokens": 16471.828205283,
+      "valueUsdAtBurn": 2759.97516254234,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:33:08.794Z"
+    },
+    {
+      "signature": "gBcoRgE5XjAfXDnMvha1ACxYeKthpxLSUjiGVaiDN9Gs2eaavqdgj63p7A69dJ9xyY5VA1RqvVQHawcKisBxjno",
+      "symbol": "STONK",
+      "amountTokens": 2.177387521,
+      "valueUsdAtBurn": 0.3684323423428057,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:28:25.263Z"
+    },
+    {
+      "signature": "2AnFuUMEf3mC1aPuHVoNBjf6n9YoMnyGxxgnymLV2SUcjGGoom9mxfWFX8NimQ2jBHxBhBiFdBBb3uHQxZPPbdPG",
+      "symbol": "STONK",
+      "amountTokens": 30391.071833715,
+      "valueUsdAtBurn": 5142.425807998412,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:28:10.184Z"
+    },
+    {
+      "signature": "5vdGhWqNqiWV71Qo7SHTdr2ZHDHQyb1EqkSzZrs41FQFB3bh75GKk1p2LoMeisGJwvbBhidLN81UJQcsM5F2wSdM",
+      "symbol": "STONK",
+      "amountTokens": 1.298013513,
+      "valueUsdAtBurn": 0.21511444707273164,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:23:24.649Z"
+    },
+    {
+      "signature": "4K3v9szuR91DmNsWYALAv7PHbR5giMrCnemNgvj3Viqu2xEVuaD2PWHYVdnGTQDbHymdrYELknSqc4FjdA9c7GM7",
+      "symbol": "STONK",
+      "amountTokens": 18609.379949872,
+      "valueUsdAtBurn": 3084.0560889315593,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:23:10.928Z"
+    },
+    {
+      "signature": "2ozQ4fWA3gEFMAUotCsER96Q8KkbJ16qiUeaWX8tVRkaj5Wcs1YFAMm5pegAShLaxx6EcrjVqqvTBdaerT7v2WHU",
+      "symbol": "STONK",
+      "amountTokens": 0.028521326,
+      "valueUsdAtBurn": 0.004460005558180958,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:18:22.575Z"
+    },
+    {
+      "signature": "2shNP7aJm4a8e7So98iaDWPcfo1XuarUGpdzK8Vd28fFgUNGv55SJms77413CxranxdRkhVHnaP2pPzDyymPpD5s",
+      "symbol": "STONK",
+      "amountTokens": 27953.877706444,
+      "valueUsdAtBurn": 4371.27116542376,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:18:08.099Z"
+    },
+    {
+      "signature": "5muG72dEMVsf6crxaQfumCoS7byZKYfGJX3vHpUqmWXe25EMx74XT6AFpgh4XmRq75ghbvJUPcTrou73ss1baDRe",
+      "symbol": "STONK",
+      "amountTokens": 1.304647412,
+      "valueUsdAtBurn": 0.20437129657148256,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:13:19.624Z"
+    },
+    {
+      "signature": "4peceFUdrYA6Vg5Rh8PpcuVBUTeBQkN9DbWFtHmPb9BrinhEUqCuueeLve56Wu7PokSCyYNxfvT3DdkKCATe4YJ5",
+      "symbol": "STONK",
+      "amountTokens": 48810.497023288,
+      "valueUsdAtBurn": 7646.099989311027,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:13:07.261Z"
+    },
+    {
+      "signature": "5RxYQRHnoPThiPCYyQa6eJqtyWK5qCK7sHVAPUkCvN9cw2U68mKwaDkAnzx3ypGJuG1Ph8cZrDvuXZdG5JWmXSWT",
+      "symbol": "STONK",
+      "amountTokens": 0.731713455,
+      "valueUsdAtBurn": 0.1161502729331372,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:08:18.778Z"
+    },
+    {
+      "signature": "q1AdW66wPeUsbTCWKrKj7XLcrzKMaeaoDucXXv7EiaWqxXQnB7Ss2iQkbqUSFfCEtdfvJ8V5tZmBcm8kKGBzfNC",
+      "symbol": "STONK",
+      "amountTokens": 20596.49971123,
+      "valueUsdAtBurn": 3269.4342936835105,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:08:06.860Z"
+    },
+    {
+      "signature": "2ecxUTe5BQyMAFWtt9NzZ4WEjqJqh8QCVbzXvjsfRYpbYdExemX5TW1iE6iKL3LURf5STu4VAs9u4gCeUnwe5ibb",
+      "symbol": "STONK",
+      "amountTokens": 22190.939878983,
+      "valueUsdAtBurn": 3485.780167488422,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T00:03:09.515Z"
+    },
+    {
+      "signature": "3VmnoukVoNbBjerhsJecM8ba1wfrXdaD7bWDQLhfv753ZnQkz7BbQoo17EUZaTWwyGw45TK6NBnbfKh5pg22QLDQ",
+      "symbol": "STONK",
+      "amountTokens": 0.881348317,
+      "valueUsdAtBurn": 0.14017505714966394,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:58:24.725Z"
+    },
+    {
+      "signature": "4GRQPMavSS3QEUGJEoUpKt5csCWKQ2LGNy3L4nhH5xWeu5aSVVYVdcDhBsJB2zXpEULtz48gXN7aLvXf5MrY7Jva",
+      "symbol": "STONK",
+      "amountTokens": 32688.772178537,
+      "valueUsdAtBurn": 5199.0233825780015,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:58:10.226Z"
+    },
+    {
+      "signature": "31ZVsfk6tVcMNjgbQQf97i6ZKit3e2mkmv8Pbf7ePNjGGTfJuw5iYQMetzJuK5ANQbsscMNPsVL53bip5q8Ujppb",
+      "symbol": "STONK",
+      "amountTokens": 18690.46898048,
+      "valueUsdAtBurn": 2931.152013771115,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:53:08.002Z"
+    },
+    {
+      "signature": "kYyAvrLzk1DiEz5Y6YfjyfjfXyPxzyeSGoZjhVwJdKWoqvogHkz6ZG1jBpPMyn4iFmiekqSXEBVrP8T4GcboxJ8",
+      "symbol": "STONK",
+      "amountTokens": 20839.924094226,
+      "valueUsdAtBurn": 3415.8294900517562,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:48:08.484Z"
+    },
+    {
+      "signature": "5AjLsbJ18oquQ2hb8oaw5p7ACr9F2wfWA7MVZfg4EiFgs5bXUhRL7Wy44bi8UQ815r1Qg4dphHLd8KvYpTvcGiH3",
+      "symbol": "STONK",
+      "amountTokens": 20486.037277931,
+      "valueUsdAtBurn": 3363.4297467206657,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:43:10.223Z"
+    },
+    {
+      "signature": "j6qdUNcwp3NyAodQBToy6QmoaKohy2sDduRACrf6Mwy4LmVHKNAqcJVdqAaGajFAW4DwvbZXgK176Hi3gvNd48y",
+      "symbol": "STONK",
+      "amountTokens": 1.273813544,
+      "valueUsdAtBurn": 0.21172503052891087,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:38:31.546Z"
+    },
+    {
+      "signature": "5Q8nBfyMDvdLNxP4ujK92Zw6kt1aNpz6sFCTVAsSymSi6UejkbsFamt9dttxmRqjTGVLyWZMqtFEzS45bkuyx2oe",
+      "symbol": "STONK",
+      "amountTokens": 23527.332704716,
+      "valueUsdAtBurn": 3910.5607399396895,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:38:16.843Z"
+    },
+    {
+      "signature": "2YMyDtNCk4667SUwcXP4YbKV7ydXDg1roNWB9Pq7tfzY4RsBZBt6GJdDj1qGukBgqiEgpdiPTMe6ZNCar5g8pNG4",
+      "symbol": "STONK",
+      "amountTokens": 21268.86241637,
+      "valueUsdAtBurn": 3408.9248903410517,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:33:11.028Z"
+    },
+    {
+      "signature": "4wgszronpxQchvic8ymkPu4Y1XL3RLttc9YJHf29osyhXaFvBC4gWNe5uesgggvMFf3yJuLfasdyVFLsnkLTMkPd",
+      "symbol": "STONK",
+      "amountTokens": 1.27217717,
+      "valueUsdAtBurn": 0.20596210687404912,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:28:20.643Z"
+    },
+    {
+      "signature": "5a5LEjhmUpCKkNDYcSuiWfzVTdJEhvHpwrHMdR8187t8PY2x9wa2sw79DL7jr79jx6QzxmMerCdfVRVCRPB97kbL",
+      "symbol": "STONK",
+      "amountTokens": 28138.353923771,
+      "valueUsdAtBurn": 4555.524808001029,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:28:08.019Z"
+    },
+    {
+      "signature": "4spu1GVQ44i4gwgiiVV93KKxpXw4aQnjQA8MgnKqmfaWu431FDJfzYCJ93cWFwLSPZUKf6tZ3SQbkQqgUcHwcnGq",
+      "symbol": "STONK",
+      "amountTokens": 0.67683176,
+      "valueUsdAtBurn": 0.11017838586229574,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:23:28.021Z"
+    },
+    {
+      "signature": "4JXo8BfXJxx7K8eHZdRP4VrvT7TsvfJmPJn1vEipQaswFrvcZrhgUJzULwojabPLjuvd6Ji2ZJvjtgtjbJ3SwXZN",
+      "symbol": "STONK",
+      "amountTokens": 17178.061345146,
+      "valueUsdAtBurn": 2796.339035939571,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:23:15.349Z"
+    },
+    {
+      "signature": "5ArrdbTxGXh6YvubkN12XQy6RxJWUfpGAB4GktenTdLJq1HziUt3pZsQeLTpNGyX9exUvHhpLEr1DYph2gCHp9GD",
+      "symbol": "STONK",
+      "amountTokens": 15069.919409204,
+      "valueUsdAtBurn": 2395.2929928311623,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:18:07.769Z"
+    },
+    {
+      "signature": "9w414uRdJXG7sGWTC2EEspkPHXnmvZsYzB9kDydqZab5ZYygGxpk3VWgzbVgDnyisBuwecSazqzbVezRLUL9kXY",
+      "symbol": "STONK",
+      "amountTokens": 1.950262856,
+      "valueUsdAtBurn": 0.30142905835398964,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:14:05.717Z"
+    },
+    {
+      "signature": "3ukJhRzE989RaYvgV692QwoGANzeEVWXV2Try7Dodvdy6ZrkCSQ2wH7rekDdb31KKA95VcjX4sJ9VfuhDtQit8wm",
+      "symbol": "STONK",
+      "amountTokens": 9336.142614719,
+      "valueUsdAtBurn": 1438.759029696601,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:13:52.012Z"
+    },
+    {
+      "signature": "64jsCjpix5XFjZRG4FH94in2kB1eNcy3K6w4hBr9haEAxquYrroArWNwQc94X9dJQ8eTmtAQqjKTuGJHeYutvUqg",
+      "symbol": "STONK",
+      "amountTokens": 37906.367772795,
+      "valueUsdAtBurn": 5699.014909652754,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:08:07.444Z"
+    },
+    {
+      "signature": "4pWWfHmNHqqoaHqM4xuFNxBMCHnBySTWKybTCM3BzKhnnYteYzYeqCmVhgFiWq7ah4URMqvg6oh6fSqgqYK3mYp2",
+      "symbol": "STONK",
+      "amountTokens": 0.889799757,
+      "valueUsdAtBurn": 0.1311530133449069,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T23:03:54.447Z"
+    },
+    {
+      "signature": "2ckjxNf1a64ckirT92vz2gj1R9zdRKT3NzeT8S7uSGFXB6NqXqJzkz6s5caqZMHKTRpwAELSd4t4McHA4vAssyg6",
+      "symbol": "STONK",
+      "amountTokens": 15992.374577805,
+      "valueUsdAtBurn": 2324.748511082823,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:58:19.626Z"
+    },
+    {
+      "signature": "Tbb97a2pyzYYtmarkavMJVotHR27vteE9UCbrqVqfTgrMBPDCwSu1k8St6s4gfn43o1ifCGBXXPLay59NufST6u",
+      "symbol": "STONK",
+      "amountTokens": 1.207100284,
+      "valueUsdAtBurn": 0.17551036555152003,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:53:21.774Z"
+    },
+    {
+      "signature": "3s7tnsCr8yHDx1dAY8C93J9Mp4HsRYiaL63GatY5CCK3HnxxnahrkxN2ZtXp1kCTXCELeZBvbjoo7hpHcSXXtR2L",
+      "symbol": "STONK",
+      "amountTokens": 21651.929429942,
+      "valueUsdAtBurn": 3148.1543824612627,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:53:08.850Z"
+    },
+    {
+      "signature": "3WwdVDFHcw4KiYtraGdMxGzLAakanUig4jS9RMHziAhndqe5YJLV6S4ZV1jEaVQMVJzZbPSpLctfmadPn4vTC2vq",
+      "symbol": "STONK",
+      "amountTokens": 21214.57681115,
+      "valueUsdAtBurn": 3060.791091681158,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:48:07.931Z"
+    },
+    {
+      "signature": "93hrGsmQ1hpgT9ZXQjxvYzpCT5YzKuN2nhy2JaJWatFkQgsoUfvxFStUKuiWAoVJjXGD78Z2JgjEaup2oGAxpkf",
+      "symbol": "STONK",
+      "amountTokens": 1.055433971,
+      "valueUsdAtBurn": 0.15187608070963582,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:43:31.647Z"
+    },
+    {
+      "signature": "3aXVKRJwsA9v4Rv8Vyf3ZYS7MKVCNUdVUeDMwVQvFs71Kdg3B5S1oFTagqEwsW1Z5uzhuWEh2JmjhndPGNpqiUtf",
+      "symbol": "STONK",
+      "amountTokens": 12822.290472848,
+      "valueUsdAtBurn": 1845.1170572911728,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:43:18.979Z"
+    },
+    {
+      "signature": "5Ehf4jFYir3RVwdxbmfkzK9Vt6hV82dwCjZojK8oLphjV13PTkjiTtwgdctdecgDBT7SbGjxaVv78KchNfGQu11P",
+      "symbol": "STONK",
+      "amountTokens": 2.650684082,
+      "valueUsdAtBurn": 0.38147356743534006,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:38:25.066Z"
+    },
+    {
+      "signature": "nxZvrxPe7uja8pF86QXZAbjAwL1HuF5xJ5iEENRJvzAGbzFkhWtbaShySyuBpqUFwvmFsbj3fUULt7kKWJTRnsW",
+      "symbol": "STONK",
+      "amountTokens": 13377.233413993,
+      "valueUsdAtBurn": 1925.1864028250284,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:38:11.819Z"
+    },
+    {
+      "signature": "28breE4HEGnc98AwH1pQwPrAzrcTAuNN24BzDa6QCH8dXKZLM1TwDUUKe1PECWWLxF6HQyWSQbuqhsrWUX4Lm3kG",
+      "symbol": "STONK",
+      "amountTokens": 1.764985634,
+      "valueUsdAtBurn": 0.25194611899681096,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:33:24.985Z"
+    },
+    {
+      "signature": "5DqYjTDsqtX64zVgzHe8pP8mmuLLKBqLKFEfuvK1SN13g4uGLqXEuKZVzdPD3CTZg6NhSXwaat8CFNoxe5BtRSfr",
+      "symbol": "STONK",
+      "amountTokens": 49019.006462513,
+      "valueUsdAtBurn": 6997.308191863586,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:33:11.141Z"
+    },
+    {
+      "signature": "5vmZLYcuemNLgQejLTKR1ccXQ593SNGXZFHebKFChB3MFYoez85n7QE83UdovNBNnxCRNs9g16RVSit5JNkNWuQF",
+      "symbol": "STONK",
+      "amountTokens": 0.751919327,
+      "valueUsdAtBurn": 0.10628341477238872,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:28:44.690Z"
+    },
+    {
+      "signature": "5nkgQ9n14S1NJEZjx4uEQSeQpenNaEEs3qp3pSzr8tybLFbBnGqhDgKnt1m9Nq3B4qxz3MsDtJ8Mha9LCJtD3zQP",
+      "symbol": "STONK",
+      "amountTokens": 3.417262539,
+      "valueUsdAtBurn": 0.4836279456651461,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:23:21.383Z"
+    },
+    {
+      "signature": "2HXYJMJfmwQcvV5TBUiRTsuCu73U1X1g5KkWe6k9ruEBnJRPRs4PbAR3hD8f6xCaqVjVSEq8Ft2ysFcfrUihXQSJ",
+      "symbol": "STONK",
+      "amountTokens": 9832.960600674,
+      "valueUsdAtBurn": 1391.6093600762372,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:23:07.213Z"
+    },
+    {
+      "signature": "28rYumf5vKBLgn6JiXB25ZUKShZBP6Yda4sK3kTxFQSAvB4gFV3t1QfQoxRNeWa8jQVrhdfsyuETNRNjFr6VE2SE",
+      "symbol": "STONK",
+      "amountTokens": 24271.302502532,
+      "valueUsdAtBurn": 3470.7654041065907,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:18:06.418Z"
+    },
+    {
+      "signature": "Q6zeQwPrtfRqLT3dg2vSmFqFNLm9PcWVfDhyUvGfDNQQZPwSuxaqEyEAmknG4cD76i2obTdGoL6gkZQV5zbNXNC",
+      "symbol": "STONK",
+      "amountTokens": 0.862792479,
+      "valueUsdAtBurn": 0.12857502341861485,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:13:24.524Z"
+    },
+    {
+      "signature": "64YiktU8spz6z2iYp2j7ivQtz8fVY1Eys7LtjiJ4KH1bos4qHaksvZrVzfNz7LBNeaSSuWZNf5FtDrTMTetPCfZx",
+      "symbol": "STONK",
+      "amountTokens": 18977.759682124,
+      "valueUsdAtBurn": 2828.1028809964137,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:13:12.126Z"
+    },
+    {
+      "signature": "2nH3dQfiPKvPV8c1XaVXSuuUt1i5VwPoDQGW1rk918emfcKsxU7LRm3E6f6iyNWrbK584mrp6Y4btrsEp6XA6vpF",
+      "symbol": "STONK",
+      "amountTokens": 0.764642007,
+      "valueUsdAtBurn": 0.11479090570865443,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:08:22.532Z"
+    },
+    {
+      "signature": "3T7yjynMRnLez2wWKsHriyN3731EBabEzURJVjFsM2r116yMQ8GU4iGF29RtDA1ECdwjAXTmCaGFycipKi7RWg3B",
+      "symbol": "STONK",
+      "amountTokens": 37952.35598978,
+      "valueUsdAtBurn": 5697.549020275213,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:08:09.883Z"
+    },
+    {
+      "signature": "5WfGQPE4W6XrSQfBPmJStgUbxB7FmHFz8P8E1Zoth34SJCc8T9v98aNFHD6hy1dpXhc3iwEFg3o7MCoA7c2kW7aZ",
+      "symbol": "STONK",
+      "amountTokens": 2.4494697,
+      "valueUsdAtBurn": 0.36754875480810495,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T22:03:32.721Z"
+    },
+    {
+      "signature": "1y4rVT5FBwzakRQwuhF5uRd6ztDn8BoAce96ofwr2L433tfqZV5To8Km1LFWebZ93uGc7W5AjFFX5d6zkpTPioj",
+      "symbol": "STONK",
+      "amountTokens": 0.800736843,
+      "valueUsdAtBurn": 0.1215880621995152,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:58:20.167Z"
+    },
+    {
+      "signature": "4zcnzfiGEz8UvLDiz8tzEkCdRnZGzE5n9fvS9LrBJKy21rtmDpV1N5A4bgjFqkwmvNenVtyWXTu8cE8FktQVUggb",
+      "symbol": "STONK",
+      "amountTokens": 22971.379807183,
+      "valueUsdAtBurn": 3488.094223740438,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:58:08.231Z"
+    },
+    {
+      "signature": "cWDdVTcTF87xyNrx2thbKisEpo9HxThF9yUjcrmE2Psu9yezTYQZdcmK6xnqnrEoyxiMrPGbhqaxVyzaStuBN89",
+      "symbol": "STONK",
+      "amountTokens": 1.034193283,
+      "valueUsdAtBurn": 0.16171094870159486,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:53:37.679Z"
+    },
+    {
+      "signature": "4fmBCvCnTXH8rdjFEQeusM6nUga7CCyRiX96fA2CURkTK94rJSGMJqLtGe3uvJR5jNFvqAYDnEe2NU4eH1ziNBYX",
+      "symbol": "STONK",
+      "amountTokens": 1.152978228,
+      "valueUsdAtBurn": 0.17299942612382016,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:48:31.082Z"
+    },
+    {
+      "signature": "36NHEtoAate54xN74iZBcbk1jpuZZhtBuTyRVF4cUkdWT2p7CZzwT4LFUUp78V2dAnyhUf4BVPVQxBTB7j6soHpw",
+      "symbol": "STONK",
+      "amountTokens": 15860.072241212,
+      "valueUsdAtBurn": 2379.735652746433,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:48:09.702Z"
+    },
+    {
+      "signature": "5YBy8KwjoYPfWN9Awwv5AoX5W2msbRsWk3oq6WEx7GCiyG5w2e7ytgj4pT3RHKGfPX8TK4pnnLT2LMq97JD236Kf",
+      "symbol": "STONK",
+      "amountTokens": 2.631694587,
+      "valueUsdAtBurn": 0.3912796312968639,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:43:21.114Z"
+    },
+    {
+      "signature": "4SUZuFyQFEHfLwC5zQW8AFR9CKJVrGQD1NGT31TodPprHYTjigTF3gw9tEXfhmLsRAjpED1ixohu6yPqmaWU6khD",
+      "symbol": "STONK",
+      "amountTokens": 12067.280407585,
+      "valueUsdAtBurn": 1794.1599500032441,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:43:06.788Z"
+    },
+    {
+      "signature": "5w1VebiUaohh2cp3U5rGUJLhQr1oEwPD5zL8zRNQUZLqQGqqdrPbzpt1sXFsjacAP8C1cWJcq8yk5JHJrLLEQei4",
+      "symbol": "STONK",
+      "amountTokens": 3.577412674,
+      "valueUsdAtBurn": 0.5211643662435965,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:38:19.549Z"
+    },
+    {
+      "signature": "5h9rL8UToxrz5RehmLcur88rTQZ5dL9zTJ5RBonBTjmJYJqa6EvhM7odnKexeA3k9yAH1CnzugxaRfoyngFwEE4Z",
+      "symbol": "STONK",
+      "amountTokens": 15493.756046765,
+      "valueUsdAtBurn": 2257.1602123320404,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:38:06.090Z"
+    },
+    {
+      "signature": "4CmY4WnjCX3WRzDdPCuk72nVVJMsH3ghiYB776XARxLNmVAYkTbZ3AsugZKCUMcoMnz3uByANEo9ZxJ7NmPvzNos",
+      "symbol": "STONK",
+      "amountTokens": 5.929330032,
+      "valueUsdAtBurn": 0.8511013210389039,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:33:20.644Z"
+    },
+    {
+      "signature": "4Q9qv2XwT7uDAbEvqe6YKd5dZtqHwkQjM1hcZpoMQ5Fn3E36XnZJEipDT8h4V1aDAxrg4XfBwuAACGVA8Jup9aur",
+      "symbol": "STONK",
+      "amountTokens": 21675.235950151,
+      "valueUsdAtBurn": 3111.2826999749395,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:33:06.754Z"
+    },
+    {
+      "signature": "4HS2ozqpL8u8dvCvE4dyYECw37wyAanqnM4UmEZcbY1P37CMcD1iDTE6xrC58kXETJ69ref44T8fmhSZjQeLfnCr",
+      "symbol": "STONK",
+      "amountTokens": 5.096413376,
+      "valueUsdAtBurn": 0.6844970644771919,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:28:20.337Z"
+    },
+    {
+      "signature": "5NUwxjpHJ8eaL4uNTkpAQ3rCy4owCdurdYZVZZP52s937Hh6CWob2p5cAHYuWcM6VF19mAMMhEYZDQd5PbiRcHHE",
+      "symbol": "STONK",
+      "amountTokens": 20403.042332224,
+      "valueUsdAtBurn": 2740.323743866417,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:28:07.589Z"
+    },
+    {
+      "signature": "Sp7rZ4PshjkdUgnKzrzVWV2sR82JzCiZcamB1ieFbbo4wGbh6VownHjUND131pHN2TvMzAT2HY2VZnXbkC59vLZ",
+      "symbol": "STONK",
+      "amountTokens": 7.295424136,
+      "valueUsdAtBurn": 0.9558766990504953,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:23:21.208Z"
+    },
+    {
+      "signature": "3tJ3LswJedB14j53stuhE9kkM5aHj5mZoErDm1ZPA5rboqdEPbKtUPgDJdSFvHKygXV3Nu37bj8XxGy1DnaT3Bbc",
+      "symbol": "STONK",
+      "amountTokens": 38102.929629415,
+      "valueUsdAtBurn": 4992.4037203802845,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:23:07.369Z"
+    },
+    {
+      "signature": "3zMyudEi8UxuPiZttgjve2hVJ5o2UURFx5Y27B3z61NpEAEbT3vPZL8CBunyw2mpUfLBHr9unZWboRFrPxuTcdan",
+      "symbol": "STONK",
+      "amountTokens": 5.363306133,
+      "valueUsdAtBurn": 0.7040899428105367,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:18:23.688Z"
+    },
+    {
+      "signature": "3Dm8Qz68d63n4tJasA3k9D3h4M9Z4axumZvXVbZM7SqvREW1Djk8tu3Ys396nC4kiED9bx8RV4SasySs6v4pZgJT",
+      "symbol": "STONK",
+      "amountTokens": 11873.744313226,
+      "valueUsdAtBurn": 1558.774335667076,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:18:06.102Z"
+    },
+    {
+      "signature": "5dhEaTVzD1SK91vXCbCNqfz7Ww87CSG8VpRmRcnrbqYdHUWuPvayWmrmkQJiNhBfnSJ4tcDG2msPb7rFRx3V5wJo",
+      "symbol": "STONK",
+      "amountTokens": 11.872391404,
+      "valueUsdAtBurn": 1.6017979623816423,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:13:19.130Z"
+    },
+    {
+      "signature": "4Zbk1NLGei1XJo6doiinbQAQtXW7cPuhPCnWS6PPEDN2K7xeHQA6fLq5r6wbB7WZKicNLno5zqrq9izLxeG2wnvC",
+      "symbol": "STONK",
+      "amountTokens": 10448.251200676,
+      "valueUsdAtBurn": 1409.655975295402,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:13:03.965Z"
+    },
+    {
+      "signature": "2zfsiSbHzDatH1HEwjMFdoEMPZVAuXVvG9Vn8hycbrJ7MJthvKwyRVQAvdJdRFRMc5jVD7WK4GSEgDRc2QEL48S",
+      "symbol": "STONK",
+      "amountTokens": 27.239449979,
+      "valueUsdAtBurn": 3.654927005259873,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:08:21.598Z"
+    },
+    {
+      "signature": "STAHq2jVF9YMpcYiwAaYnyQsVM7z8TM728sMA38pueZQVZWewbouQCGvHkssmX2RkxaMCR8diRFLnd2QM2bd5xZ",
+      "symbol": "STONK",
+      "amountTokens": 19219.212362907,
+      "valueUsdAtBurn": 2578.78989257007,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:08:07.619Z"
+    },
+    {
+      "signature": "YTyhXtCcogFzgRsg8rQmURdhjLkmQpHydApRCbezo7oCV969Ahfs1YXHLtsXfbCx5X171BBoGcvSsTtLFVxpcu6",
+      "symbol": "STONK",
+      "amountTokens": 44.233197148,
+      "valueUsdAtBurn": 5.846855618436673,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:03:25.977Z"
+    },
+    {
+      "signature": "5xdzDnXd2X23gGa9WwY3hhG2oAT1nLJ7Bi6HJQs6zJNUQqYp9CEi9Yofvg3vFrowWw5H9cBrmmmauYGoirRa1Wd3",
+      "symbol": "STONK",
+      "amountTokens": 44349.684023545,
+      "valueUsdAtBurn": 5862.253147592785,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T21:03:11.987Z"
+    },
+    {
+      "signature": "kdtuB2mrDencX272jNYkGZcKVKmcBw6dwL9jvcbUVAPRbAfBuBcBZVyFRgD1DBmUHa7E7EuMnmiMoPdFX9Hj9Si",
+      "symbol": "STONK",
+      "amountTokens": 18.061522976,
+      "valueUsdAtBurn": 2.376674636637926,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T20:58:32.110Z"
+    },
+    {
+      "signature": "61bVyhtFGmU6hn8A2t7hkzns8f63NHAtvBWjC2KdrdjvrpU6BpBxaQsHiGMP4gBhNzi3UiZrxyNpRUawq97Nicp3",
+      "symbol": "STONK",
+      "amountTokens": 44234.146497934,
+      "valueUsdAtBurn": 5820.670504622571,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T20:58:18.664Z"
+    },
+    {
+      "signature": "5jHP2qpVGsE1JKJKPxUUqmetR4Rd3gzgQJVsq3N6dGQuBQ1ntqxUa9yMnyeBcKiCMMCLn3ZxLn5uuZj2qPmn5jMa",
+      "symbol": "STONK",
+      "amountTokens": 1.804250225,
+      "valueUsdAtBurn": 0.24962131891102737,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T20:53:29.996Z"
+    },
+    {
+      "signature": "2KYSUbwb6sBVP2TsvKCksfDahJ2GqCAZ5rbe6kVVTigHjztbqm97FEdn8ykWNM7RPyThp6qfZ4v2ediF41evyAJs",
+      "symbol": "STONK",
+      "amountTokens": 13695.035689159,
+      "valueUsdAtBurn": 1894.7332381579502,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T20:53:17.296Z"
+    },
+    {
+      "signature": "3Db64niJaGxR5Gzrim7E4fSPqTfCnJfQz6xL9s4zXiGjXBuc22yBbHszsEhHcFbwftfAHkwatQYMq19qvdQPwV79",
+      "symbol": "STONK",
+      "amountTokens": 2.286201596,
+      "valueUsdAtBurn": 0.32688240614755903,
+      "source": "buyback",
+      "burnedAt": "2026-09-06T20:48:20.273Z"
+    }
+  ],
+  "sourceMix": [
+    {
+      "source": "buyback",
+      "count": 100,
+      "amountTokens": 1228042.2521340668,
+      "valueUsd": 190684.16345067008
+    }
+  ],
+  "daily": [
+    {
+      "date": "2026-07-25",
+      "revenue": 854.7111166450086,
+      "holders": 0.0,
+      "protocol": 854.7111166450086,
+      "cumulativeHolders": 0.0
+    },
+    {
+      "date": "2026-07-26",
+      "revenue": 87.78670600064986,
+      "holders": 0.0,
+      "protocol": 87.78670600064986,
+      "cumulativeHolders": 0.0
+    },
+    {
+      "date": "2026-07-27",
+      "revenue": 31.733485344074996,
+      "holders": 0.0,
+      "protocol": 31.733485344074996,
+      "cumulativeHolders": 0.0
+    },
+    {
+      "date": "2026-07-28",
+      "revenue": 54.84419575547305,
+      "holders": 0.0,
+      "protocol": 54.84419575547305,
+      "cumulativeHolders": 0.0
+    },
+    {
+      "date": "2026-07-29",
+      "revenue": 21.926179571979993,
+      "holders": 0.0,
+      "protocol": 21.926179571979993,
+      "cumulativeHolders": 0.0
+    },
+    {
+      "date": "2026-07-30",
+      "revenue": 70.76392097960988,
+      "holders": 0.0,
+      "protocol": 70.76392097960988,
+      "cumulativeHolders": 0.0
+    },
+    {
+      "date": "2026-07-31",
+      "revenue": 26.377850702123993,
+      "holders": 0.0,
+      "protocol": 26.377850702123993,
+      "cumulativeHolders": 0.0
+    },
+    {
+      "date": "2026-08-01",
+      "revenue": 15.608249735499998,
+      "holders": 0.0,
+      "protocol": 15.608249735499998,
+      "cumulativeHolders": 0.0
+    },
+    {
+      "date": "2026-08-02",
+      "revenue": 3340.51557731998,
+      "holders": 0.0,
+      "protocol": 3340.51557731998,
+      "cumulativeHolders": 0.0
+    },
+    {
+      "date": "2026-08-03",
+      "revenue": 1670.5027806591131,
+      "holders": 1670.5027806591131,
+      "protocol": 0.0,
+      "cumulativeHolders": 1670.5027806591131
+    },
+    {
+      "date": "2026-08-04",
+      "revenue": 28399.34502757675,
+      "holders": 19187.992874467935,
+      "protocol": 9211.352153108815,
+      "cumulativeHolders": 20858.495655127048
+    },
+    {
+      "date": "2026-08-05",
+      "revenue": 42151.60940341848,
+      "holders": 23761.207156741846,
+      "protocol": 18390.402246676633,
+      "cumulativeHolders": 44619.70281186889
+    },
+    {
+      "date": "2026-08-06",
+      "revenue": 81293.94165567856,
+      "holders": 47973.60158132838,
+      "protocol": 33320.34007435018,
+      "cumulativeHolders": 92593.30439319726
+    },
+    {
+      "date": "2026-08-07",
+      "revenue": 71961.52027371417,
+      "holders": 42539.52954492048,
+      "protocol": 29421.990728793688,
+      "cumulativeHolders": 135132.83393811775
+    },
+    {
+      "date": "2026-08-08",
+      "revenue": 29895.00174050219,
+      "holders": 17618.666026602554,
+      "protocol": 12276.335713899636,
+      "cumulativeHolders": 152751.4999647203
+    },
+    {
+      "date": "2026-08-09",
+      "revenue": 30025.168397826612,
+      "holders": 17729.968485630663,
+      "protocol": 12295.199912195949,
+      "cumulativeHolders": 170481.46845035098
+    },
+    {
+      "date": "2026-08-10",
+      "revenue": 60504.25294861108,
+      "holders": 34699.91210722342,
+      "protocol": 25804.34084138766,
+      "cumulativeHolders": 205181.3805575744
+    },
+    {
+      "date": "2026-08-11",
+      "revenue": 79988.36063588563,
+      "holders": 44916.780566119174,
+      "protocol": 35071.58006976646,
+      "cumulativeHolders": 250098.16112369357
+    },
+    {
+      "date": "2026-08-12",
+      "revenue": 46976.56183427282,
+      "holders": 27649.443195445034,
+      "protocol": 19327.118638827786,
+      "cumulativeHolders": 277747.6043191386
+    },
+    {
+      "date": "2026-08-13",
+      "revenue": 53705.17852096304,
+      "holders": 31655.204698937607,
+      "protocol": 22049.973822025433,
+      "cumulativeHolders": 309402.8090180762
+    },
+    {
+      "date": "2026-08-14",
+      "revenue": 74645.69223192445,
+      "holders": 43483.60606538104,
+      "protocol": 31162.086166543406,
+      "cumulativeHolders": 352886.41508345725
+    },
+    {
+      "date": "2026-08-15",
+      "revenue": 51164.6055260014,
+      "holders": 25281.16347959781,
+      "protocol": 25883.442046403594,
+      "cumulativeHolders": 378167.5785630551
+    },
+    {
+      "date": "2026-08-16",
+      "revenue": 34824.06671044271,
+      "holders": 19780.070272914094,
+      "protocol": 15043.996437528618,
+      "cumulativeHolders": 397947.64883596916
+    },
+    {
+      "date": "2026-08-17",
+      "revenue": 26390.662310436786,
+      "holders": 15117.019352355817,
+      "protocol": 11273.642958080969,
+      "cumulativeHolders": 413064.66818832495
+    },
+    {
+      "date": "2026-08-18",
+      "revenue": 32757.155213342725,
+      "holders": 18727.56409576089,
+      "protocol": 14029.591117581836,
+      "cumulativeHolders": 431792.2322840858
+    },
+    {
+      "date": "2026-08-19",
+      "revenue": 33659.09311347587,
+      "holders": 19668.023241592753,
+      "protocol": 13991.069871883119,
+      "cumulativeHolders": 451460.25552567857
+    },
+    {
+      "date": "2026-08-20",
+      "revenue": 34939.72697002666,
+      "holders": 20546.27955176488,
+      "protocol": 14393.447418261781,
+      "cumulativeHolders": 472006.53507744346
+    },
+    {
+      "date": "2026-08-21",
+      "revenue": 18846.76291220389,
+      "holders": 10680.202640741149,
+      "protocol": 8166.56027146274,
+      "cumulativeHolders": 482686.7377181846
+    },
+    {
+      "date": "2026-08-22",
+      "revenue": 42993.72478048354,
+      "holders": 25517.515316737805,
+      "protocol": 17476.209463745738,
+      "cumulativeHolders": 508204.2530349224
+    },
+    {
+      "date": "2026-08-23",
+      "revenue": 31266.353369228415,
+      "holders": 18243.0220149675,
+      "protocol": 13023.331354260914,
+      "cumulativeHolders": 526447.2750498899
+    },
+    {
+      "date": "2026-08-24",
+      "revenue": 22725.85101204233,
+      "holders": 13359.491151142376,
+      "protocol": 9366.359860899955,
+      "cumulativeHolders": 539806.7662010323
+    },
+    {
+      "date": "2026-08-25",
+      "revenue": 26527.43297262623,
+      "holders": 15586.555727285973,
+      "protocol": 10940.877245340256,
+      "cumulativeHolders": 555393.3219283184
+    },
+    {
+      "date": "2026-08-26",
+      "revenue": 84859.63433141357,
+      "holders": 51218.6524160313,
+      "protocol": 33640.981915382275,
+      "cumulativeHolders": 606611.9743443497
+    },
+    {
+      "date": "2026-08-27",
+      "revenue": 55685.83558941556,
+      "holders": 31567.01807708704,
+      "protocol": 24118.817512328522,
+      "cumulativeHolders": 638178.9924214367
+    },
+    {
+      "date": "2026-08-28",
+      "revenue": 21477.44813070426,
+      "holders": 12982.321607003112,
+      "protocol": 8495.126523701147,
+      "cumulativeHolders": 651161.3140284398
+    },
+    {
+      "date": "2026-08-29",
+      "revenue": 42308.81633395128,
+      "holders": 24965.805088468926,
+      "protocol": 17343.011245482357,
+      "cumulativeHolders": 676127.1191169088
+    },
+    {
+      "date": "2026-08-30",
+      "revenue": 28898.555927600446,
+      "holders": 17401.451964129148,
+      "protocol": 11497.103963471298,
+      "cumulativeHolders": 693528.5710810379
+    },
+    {
+      "date": "2026-08-31",
+      "revenue": 56668.192184321466,
+      "holders": 34013.31545856766,
+      "protocol": 22654.876725753806,
+      "cumulativeHolders": 727541.8865396056
+    },
+    {
+      "date": "2026-09-01",
+      "revenue": 131343.10268160002,
+      "holders": 76853.61533082934,
+      "protocol": 54489.48735077068,
+      "cumulativeHolders": 804395.501870435
+    },
+    {
+      "date": "2026-09-02",
+      "revenue": 38857.95498308743,
+      "holders": 23019.251691554433,
+      "protocol": 15838.703291532998,
+      "cumulativeHolders": 827414.7535619894
+    },
+    {
+      "date": "2026-09-03",
+      "revenue": 64050.00379900655,
+      "holders": 38019.55283912335,
+      "protocol": 26030.450959883194,
+      "cumulativeHolders": 865434.3064011128
+    },
+    {
+      "date": "2026-09-04",
+      "revenue": 78869.1249529685,
+      "holders": 46358.597199199765,
+      "protocol": 32510.527753768736,
+      "cumulativeHolders": 911792.9036003125
+    },
+    {
+      "date": "2026-09-05",
+      "revenue": 186107.63435034355,
+      "holders": 110863.87317045368,
+      "protocol": 75243.76117988987,
+      "cumulativeHolders": 1022656.7767707662
+    },
+    {
+      "date": "2026-09-06",
+      "revenue": 1508194.5494740866,
+      "holders": 904502.7482378255,
+      "protocol": 603691.8012362611,
+      "cumulativeHolders": 1927159.5250085918
+    },
+    {
+      "date": "2026-09-07",
+      "revenue": 126916.27602672615,
+      "holders": 75430.51137602101,
+      "protocol": 51485.76465070514,
+      "cumulativeHolders": 2002590.0363846128
+    }
+  ],
+  "historyMeta": {
+    "start": "2026-07-25",
+    "source": "ledger",
+    "unit": "USD"
+  },
+  "coverage": {
+    "revenueRows": 88219,
+    "revenueRowsUnpriced": 39,
+    "buybackRows": 41043,
+    "buybackRowsUnpriced": 24,
+    "revenueUnpricedPct": 0.04420816377424364,
+    "buybackUnpricedPct": 0.058475257656604045
+  },
+  "usdCrossCheck": {
+    "historyHoldersRevenueSum": 2002590.0363846126,
+    "revenueTotalBuybackUsd": 2006715.7920864096,
+    "revenueBoughtBackValueUsd": 1992272.6370216403,
+    "tokenBurnValueUsdAtBurn": 2015748.0864546376,
+    "boughtBackTokens": 124427491.84351355,
+    "boughtNotYetBurnedTokens": 335343.8483132273
+  },
+  "platformRevenue": {
+    "totalRevenueUsd": 3389560.8697549696,
+    "platformPairExcludedUsd": 90929.59479569543,
+    "totalBuybackUsd": 2006715.7920864096,
+    "boughtBackTokens": 124427491.84351355,
+    "boughtBackValueUsd": 1992272.6370216403,
+    "buybackCount": 41074,
+    "lastBuybackAt": "2026-09-07T01:48:23.415Z"
+  },
+  "platformBurns": {
+    "totalValueUsdAtBurn": 2413149.0043346663,
+    "burnCount": 29102,
+    "mintCount": 325,
+    "bySource": {
+      "auto": {
+        "amountTokens": 1444445951.2334933,
+        "valueUsd": 53265.784552836376,
+        "count": 2623
+      },
+      "quote-revenue": {
+        "amountTokens": 1306954.3485667876,
+        "valueUsd": 23846.892503608924,
+        "count": 1371
+      },
+      "flywheel": {
+        "amountTokens": 99664448.09404154,
+        "valueUsd": 142164.349368258,
+        "count": 14753
+      },
+      "buyback": {
+        "amountTokens": 112091228.71596465,
+        "valueUsd": 1989777.3410532617,
+        "count": 8686
+      },
+      "reward": {
+        "amountTokens": 3277083325.1717267,
+        "valueUsd": 203226.00931398696,
+        "count": 1636
+      },
+      "kickstart": {
+        "amountTokens": 12428829.37200099,
+        "valueUsd": 868.6275427408065,
+        "count": 33
+      }
+    }
+  },
+  "platformStats": {
+    "network": "mainnet-beta",
+    "tokens": {
+      "poolsAvailable": true,
+      "total": 13109,
+      "graduated": 889,
+      "aboutToGraduate": 2,
+      "rewardLaunches": 9317,
+      "totalMarketCapUsd": 467147898.0192958,
+      "totalVolume24hUsd": 146331262.3568333
+    },
+    "revenue": {
+      "totalRevenueUsd": 3386053.966388627,
+      "totalBuybackUsd": 2002590.036384604
+    },
+    "burns": {
+      "totalValueUsdAtBurn": 2408903.3245510054,
+      "burnCount": 29091
+    },
+    "config": {
+      "graduationMarketCapUsd": 40000,
+      "aboutToGraduateMarketCapUsd": 32000,
+      "rewardLaunchesEnabled": true,
+      "pumpLaunchesEnabled": false,
+      "apiLaunchesEnabled": true,
+      "devBuysEnabled": true,
+      "paidLaunchesEnabled": true,
+      "launchLabEnabled": true
+    }
+  }
+}
