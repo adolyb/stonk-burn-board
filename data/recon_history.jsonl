@@ -3,3 +3,4 @@
 {"observedAt": "2026-09-07T01:49:21.422Z", "slot": 444944327, "supply": 875887336.4188236, "chainBurned": 124112663.58117643, "apiBurned": 124092147.99520032, "deltaTokens": 20515.585976102, "direction": "chain_ahead"}
 {"observedAt": "2026-09-07T02:29:52.112Z", "slot": 444951987, "supply": 875771342.1497195, "chainBurned": 124228657.85028052, "apiBurned": 124208142.26430443, "deltaTokens": 20515.585976102, "direction": "chain_ahead"}
 {"observedAt": "2026-09-07T02:33:16.966Z", "slot": 444952631, "supply": 875757021.88225, "chainBurned": 124242978.11775, "apiBurned": 124222462.5317739, "deltaTokens": 20515.585976102, "direction": "chain_ahead"}
+{"observedAt": "2026-09-07T03:02:34.642Z", "slot": 444958149, "supply": 875707846.3133945, "chainBurned": 124292153.6866055, "apiBurned": 124271634.73229943, "deltaTokens": 20518.954306072, "direction": "chain_ahead"}

@@ -1,9 +1,10 @@
 {
-  "generatedAt": "2026-09-07T02:33:18.524Z",
+  "generatedAt": "2026-09-07T03:02:35.610Z",
   "mint": "6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx",
+  "apiBase": "https://www.stonkfun.xyz/api/public/v1",
   "network": "mainnet-beta",
   "rpcUrl": "https://api.mainnet-beta.solana.com",
-  "rateLimitRemaining": 295,
+  "rateLimitRemaining": 297,
   "token": {
     "mint": "6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx",
     "pool": "7a8xxAJBELDo6P9dikSYctdw6ce8F4mWr3ahcAD8Ao49",
@@ -25,11 +26,11 @@
     "metadataUri": "https://gateway.irys.xyz/7HzAyVbL19x2RsKPwFD2NdESBDS1ZhawFojcVLvsFr5N",
     "links": {},
     "market": {
-      "priceUsd": 0.14962749623989827,
-      "marketCapUsd": 131039473.20451781,
-      "fdvUsd": 131039473.20451781,
-      "volume24hUsd": 5564398.1522436235,
-      "priceChange24h": 55.298968244267876,
+      "priceUsd": 0.15714200264022782,
+      "marketCapUsd": 137610484.86509284,
+      "fdvUsd": 137610484.86509284,
+      "volume24hUsd": 5286574.094924108,
+      "priceChange24h": 67.20095105213892,
       "peakMarketCapUsd": 185938295.74438265
     },
     "status": "graduated",
@@ -40,22 +41,22 @@
   "recon": {
     "assumedInitialSupply": 1000000000,
     "decimals": 9,
-    "supply": 875757021.88225,
-    "supplyRaw": "875757021882249997",
-    "chainBurned": 124242978.11775,
-    "chainBurnedRaw": "124242978117750003",
-    "apiBurned": 124222462.5317739,
-    "apiBurnedRaw": "124222462531773901",
-    "deltaTokens": 20515.585976102,
-    "deltaRaw": "20515585976102",
-    "deltaPctOfBurned": 0.01651247119709137,
+    "supply": 875707846.3133945,
+    "supplyRaw": "875707846313394498",
+    "chainBurned": 124292153.6866055,
+    "chainBurnedRaw": "124292153686605502",
+    "apiBurned": 124271634.73229943,
+    "apiBurnedRaw": "124271634732299430",
+    "deltaTokens": 20518.954306072,
+    "deltaRaw": "20518954306072",
+    "deltaPctOfBurned": 0.016508648130604604,
     "direction": "chain_ahead",
-    "burnedPctOfInitial": 12.424297811775,
-    "impliedInitialSupply": 999979484.4140239,
-    "impliedVsAssumed": -20515.585976102,
-    "chainObservedAt": "2026-09-07T02:33:16.966Z",
-    "apiLastBurnAt": "2026-09-07T02:33:08.577Z",
-    "slot": 444952631
+    "burnedPctOfInitial": 12.42921536866055,
+    "impliedInitialSupply": 999979481.0456939,
+    "impliedVsAssumed": -20518.954306072,
+    "chainObservedAt": "2026-09-07T03:02:34.642Z",
+    "apiLastBurnAt": "2026-09-07T02:58:34.451Z",
+    "slot": 444958149
   },
   "reconHistory": [
     {
@@ -102,17 +103,74 @@
       "apiBurned": 124222462.5317739,
       "deltaTokens": 20515.585976102,
       "direction": "chain_ahead"
+    },
+    {
+      "observedAt": "2026-09-07T03:02:34.642Z",
+      "slot": 444958149,
+      "supply": 875707846.3133945,
+      "chainBurned": 124292153.6866055,
+      "apiBurned": 124271634.73229943,
+      "deltaTokens": 20518.954306072,
+      "direction": "chain_ahead"
     }
   ],
   "burnTotals": {
     "symbol": "STONK",
-    "amountRaw": "124222462531773901",
-    "amountTokens": 124222462.53177391,
-    "valueUsdAtBurn": 2036350.3163212317,
-    "burnCount": 10187,
-    "lastBurnAt": "2026-09-07T02:33:08.577Z"
+    "amountRaw": "124271634732299430",
+    "amountTokens": 124271634.73229942,
+    "valueUsdAtBurn": 2044072.9306359484,
+    "burnCount": 10193,
+    "lastBurnAt": "2026-09-07T02:58:34.451Z"
   },
   "recentBurns": [
+    {
+      "signature": "4rwLUQprf4W3i873bmbhWeSXJW1e7juaq74dofpWP1dv2XXBNGdDpY81HgKxrYAE35UiwyzPBHGsvuNeTrEgL1QB",
+      "symbol": "STONK",
+      "amountTokens": 1.066838806,
+      "valueUsdAtBurn": 0.16796147963036298,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T02:58:34.451Z"
+    },
+    {
+      "signature": "2toEJ39HQA9w3b5E78MNsvvW4ACXMq6tZTbP6Etmk5JGVQa9DGD4ZXYQR14Ben4uJm9shEQigB5wkVpvsZ7bnF68",
+      "symbol": "STONK",
+      "amountTokens": 12793.598172461,
+      "valueUsdAtBurn": 2038.524250246076,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T02:53:10.662Z"
+    },
+    {
+      "signature": "3E257eKMWS5HE2ddGv2aUEa4eA1niUCCweToV4fYcZtrhjDcEzWdpvUPeZwEv4DWLUpMdedgxxKjyPjq7x5mrguP",
+      "symbol": "STONK",
+      "amountTokens": 0.984717839,
+      "valueUsdAtBurn": 0.1559427126763548,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T02:49:20.346Z"
+    },
+    {
+      "signature": "2T9nPWpm4s7zPxGpZmciFkBLGnHy69ub1SgJCgUAMNeMDBymQ8Vuk3TBdZRUvbC7ZtpnB1SSecMyRZrBbDpyxUSV",
+      "symbol": "STONK",
+      "amountTokens": 4488.642309615,
+      "valueUsdAtBurn": 712.1104551137507,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T02:49:07.023Z"
+    },
+    {
+      "signature": "4Y5k2KLQe1vyhV2snB8yWee5BuiqMrC5H6jkZLYrwNSSJ3QCq6FtNZDL3NyDzFor9Ex1oNc5T8DTNRdWMVU5nzba",
+      "symbol": "STONK",
+      "amountTokens": 31886.272486986,
+      "valueUsdAtBurn": 4971.411195677401,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T02:43:12.456Z"
+    },
+    {
+      "signature": "2kyWjX167J4FkvTnUphQwFjGHC9Cx5wcuR9nH8TR8324yzwyQo5y2yZgEoL34UmRabQscCacr3t9QDebNKvaYgGU",
+      "symbol": "STONK",
+      "amountTokens": 1.635999822,
+      "valueUsdAtBurn": 0.24450948694608707,
+      "source": "buyback",
+      "burnedAt": "2026-09-07T02:33:23.402Z"
+    },
     {
       "signature": "3XpkaPEtrRg4nuTAGwoLd8GSpSyYBtmo66UgZpgT6cFr33Mqpmvse46S87ZwMNwF3pqCq1ftiK8yqXdYGzk5eTHW",
       "symbol": "STONK",
@@ -864,67 +922,19 @@
       "valueUsdAtBurn": 2257.1602123320404,
       "source": "buyback",
       "burnedAt": "2026-09-06T21:38:06.090Z"
-    },
-    {
-      "signature": "4CmY4WnjCX3WRzDdPCuk72nVVJMsH3ghiYB776XARxLNmVAYkTbZ3AsugZKCUMcoMnz3uByANEo9ZxJ7NmPvzNos",
-      "symbol": "STONK",
-      "amountTokens": 5.929330032,
-      "valueUsdAtBurn": 0.8511013210389039,
-      "source": "buyback",
-      "burnedAt": "2026-09-06T21:33:20.644Z"
-    },
-    {
-      "signature": "4Q9qv2XwT7uDAbEvqe6YKd5dZtqHwkQjM1hcZpoMQ5Fn3E36XnZJEipDT8h4V1aDAxrg4XfBwuAACGVA8Jup9aur",
-      "symbol": "STONK",
-      "amountTokens": 21675.235950151,
-      "valueUsdAtBurn": 3111.2826999749395,
-      "source": "buyback",
-      "burnedAt": "2026-09-06T21:33:06.754Z"
-    },
-    {
-      "signature": "4HS2ozqpL8u8dvCvE4dyYECw37wyAanqnM4UmEZcbY1P37CMcD1iDTE6xrC58kXETJ69ref44T8fmhSZjQeLfnCr",
-      "symbol": "STONK",
-      "amountTokens": 5.096413376,
-      "valueUsdAtBurn": 0.6844970644771919,
-      "source": "buyback",
-      "burnedAt": "2026-09-06T21:28:20.337Z"
-    },
-    {
-      "signature": "5NUwxjpHJ8eaL4uNTkpAQ3rCy4owCdurdYZVZZP52s937Hh6CWob2p5cAHYuWcM6VF19mAMMhEYZDQd5PbiRcHHE",
-      "symbol": "STONK",
-      "amountTokens": 20403.042332224,
-      "valueUsdAtBurn": 2740.323743866417,
-      "source": "buyback",
-      "burnedAt": "2026-09-06T21:28:07.589Z"
-    },
-    {
-      "signature": "Sp7rZ4PshjkdUgnKzrzVWV2sR82JzCiZcamB1ieFbbo4wGbh6VownHjUND131pHN2TvMzAT2HY2VZnXbkC59vLZ",
-      "symbol": "STONK",
-      "amountTokens": 7.295424136,
-      "valueUsdAtBurn": 0.9558766990504953,
-      "source": "buyback",
-      "burnedAt": "2026-09-06T21:23:21.208Z"
-    },
-    {
-      "signature": "3tJ3LswJedB14j53stuhE9kkM5aHj5mZoErDm1ZPA5rboqdEPbKtUPgDJdSFvHKygXV3Nu37bj8XxGy1DnaT3Bbc",
-      "symbol": "STONK",
-      "amountTokens": 38102.929629415,
-      "valueUsdAtBurn": 4992.4037203802845,
-      "source": "buyback",
-      "burnedAt": "2026-09-06T21:23:07.369Z"
     }
   ],
   "sourceMix": [
     {
       "source": "buyback",
       "count": 100,
-      "amountTokens": 1214425.8543007332,
-      "valueUsd": 192146.7553744686
+      "amountTokens": 1183398.5257469283,
+      "valueUsd": 189022.8680498789
     }
   ],
   "intraday": {
     "windowHours": 48,
-    "generatedAtMs": 1788748398524,
+    "generatedAtMs": 1788750155610,
     "burns": [
       {
         "id": "3zMyudEi8UxuPiZttgjve2hVJ5o2UURFx5Y27B3z61NpEAEbT3vPZL8CBunyw2mpUfLBHr9unZWboRFrPxuTcdan",
@@ -1631,6 +1641,48 @@
         "t": "2026-09-07T02:33:08.577Z",
         "a": 14320.267469474,
         "u": 2140.245496855456,
+        "s": "buyback"
+      },
+      {
+        "id": "2kyWjX167J4FkvTnUphQwFjGHC9Cx5wcuR9nH8TR8324yzwyQo5y2yZgEoL34UmRabQscCacr3t9QDebNKvaYgGU",
+        "t": "2026-09-07T02:33:23.402Z",
+        "a": 1.635999822,
+        "u": 0.24450948694608707,
+        "s": "buyback"
+      },
+      {
+        "id": "4Y5k2KLQe1vyhV2snB8yWee5BuiqMrC5H6jkZLYrwNSSJ3QCq6FtNZDL3NyDzFor9Ex1oNc5T8DTNRdWMVU5nzba",
+        "t": "2026-09-07T02:43:12.456Z",
+        "a": 31886.272486986,
+        "u": 4971.411195677401,
+        "s": "buyback"
+      },
+      {
+        "id": "2T9nPWpm4s7zPxGpZmciFkBLGnHy69ub1SgJCgUAMNeMDBymQ8Vuk3TBdZRUvbC7ZtpnB1SSecMyRZrBbDpyxUSV",
+        "t": "2026-09-07T02:49:07.023Z",
+        "a": 4488.642309615,
+        "u": 712.1104551137507,
+        "s": "buyback"
+      },
+      {
+        "id": "3E257eKMWS5HE2ddGv2aUEa4eA1niUCCweToV4fYcZtrhjDcEzWdpvUPeZwEv4DWLUpMdedgxxKjyPjq7x5mrguP",
+        "t": "2026-09-07T02:49:20.346Z",
+        "a": 0.984717839,
+        "u": 0.1559427126763548,
+        "s": "buyback"
+      },
+      {
+        "id": "2toEJ39HQA9w3b5E78MNsvvW4ACXMq6tZTbP6Etmk5JGVQa9DGD4ZXYQR14Ben4uJm9shEQigB5wkVpvsZ7bnF68",
+        "t": "2026-09-07T02:53:10.662Z",
+        "a": 12793.598172461,
+        "u": 2038.524250246076,
+        "s": "buyback"
+      },
+      {
+        "id": "4rwLUQprf4W3i873bmbhWeSXJW1e7juaq74dofpWP1dv2XXBNGdDpY81HgKxrYAE35UiwyzPBHGsvuNeTrEgL1QB",
+        "t": "2026-09-07T02:58:34.451Z",
+        "a": 1.066838806,
+        "u": 0.16796147963036298,
         "s": "buyback"
       }
     ],
@@ -2658,44 +2710,692 @@
         "bu": 73.60939658494549,
         "su": 73.96059283759385,
         "q": "PLTRX"
+      },
+      {
+        "id": "5Kz9UowtBensNHp3HRP1Hw3cR42hC9Hd2PcA5i9SvNFqyC9fZkPxw4nKCcFWBa8cWLutwA21jWFyfMtejJVEUgHf",
+        "t": "2026-09-07T02:33:23.447Z",
+        "bt": 1.635999822,
+        "bu": 0.24450948694608707,
+        "su": 0.2449306970977457,
+        "q": "SOL"
+      },
+      {
+        "id": "49x44knPpqEeHnpLrhxqAiLbBkainK89c2rsUzMN9RzsdCddDJ94AWbPKPCsonRkTDfmTXqfdHUqtiUCPPorWVKi",
+        "t": "2026-09-07T02:43:11.240Z",
+        "bt": 310.061309654,
+        "bu": 48.34187711308728,
+        "su": 48.6586980397036,
+        "q": "ANTHROPIC"
+      },
+      {
+        "id": "3GiDSJJbCPp8gZB5hkWA7v7wj91YpAH37VoG9jdttp8KUhnyEeCDt5ccxN1jg18Zwb57SEawi8VGjhUviCPxqADW",
+        "t": "2026-09-07T02:43:11.274Z",
+        "bt": 605.988257912,
+        "bu": 94.48005598842965,
+        "su": 94.94449496849677,
+        "q": "USDC"
+      },
+      {
+        "id": "35tWcrCivjvNgsghVZSZf6Sz7Eokfajy6eSF2KdjyRr1iCEkbCHzR74EYzmDZWFUvztMzJWYzJhWeSU3UuiUudPH",
+        "t": "2026-09-07T02:43:11.308Z",
+        "bt": 1314.577854851,
+        "bu": 204.95675898972357,
+        "su": 206.2013752173729,
+        "q": "SOL"
+      },
+      {
+        "id": "22Q6Te9ko3ufES7w14E92GPekMP9NsEqEFjHjBSAChjeYQVAXpHSjVRqoL7NLLzCtRDdoU3A24KmSXCFqoeuK3ze",
+        "t": "2026-09-07T02:43:11.341Z",
+        "bt": 34.267278464,
+        "bu": 5.3426355141026205,
+        "su": 5.376716921250636,
+        "q": "CTO"
+      },
+      {
+        "id": "3nMdusTdr7QV62rGXQNmrEes5XvsQczujTUtAxQvT9Cc8Ui8gzaR2tKRgQdC8vkBQfHq7881uCJMri8bJdqAtcAJ",
+        "t": "2026-09-07T02:43:11.380Z",
+        "bt": 48.42379899,
+        "bu": 7.5497885974088375,
+        "su": 7.625349332014974,
+        "q": "HOODX"
+      },
+      {
+        "id": "v2DQ6gwbZ5Z17JgXSDrucgynmFmGMRn29uAT86VRHHbsnuvGNzVSwYrwXiGCzKNyaTTvPdjXvuGiQFLCAUHFLof",
+        "t": "2026-09-07T02:43:11.417Z",
+        "bt": 640.435727131,
+        "bu": 99.85078517002289,
+        "su": 100.61783555680053,
+        "q": "NVDAX"
+      },
+      {
+        "id": "5P1cH7KwT5voD3txEsjE8CrMqVdx5BJADx7WXTw5mBxSQaPCRNa4ppQH1MsjEPKhD4Es75fTSmWjsXrdKvh1R7Pt",
+        "t": "2026-09-07T02:43:11.451Z",
+        "bt": 984.140997661,
+        "bu": 153.43811591316816,
+        "su": 153.33795176735742,
+        "q": "USELESS"
+      },
+      {
+        "id": "3fmHgBTDu3YGLwpqNuByVUQktr1p6okeLTmHhtursW7QnBgWAPpzdCpdjk4HddACgw4ibJzxYrr4rRDcZyWqP2i6",
+        "t": "2026-09-07T02:43:11.493Z",
+        "bt": 74.004813323,
+        "bu": 11.538142554547122,
+        "su": 11.616820490253426,
+        "q": "CRCLX"
+      },
+      {
+        "id": "4kDB9KSe7n2FAy5TZ4T46vHwNSXUQwBqKDZSY2qBG6guQ7Pc8u17WHhpFWbT465RHCfKCNNY227sfxKX7ujknsPG",
+        "t": "2026-09-07T02:43:11.524Z",
+        "bt": 2058.426079175,
+        "bu": 320.9306594134364,
+        "su": 323.6669413201163,
+        "q": "AMZNX"
+      },
+      {
+        "id": "5gXJJw6tMxF3s8TUrxY36Nvc1H7G5JWC8HNFZw3JVvMEuuvz8dHgt3sAGc3LzVsrWwPtUWLcmkfwXcXLD6ThHBma",
+        "t": "2026-09-07T02:43:11.557Z",
+        "bt": 2111.970538883,
+        "bu": 329.2788138290236,
+        "su": 331.224030810091,
+        "q": "HYPE"
+      },
+      {
+        "id": "4x64kSoE8E5tRtwJwZ45F3T14VTpDLhSNyLzRFJnbgZNbcAaVMyM6c5vhBd5vRJLh2DuJWsQW3C3L3bh43c5S1cH",
+        "t": "2026-09-07T02:43:11.594Z",
+        "bt": 761.473841413,
+        "bu": 118.7219227948677,
+        "su": 120.23247144264911,
+        "q": "WBTC"
+      },
+      {
+        "id": "5PtkRageWwWFBkytfR6gQojRiie2x7xChz8xHqzCZwKiJjXoKPNkgECqdEB76TCLVrzCU9CmFhgyp9ZvJn9B113z",
+        "t": "2026-09-07T02:43:11.628Z",
+        "bt": 174.014059694,
+        "bu": 27.130654576231997,
+        "su": 27.414086759345707,
+        "q": "JUP"
+      },
+      {
+        "id": "cE3fQhEipaNGAqJMCUAfVCJGEpiqi4F8kmV3gjwYsTVs1m2h59UnGiEZLamYT9ukGrURkoVxzt1ZaJst1BTaBvS",
+        "t": "2026-09-07T02:43:11.661Z",
+        "bt": 118.273964812,
+        "bu": 18.440177134643513,
+        "su": 18.63905219557872,
+        "q": "TAO"
+      },
+      {
+        "id": "49tnMaRbHWEU2F9iPTeYeTnsJ6ADUzsdwoaCseZcLG8scgmxrHN1pSvctvNcXungqp8Ardf9V4n8NfbUCPEUQqNS",
+        "t": "2026-09-07T02:43:11.694Z",
+        "bt": 9900.519822357,
+        "bu": 1543.597016803391,
+        "su": 1550.6969610232786,
+        "q": "ZEC"
+      },
+      {
+        "id": "e9otJLgJDUNHcBSmTJrVqJRAWGwKip1eVJewm3JbhvE2mz2v22e9LJKgWraSZdKqhpSSqhuaj31b9zsGchYj8dX",
+        "t": "2026-09-07T02:43:11.726Z",
+        "bt": 37.035284855,
+        "bu": 5.774197339572824,
+        "su": 5.850660792578956,
+        "q": "BP"
+      },
+      {
+        "id": "659RuDiCmnMexA5ngwP4VbdPPUAjG6jjFzfYX1wFSNjNYZk2bxf59vL8TUoNRNsqCiMwgptJfpxxPe15kFbaX4WD",
+        "t": "2026-09-07T02:43:11.760Z",
+        "bt": 3103.707510458,
+        "bu": 483.9012233837124,
+        "su": 491.58701529267125,
+        "q": "VIDAX"
+      },
+      {
+        "id": "5d9dAHHcKmtVUPajVM3vSHGoqRLfQsyYngW9jBC9pU4UZ3Db9EsHMZpijKQB4pUhjLgSNLp3XCWk1DXsho9GRtWS",
+        "t": "2026-09-07T02:43:11.792Z",
+        "bt": 235.373847043,
+        "bu": 36.69730222737101,
+        "su": 38.45709075585664,
+        "q": "FRIES"
+      },
+      {
+        "id": "5vmr3Bgxbtzy5yNvLKek5Xbk3NLuL9CRK4sUGDHcoFZ9Bp3UpLiSwq6H8yvCYz13qwePe1GkJ4imN498v788AVNe",
+        "t": "2026-09-07T02:43:11.829Z",
+        "bt": 941.374040996,
+        "bu": 146.77028958582912,
+        "su": 147.51896404858152,
+        "q": "OPENAI"
+      },
+      {
+        "id": "kY1YXVBUVBEkPo8Fh8sfMADqFrXz2rRctctT3VtmRcfEyKua3Yyp9e1YTp2kmh5seEYsRrVKhZGdS2NFv3VtMJf",
+        "t": "2026-09-07T02:43:11.861Z",
+        "bt": 109.815111347,
+        "bu": 17.121351334742982,
+        "su": 17.29721569213495,
+        "q": "POLYMARKET"
+      },
+      {
+        "id": "3TeKTawzAu1D8EPddE1EwU2h2KbK2Xb7M96N6DVujj3RoUuvd9CMK5BqJj64X1sihb6j1h6vUn6JU9Jfm1uAEAxq",
+        "t": "2026-09-07T02:43:11.892Z",
+        "bt": 140.42069295,
+        "bu": 21.893089112919213,
+        "su": 22.10716204403274,
+        "q": "SPCXX"
+      },
+      {
+        "id": "4CKL8VyG65BYt2BL71dHCY48UKSQd8jiJdzYyHsg9hhoYaSSSYXgSgebVQhj7CKUDQ4BZJ2a4xta1gWYT76LYijM",
+        "t": "2026-09-07T02:43:11.926Z",
+        "bt": 2151.208140278,
+        "bu": 335.39637589107537,
+        "su": 339.53554166801064,
+        "q": "SPYX"
+      },
+      {
+        "id": "2rMTcnPrTX4uq1DRig14GUHSExaSzu2fbwsN9QXLqCbbraR58HzPPgyTKXeFKRqXMatzL2LbMpRYNqoZQzdAbHCf",
+        "t": "2026-09-07T02:43:11.959Z",
+        "bt": 61.707056197,
+        "bu": 9.620790581754745,
+        "su": 9.695258434531615,
+        "q": "QQQX"
+      },
+      {
+        "id": "2qMpYe44H8mbYANX6KrvVptZ79bwemJYQT7nnNQWcvV8PqUHwUh2SGeiDRJpwm8JEPq1LmWiiq65sZg9d8BvbGZC",
+        "t": "2026-09-07T02:43:11.991Z",
+        "bt": 477.250472422,
+        "bu": 74.40845720393976,
+        "su": 75.24046068075691,
+        "q": "NEAR"
+      },
+      {
+        "id": "32aHHm4XKS23TXrBxAEP5Ei9xZMCEzngkn6xYtbPuo5bkfSy9jYWS2496MY6mTHtenagy4Yhns8xVEecMry3XpBQ",
+        "t": "2026-09-07T02:43:12.024Z",
+        "bt": 2585.313072314,
+        "bu": 403.077981513161,
+        "su": 408.26501246191015,
+        "q": "wXRP"
+      },
+      {
+        "id": "5KqL6Ks7NwdSFU7bk95td5SeCkiNEY5ZospXC9CRgf96yqKzz3nnk1VX3ov2XBpTovfMfrbEXvNUEbqBEoGSH3L2",
+        "t": "2026-09-07T02:43:12.057Z",
+        "bt": 46.28932101,
+        "bu": 7.217000632586992,
+        "su": 7.274065099842567,
+        "q": "TRUMP"
+      },
+      {
+        "id": "5dDLVcqDopfi4kZ685eEqSTtUHKFsrxwHZtvCucW3J88G2g6RFD9jKghpcPRi7X3deaXVbXpxqnPAk7RQKz3q9aq",
+        "t": "2026-09-07T02:43:12.090Z",
+        "bt": 45.817945593,
+        "bu": 7.143508159410726,
+        "su": 7.207175008732794,
+        "q": "Bonk"
+      },
+      {
+        "id": "3NhNDhxHEso3m6Rjz5cJgRHWBkrPhZWuPZrmW2PC22e3dkRKBnpZWdN2wpFGpjfu6CfWBrVgBn6K9Vuy2rtbdohU",
+        "t": "2026-09-07T02:43:12.121Z",
+        "bt": 202.787906472,
+        "bu": 31.6168052880544,
+        "su": 32.10129780803635,
+        "q": "MCDX"
+      },
+      {
+        "id": "6akritMu9og2j138pemnSkDzYYMCY1JJ8QjzgofUm4PEKCHHJ7VGZnoocxZ2w5KtxT52gNNYYcoWyG4b9RWhqAk",
+        "t": "2026-09-07T02:43:12.153Z",
+        "bt": 1057.847414842,
+        "bu": 164.92973531510498,
+        "su": 166.3306765293026,
+        "q": "RAY"
+      },
+      {
+        "id": "3br1FaW3mcLtjLgusr7UXzGrUHBZX7MkYpRRBvN8R5ErMG3cYg1uC2VnWoGT9XjHB6pX5gvp8c8NT5gVAJ4YEHdC",
+        "t": "2026-09-07T02:43:12.189Z",
+        "bt": 235.219995773,
+        "bu": 36.67331516753329,
+        "su": 37.02387885613508,
+        "q": "PUMP"
+      },
+      {
+        "id": "3LZ2Du2MkiVL4E7uqHHnm9HNSwuakWEoMQAfyX8rgJZ63iJDg1oTutKyGTeFr1b2vYhrY2qZXXmDDu4VvyBw41o8",
+        "t": "2026-09-07T02:43:12.229Z",
+        "bt": 69.445967989,
+        "bu": 10.827369768481919,
+        "su": 11.726880622118866,
+        "q": "AMC"
+      },
+      {
+        "id": "2SHzicpLDYUw89NYYYyWYQCCcdDtbpdGe1NJ7Ah4yKzEgv1Zb8ZVAJNdzvpmUmXTeKPTeJqthiyH2qJMhK7JH2zi",
+        "t": "2026-09-07T02:43:12.260Z",
+        "bt": 164.572129912,
+        "bu": 25.658556655529836,
+        "su": 25.969856401053487,
+        "q": "SKR"
+      },
+      {
+        "id": "42Rgm6XrBPQBX2xHNgCQitErV96C1sJwUMKPD1FpcEhcNW6JnFRgGPkPp9J1NFcXbsa8dan1nGFsKJBq1pMNzr8",
+        "t": "2026-09-07T02:43:12.293Z",
+        "bt": 235.337665663,
+        "bu": 36.691661162938644,
+        "su": 37.15119710791908,
+        "q": "TSLAX"
+      },
+      {
+        "id": "4eYnPk1s14jXPCexKsDSCXB5H84GRFsF2n8uyEw8Q1fwDTEiN4SJVH5Etmx1K7HhbEdbWqHZeoTAcwEsbsNeDKy6",
+        "t": "2026-09-07T02:43:12.326Z",
+        "bt": 66.072463703,
+        "bu": 10.301404339850178,
+        "su": 10.409372143422944,
+        "q": "SILVER"
+      },
+      {
+        "id": "4oLqnZ9kZNxYi3D4NDqYgTiQFbmADdoBdn3G7adVbMToLeUYFBRhvUngJ3i5gr4W4oDcASBF3ysoCHZAVsmuCTeE",
+        "t": "2026-09-07T02:43:12.359Z",
+        "bt": 634.683108332,
+        "bu": 98.9538903224522,
+        "su": 99.68410924799463,
+        "q": "PLTRX"
+      },
+      {
+        "id": "9HqVK9kHbCKvsgriemGNsX4uf8mWFh3qE7g8SwhHoDkZ1xek2PrZvzFvSLWfZwNZwgmeMqCst2KFxEHoJmeRMZg",
+        "t": "2026-09-07T02:43:12.390Z",
+        "bt": 81.66968517,
+        "bu": 12.733178121315252,
+        "su": 12.852604987833676,
+        "q": "MU"
+      },
+      {
+        "id": "5kY36vRAcxuuwoMpj21qGnsYUVXxB38QrQEQDwUAKimjx5xG4o6vAenz5Y4s6BGgJwWsYmBb3rhuBBwXYrbmVCZZ",
+        "t": "2026-09-07T02:43:12.423Z",
+        "bt": 66.745309347,
+        "bu": 10.406308177980195,
+        "su": 10.490584036398733,
+        "q": "GLDX"
+      },
+      {
+        "id": "2r1rTHryty5kLZhHxb2kCprWd4owHsq79aV6XMcK2Cxph58c8p4ZthhocwZuJLoL97NJBSQzFcpA1uvwijfarGLd",
+        "t": "2026-09-07T02:49:06.772Z",
+        "bt": 1617.975812168,
+        "bu": 256.68730375284,
+        "su": 256.4399954026121,
+        "q": "ZEC"
+      },
+      {
+        "id": "5uXRZeRiXW7jBG5VfHzNsUXLRMiQgsA6vK6JBWm2QPXt1oYtC3iNDzUVGMTifQMk2e1GUozch4jmhb5WGyGeppNb",
+        "t": "2026-09-07T02:49:06.806Z",
+        "bt": 92.120746273,
+        "bu": 14.614696834578256,
+        "su": 14.644154543894993,
+        "q": "AMZNX"
+      },
+      {
+        "id": "3VSCPMjMsaDVC77TR8DrGbPxzDv7D2hkoTKkGQFN44kYRkbwwa6f4P2frtsrcVZdA4QV8pMp7eeLws9vZ7rA9M2J",
+        "t": "2026-09-07T02:49:06.851Z",
+        "bt": 193.209805081,
+        "bu": 30.65219118350089,
+        "su": 30.601873834413137,
+        "q": "USDC"
+      },
+      {
+        "id": "2aqRt43YJ32JVZs9QUi6THga7erZ7FicRbZX5K3MamBegpD7eoLprsMqq12TsJqti24MKy2LPWYv7LSjGX6X9c98",
+        "t": "2026-09-07T02:49:06.886Z",
+        "bt": 68.593975329,
+        "bu": 10.882240913909053,
+        "su": 10.879362543743506,
+        "q": "APPLX"
+      },
+      {
+        "id": "66wuppCa5CiYTjuJw9KU73gDhz8RMVLXKBcwmuT2PUrCLqq1YNNRaYT2kZNvHnKqeD1Bigvk6WZiUbBduTrThMdF",
+        "t": "2026-09-07T02:49:06.921Z",
+        "bt": 176.808190197,
+        "bu": 28.050121195739372,
+        "su": 28.00667077984945,
+        "q": "NVDAX"
+      },
+      {
+        "id": "3dVm3yag7T1FM5Y2fqbsUbY2DQL1ww2HDQxCKdGSymtimAY7bFudbhCDiETdwD22dB7pi6FaK6R6zcR22CJ5LsDr",
+        "t": "2026-09-07T02:49:06.954Z",
+        "bt": 209.194173251,
+        "bu": 33.18806615573069,
+        "su": 33.550326601653154,
+        "q": "ANDURIL"
+      },
+      {
+        "id": "5mTaNzCzQ9cZa21gvcBLP9fbPPifFLhpU2GMhGwPXULuZKQzBAYHh6JtKNGNqprt2SrQe6vWjnbyL44M2HFTj7tu",
+        "t": "2026-09-07T02:49:06.987Z",
+        "bt": 2130.739607316,
+        "bu": 338.03583507745236,
+        "su": 337.6924723036553,
+        "q": "ANTHROPIC"
+      },
+      {
+        "id": "3dxnygCEVP2ZQXo138izZJggdheBkhC37dGCZ2ASczZZQURURqgFLKeh9QHwBx44RPXFZFHPhBj81cR1TAYtaaLU",
+        "t": "2026-09-07T02:49:20.399Z",
+        "bt": 0.984717839,
+        "bu": 0.1559427126763548,
+        "su": 0.1561680354524768,
+        "q": "SOL"
+      },
+      {
+        "id": "oaf4X24ZaYmD6yxAszu85uAj4MMRTkJPMvwCaNgtAJ4TxC359EA3BKcz3jaajNyLX9Q8i5edXv8BLyjYbDUkyUf",
+        "t": "2026-09-07T02:53:09.306Z",
+        "bt": 1068.512415111,
+        "bu": 170.25612658223542,
+        "su": 169.600199344693,
+        "q": "SOL"
+      },
+      {
+        "id": "2NjeDHs5KUVRdNEf7YLthyC3GBWMma51j8N3sd5Nu9pf7iUVbmfELia7FVbrskmUozzsAdUHL1igZ1aZtbQpVaMp",
+        "t": "2026-09-07T02:53:09.341Z",
+        "bt": 356.864596573,
+        "bu": 56.86259052080298,
+        "su": 56.80473488939811,
+        "q": "USDC"
+      },
+      {
+        "id": "UQXFA3jxwLt5mC8wcxrMjBSXRTuWSkLbg3u72QefcZHuqef5Z8QAZG5CALbneivedJV6Lf7N36VJs4TKjQ36nDp",
+        "t": "2026-09-07T02:53:09.378Z",
+        "bt": 188.221918105,
+        "bu": 29.99116740361599,
+        "su": 30.116879608677777,
+        "q": "USELESS"
+      },
+      {
+        "id": "2BZzXRj8NYqvc3AXBsAKxw27mpNXax3hCJ9rTfUfr2b7zKXMmDYZfoFcKDP7qUNauThSpqvTGfsnjxAW3vRLrUU2",
+        "t": "2026-09-07T02:53:09.415Z",
+        "bt": 1100.828749416,
+        "bu": 175.40539188443998,
+        "su": 175.04520388457664,
+        "q": "HYPE"
+      },
+      {
+        "id": "63cxSddpxPJixbwQKCDr8GjmarcWDdppbEmuAEPE8WSt5e4wyF1FqtfLDQoo2cZe89cUzyUSh9ybgUNa3EEA2vGN",
+        "t": "2026-09-07T02:53:09.458Z",
+        "bt": 2551.597110984,
+        "bu": 406.569951430493,
+        "su": 407.15907654646594,
+        "q": "ZEC"
+      },
+      {
+        "id": "yFLagzjcTPTdsZz7FGtxJgVoTL3qmKh8f5imPKaqHG6HTm79PZMcaf9zXXDVmYWk2qzQgiK67C1hRLHzYiML5np",
+        "t": "2026-09-07T02:53:09.499Z",
+        "bt": 204.808284365,
+        "bu": 32.63402904337384,
+        "su": 32.72030717022825,
+        "q": "TAO"
+      },
+      {
+        "id": "3fLr8y3sFwxM92JjdQ3Ad8sk4wtjiNgG616ELNNBMHvPo653znbgnVrYUGf38jtoUxDGm2is1bRVa6PupW53cs1p",
+        "t": "2026-09-07T02:53:09.542Z",
+        "bt": 74.547371437,
+        "bu": 11.87833339908577,
+        "su": 11.907241496686288,
+        "q": "KALSHI"
+      },
+      {
+        "id": "21hWS1C1RNz5ba5MpASjHw6mZL3CLTAm7X96s8tN7o1sTLAH4uSyYk5aDSuopE1jXFNguqTd5MxADgQaYqsoiCVR",
+        "t": "2026-09-07T02:53:09.581Z",
+        "bt": 1001.651409797,
+        "bu": 159.6025341455267,
+        "su": 159.399884786467,
+        "q": "WBTC"
+      },
+      {
+        "id": "3iWaz5XyB2rpQac3Sv2BJjpmFr94JAbVM2Sui6yJw5xVQV6Kzq1NdhX4QnU5j7VZQBTuc8K3MJW82NJXNuR7Ldmo",
+        "t": "2026-09-07T02:53:09.618Z",
+        "bt": 115.006435096,
+        "bu": 18.325056306848932,
+        "su": 18.2759638580612,
+        "q": "PENGU"
+      },
+      {
+        "id": "5qscPaGFgcWkR1T7LiRxfSHQfPqj454wdyC9RExQfT7gZbYWeDJDBAYZZrGwKk8fDXZLVUJSnczWhi9B5vNjWJqy",
+        "t": "2026-09-07T02:53:09.654Z",
+        "bt": 109.450476715,
+        "bu": 17.4397732347726,
+        "su": 17.493679903085717,
+        "q": "APPLX"
+      },
+      {
+        "id": "5ge2nDk4nr8unpwVw1oQ4kUng6tSGT6mrQYj9rN84rARrSDMzF4ohpMSBSxqeC5zxagHg9xQpHmA3v3nFZFSZwzo",
+        "t": "2026-09-07T02:53:09.691Z",
+        "bt": 114.771061239,
+        "bu": 18.28755197781652,
+        "su": 18.222935320129583,
+        "q": "WBNB"
+      },
+      {
+        "id": "pJh1KEvq4GNBQUQrSPGN5Tf5BfiWdzaCYztRzNTN5178tV8BteCsKeMG7KCNY5PHY6LxT5HNk9DXsQQystrYQ3J",
+        "t": "2026-09-07T02:53:09.729Z",
+        "bt": 74.170478618,
+        "bu": 11.818279523630395,
+        "su": 11.872539562730662,
+        "q": "OPENAI"
+      },
+      {
+        "id": "28fDXicg7bNgwXvdZetpfb5WXqj7csXzC1QqxNT9bxMZTmUHm8C7vb6XU8kPH3DgCU1VL4FxMmPibzqRQjPqDoXj",
+        "t": "2026-09-07T02:53:09.769Z",
+        "bt": 464.372058295,
+        "bu": 73.99276491337119,
+        "su": 73.76796157655637,
+        "q": "SPCXX"
+      },
+      {
+        "id": "4GKdrKWehwpA1gBJBMi5gqKbyxeiEgwcEMnje9z6s95njnBu7kYiEZf1U6G2GJsJYXaXbrkK6GhjVW5XDZSQhzfU",
+        "t": "2026-09-07T02:53:09.807Z",
+        "bt": 78.995446284,
+        "bu": 12.587086974138446,
+        "su": 12.542296913094043,
+        "q": "MET"
+      },
+      {
+        "id": "5Vt2V5hS6ZugFyXpamF8bnH6tnSmc9xFeSVshbSwhfXptoNUcvNSeJRgywzpAgFfPP3WKW2R7GsfaSo9oSg5kjCH",
+        "t": "2026-09-07T02:53:09.852Z",
+        "bt": 108.959812736,
+        "bu": 17.36159113100239,
+        "su": 17.352960480199975,
+        "q": "SPYX"
+      },
+      {
+        "id": "2nA8pJUU41FAgK16wGyx8U6WPfZLVGyrwzPCG9RnMh5LziYLc7ubuzkNaBz8GiuiVRfnbvtvdjmhjhQpwKEemz1r",
+        "t": "2026-09-07T02:53:09.889Z",
+        "bt": 34.582791169,
+        "bu": 5.510401177907345,
+        "su": 5.510588527707049,
+        "q": "JUP"
+      },
+      {
+        "id": "3PkCCbWqQRGTco22vPbLhWAex5SVz3wAaKYi6R6d5h4qoVPQC1m7LLiZA8wfhn9r7yGD15DFNp4fzLj3F3t9gQbT",
+        "t": "2026-09-07T02:53:09.929Z",
+        "bt": 305.97098721,
+        "bu": 48.75323336650765,
+        "su": 48.72784541855351,
+        "q": "$WIF"
+      },
+      {
+        "id": "Gy9rv5c6U2T8irR2wUStsCijZ7oX4jJ9UaMi9jr7ah1iMrvjy1WPAhErook4Dx5C3wX1H5gmYqb1JXrNHpE6vcg",
+        "t": "2026-09-07T02:53:09.966Z",
+        "bt": 1909.063872888,
+        "bu": 304.18909111339326,
+        "su": 304.6399881227951,
+        "q": "VIDAX"
+      },
+      {
+        "id": "5dGSSzQczpGQBzop4y1HF3mN5kExdqxvLgMG1VnGdichMApPHxv52rJXpedt3zj5wWqjxD2shKYB2NCEuG8BkZEW",
+        "t": "2026-09-07T02:53:10.002Z",
+        "bt": 244.032214318,
+        "bu": 38.88394648812058,
+        "su": 38.899446128016535,
+        "q": "BRKX"
+      },
+      {
+        "id": "5edfhz8GEfBbEM8EXUPXk4UBNYXB1XxB6FXJpQkYvHkcgyLEosL6i3Gzf48t39x6wL7iHEpnzbRLdANEL6uZQaRU",
+        "t": "2026-09-07T02:53:10.036Z",
+        "bt": 349.278563546,
+        "bu": 55.653836573692544,
+        "su": 55.45010198256114,
+        "q": "QQQX"
+      },
+      {
+        "id": "5MpPX5PZyFDbyxuTAreE29TgxgDitbqmhAufLc25UGekxkAQfTcujQQHKpXk3WLKxJ88kdubnBkZTgEJS8ciVcTo",
+        "t": "2026-09-07T02:53:10.074Z",
+        "bt": 33.493086987,
+        "bu": 5.336768367914669,
+        "su": 5.359429460782128,
+        "q": "NEAR"
+      },
+      {
+        "id": "4BXWNb5P38MFFKYHVY8zHUHXgBhz5RXmkzxMGwV3FtHSF5fXTRmyvsnLmiy1NX8YFtbB58eX3ruak2Gq53txWYKz",
+        "t": "2026-09-07T02:53:10.125Z",
+        "bt": 80.949446943,
+        "bu": 12.898436265766392,
+        "su": 12.84936438525284,
+        "q": "FIGUREAI"
+      },
+      {
+        "id": "3Mr527dmbBLWMuPwvoc9bgcV65oV5Wmh2LM9VcMaU8oopzqj8bkwGBqF4xkFyhmhfq8Xtqp8czLgMYdCY9QwrTx7",
+        "t": "2026-09-07T02:53:10.165Z",
+        "bt": 53.637299795,
+        "bu": 8.546535140144499,
+        "su": 8.524048018661825,
+        "q": "wXRP"
+      },
+      {
+        "id": "2BcHpU8KJVjCKzum61Z8brLpMjGw9wKFE6Ag27uPiv1Cm6Ta5aBsce8jvWCEZWmNVwqym9cDHQeLLq1C6SyEGbi7",
+        "t": "2026-09-07T02:53:10.206Z",
+        "bt": 38.662590156,
+        "bu": 6.160473898577221,
+        "su": 6.145588316790974,
+        "q": "TRUMP"
+      },
+      {
+        "id": "1KayUiRS4EUtvrwHFNiyi8QPyegvXAZXoTqsaG3pnJF7m6KFnu8fkhbMqspHxgcVJ4id7z21SvYZd8azMuqJ6fL",
+        "t": "2026-09-07T02:53:10.243Z",
+        "bt": 72.286243938,
+        "bu": 11.518046701201849,
+        "su": 11.522466832700394,
+        "q": "Bonk"
+      },
+      {
+        "id": "5eSgTseH4hiyR8upp16GwEReacMCRDJYgUgDkepBWg71wRiA6hT7xz4hNUCC9duYtVmxa3RQE2zv1F8nYNrY57nD",
+        "t": "2026-09-07T02:53:10.279Z",
+        "bt": 156.172763071,
+        "bu": 24.88447428601141,
+        "su": 24.812847643008006,
+        "q": "MCDX"
+      },
+      {
+        "id": "2gpcoo7ANqF4WpG7H43mkfJdRRoziJsVzNXMiSzFv1pGCYMLsQwEHMvT6UTNwPhZTTTKM7SBqqjZQq4KBo1wdwTK",
+        "t": "2026-09-07T02:53:10.314Z",
+        "bt": 42.027175281,
+        "bu": 6.6965848719618375,
+        "su": 6.707722479596657,
+        "q": "RAY"
+      },
+      {
+        "id": "3jDkuKjkiJe7SuZviBtAyLefedY4zrXqiRq9PwvcNJaNaiB9PQ3iiivtU2ajm3uu8eNs1KdQwfBbiX1m4EkPcZ1P",
+        "t": "2026-09-07T02:53:10.353Z",
+        "bt": 96.387962997,
+        "bu": 15.358400142984086,
+        "su": 16.540587387633344,
+        "q": "AMC"
+      },
+      {
+        "id": "3XjnrB92Tk9QRwS9GeRSZ7BGVahHgxRK3U2Wn7ZkqJAEgv8A7xthtb4an7qux51U4Mbk8HC8RdEzb8RBXyLanr1o",
+        "t": "2026-09-07T02:53:10.391Z",
+        "bt": 61.439169638,
+        "bu": 9.789680395906403,
+        "su": 9.8784794041655,
+        "q": "KOX"
+      },
+      {
+        "id": "64nXRTpKCRW5DDQggFBrAGbghwyK3WRsixTSGN9T4vSVa9yGVxjVmCriSv5MyhHEhiRDtPHgwLiuWTR9tgBQVEg9",
+        "t": "2026-09-07T02:53:10.430Z",
+        "bt": 542.218890738,
+        "bu": 86.39683244782715,
+        "su": 86.44001216877344,
+        "q": "SKR"
+      },
+      {
+        "id": "4fkwPcKG5NcWFyQSGrZorp6tpqDkjA2jH247zxUom1uqAYeoroX5DxY9den2spdYx93p5wp8NnazdKe439qGLsPS",
+        "t": "2026-09-07T02:53:10.475Z",
+        "bt": 210.859020703,
+        "bu": 33.598149738004466,
+        "su": 33.47754067218908,
+        "q": "MU"
+      },
+      {
+        "id": "3NskscDFVqdB1r5RroX4ZXEbm36nwHZLTt8djt1CAA8e9u6aVht1WMLLfTWRBgbT6FCUJ7ez4jVxAPqRU9k2oRqj",
+        "t": "2026-09-07T02:53:10.514Z",
+        "bt": 274.248741262,
+        "bu": 43.69862974635746,
+        "su": 43.50281970935343,
+        "q": "SILVER"
+      },
+      {
+        "id": "64KHzgzMSFBErPCR73aHYuVfLZRyXyrsMjEEWQCuN79s8GtAkjxNxDbPfXJCVboj8AW4ZmTLnhQ2jg2so4uiyMH9",
+        "t": "2026-09-07T02:53:10.551Z",
+        "bt": 534.136615923,
+        "bu": 85.10900763220991,
+        "su": 84.78478299266195,
+        "q": "PLTRX"
+      },
+      {
+        "id": "Mgdy9ityVPX2hVyYugG1iWdjEWqPZtPxFnPSq45sScTYENL4TfBRbFPnP8vsoq4pS6yPQutLgEXtUJd9MnUjGxT",
+        "t": "2026-09-07T02:53:10.588Z",
+        "bt": 47.026051153,
+        "bu": 7.493102751582077,
+        "su": 7.483425839746796,
+        "q": "ANSEM"
+      },
+      {
+        "id": "4m9wyvNSJYjGMTALe93EgyEBHBXv8AnTsfEX6xuUbBsbEJeEgaowxtgjX8LttC4uyTjAK7UdmyHevnZ8PKAmAP3z",
+        "t": "2026-09-07T02:53:10.625Z",
+        "bt": 94.367059974,
+        "bu": 15.03639066885124,
+        "su": 14.973586498940211,
+        "q": "GLDX"
+      },
+      {
+        "id": "2g8jQ6vJ4Vm2jzZanjEKHjijFuJ99xJFkUooCUKVNBkT3ftrxDYAkXyLx8LHEJd6DNXCK57D5vtxzYbXBxobjG8d",
+        "t": "2026-09-07T02:58:34.498Z",
+        "bt": 1.066838806,
+        "bu": 0.16796147963036298,
+        "su": 0.16784781496525744,
+        "q": "SOL"
       }
     ],
     "coverage": {
       "burns": [
         [
           "2026-09-06T21:18:23.688Z",
-          "2026-09-07T02:33:08.577Z"
+          "2026-09-07T02:58:34.451Z"
         ]
       ],
       "buybacks": [
         [
           "2026-09-07T02:08:11.785Z",
-          "2026-09-07T02:33:08.543Z"
+          "2026-09-07T02:58:34.498Z"
         ]
       ]
     },
     "totals": {
-      "burnEvents": 101,
-      "burnTokens": 1214431.217606866,
-      "burnUsd": 192147.4594644114,
-      "buybackEvents": 128,
-      "boughtTokens": 70100.030244797,
-      "spentUsd": 10636.378871178682
+      "burnEvents": 107,
+      "burnTokens": 1263603.418132395,
+      "burnUsd": 199870.07377912788,
+      "buybackEvents": 209,
+      "boughtTokens": 119272.230770326,
+      "spentUsd": 18401.304076631124
     }
   },
   "ledgerUpdate": {
     "added": {
-      "burns": 1,
-      "buybacks": 28
+      "burns": 6,
+      "buybacks": 81
     },
     "page": {
       "burns": [
-        "2026-09-06T21:23:07.369Z",
-        "2026-09-07T02:33:08.577Z"
+        "2026-09-06T21:38:06.090Z",
+        "2026-09-07T02:58:34.451Z"
       ],
       "buybacks": [
-        "2026-09-07T02:13:08.386Z",
-        "2026-09-07T02:33:08.543Z"
+        "2026-09-07T02:33:07.911Z",
+        "2026-09-07T02:58:34.498Z"
       ]
     },
     "pageFullyNew": {
@@ -2706,13 +3406,13 @@
       "burns": [
         [
           "2026-09-06T21:18:23.688Z",
-          "2026-09-07T02:33:08.577Z"
+          "2026-09-07T02:58:34.451Z"
         ]
       ],
       "buybacks": [
         [
           "2026-09-07T02:08:11.785Z",
-          "2026-09-07T02:33:08.543Z"
+          "2026-09-07T02:58:34.498Z"
         ]
       ]
     }
@@ -2993,45 +3693,45 @@
     },
     {
       "date": "2026-09-02",
-      "revenue": 38857.95498308743,
+      "revenue": 38857.95498308739,
       "holders": 23019.251691554433,
-      "protocol": 15838.703291532998,
+      "protocol": 15838.703291532955,
       "cumulativeHolders": 827414.7535619894
     },
     {
       "date": "2026-09-03",
-      "revenue": 64050.00379900653,
+      "revenue": 64050.0037990065,
       "holders": 38019.55283912335,
-      "protocol": 26030.45095988318,
+      "protocol": 26030.45095988315,
       "cumulativeHolders": 865434.3064011128
     },
     {
       "date": "2026-09-04",
-      "revenue": 78869.1249529685,
+      "revenue": 78869.12495296857,
       "holders": 46358.597199199765,
-      "protocol": 32510.527753768736,
+      "protocol": 32510.52775376881,
       "cumulativeHolders": 911792.9036003125
     },
     {
       "date": "2026-09-05",
-      "revenue": 186107.63435034355,
+      "revenue": 186107.63435034367,
       "holders": 110863.87317045368,
-      "protocol": 75243.76117988987,
+      "protocol": 75243.76117988999,
       "cumulativeHolders": 1022656.7767707662
     },
     {
       "date": "2026-09-06",
-      "revenue": 1508194.5494740906,
+      "revenue": 1508194.5494740908,
       "holders": 904502.7482378255,
-      "protocol": 603691.8012362651,
+      "protocol": 603691.8012362653,
       "cumulativeHolders": 1927159.5250085918
     },
     {
       "date": "2026-09-07",
-      "revenue": 164524.5334471108,
-      "holders": 100264.26725905588,
-      "protocol": 64260.26618805491,
-      "cumulativeHolders": 2027423.7922676478
+      "revenue": 179962.54686404,
+      "holders": 108029.0246166933,
+      "protocol": 71933.52224734669,
+      "cumulativeHolders": 2035188.5496252852
     }
   ],
   "historyMeta": {
@@ -3040,33 +3740,33 @@
     "unit": "USD"
   },
   "coverage": {
-    "revenueRows": 88694,
+    "revenueRows": 88913,
     "revenueRowsUnpriced": 39,
-    "buybackRows": 41311,
+    "buybackRows": 41391,
     "buybackRowsUnpriced": 24,
-    "revenueUnpricedPct": 0.043971407310528336,
-    "buybackUnpricedPct": 0.0580959066592433
+    "revenueUnpricedPct": 0.04386310213354627,
+    "buybackUnpricedPct": 0.05798361962745524
   },
   "usdCrossCheck": {
-    "historyHoldersRevenueSum": 2027423.7922676473,
-    "revenueTotalBuybackUsd": 2027423.7922676392,
-    "revenueBoughtBackValueUsd": 2012874.866888236,
-    "tokenBurnValueUsdAtBurn": 2036350.3163212317,
-    "boughtBackTokens": 124557806.38008706,
-    "boughtNotYetBurnedTokens": 335343.8483131528
+    "historyHoldersRevenueSum": 2035188.5496252847,
+    "revenueTotalBuybackUsd": 2035188.7174730918,
+    "revenueBoughtBackValueUsd": 2020597.4812029526,
+    "tokenBurnValueUsdAtBurn": 2044072.9306359484,
+    "boughtBackTokens": 124606978.58061263,
+    "boughtNotYetBurnedTokens": 335343.8483132124
   },
   "platformRevenue": {
-    "totalRevenueUsd": 3423662.2238090103,
-    "platformPairExcludedUsd": 91043.90383855511,
-    "totalBuybackUsd": 2027423.7922676392,
-    "boughtBackTokens": 124557806.38008706,
-    "boughtBackValueUsd": 2012874.866888236,
-    "buybackCount": 41311,
-    "lastBuybackAt": "2026-09-07T02:33:08.543Z"
+    "totalRevenueUsd": 3441782.558103507,
+    "platformPairExcludedUsd": 91367.27462448359,
+    "totalBuybackUsd": 2035188.7174730918,
+    "boughtBackTokens": 124606978.58061263,
+    "boughtBackValueUsd": 2020597.4812029526,
+    "buybackCount": 41392,
+    "lastBuybackAt": "2026-09-07T02:58:34.498Z"
   },
   "platformBurns": {
-    "totalValueUsdAtBurn": 2435642.3932994744,
-    "burnCount": 29223,
+    "totalValueUsdAtBurn": 2444727.98401173,
+    "burnCount": 29295,
     "mintCount": 325,
     "bySource": {
       "auto": {
@@ -3080,19 +3780,19 @@
         "count": 1371
       },
       "flywheel": {
-        "amountTokens": 99826520.88841584,
-        "valueUsd": 143178.67250743846,
-        "count": 14841
+        "amountTokens": 99923820.08896159,
+        "valueUsd": 143740.45938937512,
+        "count": 14898
       },
       "buyback": {
-        "amountTokens": 112221543.2525382,
-        "valueUsd": 2010379.5709198557,
-        "count": 8699
+        "amountTokens": 112270715.45306373,
+        "valueUsd": 2018102.1852345725,
+        "count": 8705
       },
       "reward": {
-        "amountTokens": 3299444674.9875712,
-        "valueUsd": 204102.84527302522,
-        "count": 1656
+        "amountTokens": 3304330359.5803227,
+        "valueUsd": 204904.0347886178,
+        "count": 1665
       },
       "kickstart": {
         "amountTokens": 12428829.37200099,
@@ -3105,20 +3805,20 @@
     "network": "mainnet-beta",
     "tokens": {
       "poolsAvailable": true,
-      "total": 13255,
-      "graduated": 891,
+      "total": 13295,
+      "graduated": 893,
       "aboutToGraduate": 0,
-      "rewardLaunches": 9441,
-      "totalMarketCapUsd": 418963675.7098361,
-      "totalVolume24hUsd": 145275170.2964668
+      "rewardLaunches": 9474,
+      "totalMarketCapUsd": 436539005.2352003,
+      "totalVolume24hUsd": 142646915.8445967
     },
     "revenue": {
-      "totalRevenueUsd": 3423662.2238090164,
-      "totalBuybackUsd": 2027423.7922676392
+      "totalRevenueUsd": 3439100.2372259386,
+      "totalBuybackUsd": 2035188.5496252768
     },
     "burns": {
-      "totalValueUsdAtBurn": 2435642.3932994744,
-      "burnCount": 29223
+      "totalValueUsdAtBurn": 2444618.3333024182,
+      "burnCount": 29277
     },
     "config": {
       "graduationMarketCapUsd": 40000,

@@ -13,7 +13,8 @@ DIST_DIR = ROOT_DIR / "dist"
 
 SNAPSHOT_PATH = DATA_DIR / "snapshot.json"
 RECON_LOG_PATH = DATA_DIR / "recon_history.jsonl"
-DASHBOARD_PATH = DIST_DIR / "dashboard.html"
+# dist/ is the Vercel deploy root, so the page has to be index.html.
+DASHBOARD_PATH = DIST_DIR / "index.html"
 
 # Intraday ledgers. The API pages at 100 records and cannot backfill, so these
 # accumulate locally; coverage.json records which ranges were actually observed.

@@ -180,6 +180,7 @@ def collect(mint=config.MINT, rpc_url=config.RPC_URL):
   return {
     "generatedAt": _utc_now(),
     "mint": mint,
+    "apiBase": config.API_BASE,
     "network": token_payload.get("network"),
     "rpcUrl": chain["rpcUrl"],
     "rateLimitRemaining": client.rate_limit_remaining,

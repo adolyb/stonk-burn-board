@@ -127,6 +127,33 @@
   .masthead-meta b { font-weight: 500; color: var(--ink); }
   .masthead-meta span { color: var(--ink-3); }
 
+  .mast-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  .mast-actions { display: flex; align-items: center; gap: 10px; }
+  .refresh-btn {
+    appearance: none;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .refresh-btn:hover:not(:disabled) { filter: brightness(1.08); }
+  .refresh-btn:disabled { opacity: 0.55; cursor: progress; }
+  .refresh-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Hold the previous render while refetching: no skeleton, no layout jump. */
+  body[data-loading="1"] .wrap > section { opacity: 0.5; transition: opacity 0.15s ease; }
+
+  .readout.warn {
+    border-left: 3px solid var(--warning);
+    background: var(--surface-sunk);
+    color: var(--ink-2);
+  }
+
   /* ---------- hero ---------- */
   .hero {
     display: grid;
@@ -435,8 +462,15 @@
       <div class="eyebrow" id="mast-eyebrow">Solana · SPL burn ledger</div>
       <h1>STONK 销毁看板</h1>
     </div>
-    <div class="masthead-meta" id="mast-meta"></div>
+    <div class="mast-side">
+      <div class="mast-actions">
+        <span class="chip" id="freshness"></span>
+        <button type="button" class="refresh-btn" id="refresh">更新数据</button>
+      </div>
+      <div class="masthead-meta" id="mast-meta"></div>
+    </div>
   </header>
+  <div class="readout warn" id="refresh-error" hidden></div>
 
   <section class="hero">
     <div class="hero-figure">
@@ -623,7 +657,7 @@
 </div>
 
 <script>
-  const SNAPSHOT = /*__SNAPSHOT__*/ null;
+  let SNAPSHOT = /*__SNAPSHOT__*/ null;
 
   /* ---------- formatting ---------- */
   const nf = (v, d = 0) => Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -904,7 +938,7 @@
   }
 
   /* ---------- intraday: local ledger, binned ---------- */
-  const INTRA = SNAPSHOT.intraday || { burns: [], buybacks: [], coverage: {}, generatedAtMs: Date.now() };
+  let INTRA = SNAPSHOT.intraday || { burns: [], buybacks: [], coverage: {}, generatedAtMs: Date.now() };
   let binMinutes = 5;
   let intraWindow = "all";
 
@@ -1461,6 +1495,416 @@
     ].forEach((t) => f.appendChild(el("span", null, t)));
   }
 
+  /* ---------- live refresh: the page is its own collector ---------- */
+  const API_BASE = SNAPSHOT.apiBase || "https://www.stonkfun.xyz/api/public/v1";
+  const RPC_URL = SNAPSHOT.rpcUrl || "https://api.mainnet-beta.solana.com";
+  const MINT = SNAPSHOT.mint;
+  const INTRADAY_HOURS = (SNAPSHOT.intraday && SNAPSHOT.intraday.windowHours) || 48;
+  const STORE_KEY = "stonk-burn-board/v1";
+  const ASSUMED_INITIAL = BigInt(SNAPSHOT.recon.assumedInitialSupply);
+
+  let dataSource = "内置快照";
+  let rateLimitRemaining = SNAPSHOT.rateLimitRemaining;
+
+  /* ---- browser-side ledger, same contract as the Python one ---- */
+  function loadStore() {
+    try {
+      return JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {};
+    } catch (err) {
+      return {}; // private mode, cleared storage, or blocked site data
+    }
+  }
+  function saveStore(store) {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(store));
+    } catch (err) {
+      /* quota exceeded or storage blocked: the page still works, it just forgets */
+    }
+  }
+
+  function mergeEvents(existing, incoming, cutoffMs) {
+    const seen = new Set(existing.map((r) => r.id).filter(Boolean));
+    const fresh = incoming.filter((r) => r.id && r.t && !seen.has(r.id));
+    const all = existing
+      .concat(fresh)
+      .filter((r) => Date.parse(r.t) >= cutoffMs)
+      .sort((a, b) => (a.t < b.t ? -1 : a.t > b.t ? 1 : 0));
+    return { rows: all, added: fresh.length, hadPrior: existing.length > 0 };
+  }
+
+  // Intervals join only where they actually overlap, so a poll that missed a
+  // stretch leaves a real hole instead of one continuous claim of coverage.
+  function mergeCoverage(segments, startIso, endIso, cutoffMs) {
+    const list = (segments || []).map((s) => [Date.parse(s[0]), Date.parse(s[1])]);
+    if (startIso && endIso) list.push([Date.parse(startIso), Date.parse(endIso)]);
+    list.sort((a, b) => a[0] - b[0]);
+    const merged = [];
+    list.forEach((seg) => {
+      if (merged.length && seg[0] <= merged[merged.length - 1][1]) {
+        merged[merged.length - 1][1] = Math.max(merged[merged.length - 1][1], seg[1]);
+      } else {
+        merged.push([seg[0], seg[1]]);
+      }
+    });
+    return merged
+      .filter((seg) => seg[1] >= cutoffMs)
+      .map((seg) => [new Date(Math.max(seg[0], cutoffMs)).toISOString(), new Date(seg[1]).toISOString()]);
+  }
+
+  const normaliseBurns = (burns) =>
+    burns.map((b) => ({ id: b.signature, t: b.burnedAt, a: b.amountTokens || 0, u: b.valueUsdAtBurn || 0, s: b.source || "unknown" }));
+
+  const normaliseBuybacks = (rows) =>
+    rows.map((b) => ({
+      id: b.signature,
+      t: b.boughtAt,
+      bt: b.boughtTokens || 0,
+      bu: b.boughtValueUsd || 0,
+      su: b.spentValueUsd || 0,
+      q: (b.quote || {}).symbol || "?",
+    }));
+
+  /* ---- derivations, ported from the Python collector ---- */
+
+  // Raw integer units throughout: the delta is small enough that float rounding
+  // would be a meaningful share of it, and 1e18 is past Number's exact range.
+  function reconcile(chain, totals) {
+    const decimals = chain.decimals;
+    const scale = 10n ** BigInt(decimals);
+    const supplyRaw = BigInt(chain.amountRaw);
+    const initialRaw = ASSUMED_INITIAL * scale;
+    const chainBurnedRaw = initialRaw - supplyRaw;
+    const apiBurnedRaw = BigInt(totals.amountRaw);
+    const deltaRaw = chainBurnedRaw - apiBurnedRaw;
+    const impliedRaw = supplyRaw + apiBurnedRaw;
+
+    const toUi = (raw) => {
+      const negative = raw < 0n;
+      const abs = negative ? -raw : raw;
+      const value = Number(abs / scale) + Number(abs % scale) / Number(scale);
+      return negative ? -value : value;
+    };
+
+    const chainBurned = toUi(chainBurnedRaw);
+    const deltaTokens = toUi(deltaRaw);
+    return {
+      assumedInitialSupply: Number(ASSUMED_INITIAL),
+      decimals,
+      supply: toUi(supplyRaw),
+      supplyRaw: supplyRaw.toString(),
+      chainBurned,
+      chainBurnedRaw: chainBurnedRaw.toString(),
+      apiBurned: toUi(apiBurnedRaw),
+      apiBurnedRaw: apiBurnedRaw.toString(),
+      deltaTokens,
+      deltaRaw: deltaRaw.toString(),
+      deltaPctOfBurned: chainBurned ? (deltaTokens / chainBurned) * 100 : 0,
+      direction: deltaRaw > 0n ? "chain_ahead" : deltaRaw < 0n ? "api_ahead" : "match",
+      burnedPctOfInitial: (chainBurned / Number(ASSUMED_INITIAL)) * 100,
+      impliedInitialSupply: toUi(impliedRaw),
+      impliedVsAssumed: toUi(impliedRaw - initialRaw),
+      chainObservedAt: chain.fetchedAt,
+      apiLastBurnAt: totals.lastBurnAt,
+      slot: chain.slot,
+    };
+  }
+
+  function buildDaily(history) {
+    let cumulative = 0;
+    return history.days.map((row) => {
+      const holders = row.dailyHoldersRevenue || 0;
+      cumulative += holders;
+      return {
+        date: row.date,
+        revenue: row.dailyRevenue || 0,
+        holders,
+        protocol: row.dailyProtocolRevenue || 0,
+        cumulativeHolders: cumulative,
+      };
+    });
+  }
+
+  function summariseCoverage(history) {
+    const c = Object.assign({}, history.coverage || {});
+    c.revenueUnpricedPct = c.revenueRows ? ((c.revenueRowsUnpriced || 0) / c.revenueRows) * 100 : 0;
+    c.buybackUnpricedPct = c.buybackRows ? ((c.buybackRowsUnpriced || 0) / c.buybackRows) * 100 : 0;
+    return c;
+  }
+
+  function sourceMix(burns) {
+    const mix = new Map();
+    burns.forEach((b) => {
+      const key = b.source || "unknown";
+      const bucket = mix.get(key) || { source: key, count: 0, amountTokens: 0, valueUsd: 0 };
+      bucket.count += 1;
+      bucket.amountTokens += b.amountTokens || 0;
+      bucket.valueUsd += b.valueUsdAtBurn || 0;
+      mix.set(key, bucket);
+    });
+    return [...mix.values()].sort((a, b) => b.amountTokens - a.amountTokens);
+  }
+
+  function crossCheckUsd(history, revenue, totals) {
+    const holdersSum = history.days.reduce((sum, d) => sum + (d.dailyHoldersRevenue || 0), 0);
+    const bought = revenue.boughtBackTokens || 0;
+    return {
+      historyHoldersRevenueSum: holdersSum,
+      revenueTotalBuybackUsd: revenue.totalBuybackUsd,
+      revenueBoughtBackValueUsd: revenue.boughtBackValueUsd,
+      tokenBurnValueUsdAtBurn: totals.valueUsdAtBurn,
+      boughtBackTokens: bought,
+      boughtNotYetBurnedTokens: bought - totals.amountTokens,
+    };
+  }
+
+  /* ---- network ---- */
+  async function getJson(path) {
+    const response = await fetch(`${API_BASE}/${path}`, { headers: { Accept: "application/json" } });
+    const remaining = response.headers.get("X-RateLimit-Remaining");
+    if (remaining !== null) rateLimitRemaining = Number(remaining);
+    if (response.status === 429) {
+      throw new Error(`触发限速，请 ${response.headers.get("Retry-After") || "稍"}秒后重试`);
+    }
+    if (!response.ok) throw new Error(`${path} → HTTP ${response.status}`);
+    const payload = await response.json();
+    if (payload.error) throw new Error(`${path} → ${payload.error.message || payload.error.code}`);
+    return payload.data;
+  }
+
+  // The public Solana endpoints answer 403 to anything carrying a browser Origin,
+  // so the deployed page reads the chain through its own serverless proxy and
+  // falls back to a browser-tolerant public node when that route is absent
+  // (opening the built file straight off disk, for instance).
+  const RPC_CANDIDATES = [
+    { url: "/api/supply", proxy: true },
+    { url: "https://solana.leorpc.com/?api_key=FREE", proxy: false },
+  ];
+  let rpcUsed = SNAPSHOT.rpcUrl;
+
+  async function getSupply() {
+    const failures = [];
+    for (const candidate of RPC_CANDIDATES) {
+      try {
+        const response = candidate.proxy
+          ? await fetch(candidate.url, { headers: { Accept: "application/json" } })
+          : await fetch(candidate.url, {
+              method: "POST",
+              // text/plain is CORS-safelisted, so this skips the preflight that
+              // application/json would trigger - which several public nodes reject.
+              headers: { "Content-Type": "text/plain;charset=UTF-8" },
+              body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "getTokenSupply", params: [MINT] }),
+            });
+        if (!response.ok) { failures.push(`${candidate.url} → HTTP ${response.status}`); continue; }
+        const payload = await response.json();
+        if (payload.error) {
+          failures.push(`${candidate.url} → ${payload.error.message || payload.error.code}`);
+          continue;
+        }
+        const value = payload.result.value;
+        rpcUsed = candidate.url;
+        return {
+          rpcUrl: candidate.url,
+          slot: payload.result.context.slot,
+          amountRaw: value.amount,
+          decimals: value.decimals,
+          fetchedAt: new Date().toISOString(),
+        };
+      } catch (err) {
+        failures.push(`${candidate.url} → ${err.message}`);
+      }
+    }
+    throw new Error("读取链上供应失败。" + failures.join("；"));
+  }
+
+  /* ---- assemble ---- */
+  function persistAndBuildIntraday(store, burnRows, buybackRows, recon) {
+    const now = Date.now();
+    const cutoff = now - INTRADAY_HOURS * 3600000;
+
+    const burns = mergeEvents(store.burns || [], burnRows, cutoff);
+    const buybacks = mergeEvents(store.buybacks || [], buybackRows, cutoff);
+    const coverage = store.coverage || {};
+
+    const span = (rows) => (rows.length ? [rows[0].t, rows[rows.length - 1].t] : [null, null]);
+    const burnSpan = span(burnRows.slice().sort((a, b) => (a.t < b.t ? -1 : 1)));
+    const buySpan = span(buybackRows.slice().sort((a, b) => (a.t < b.t ? -1 : 1)));
+
+    const nextCoverage = {
+      burns: mergeCoverage(coverage.burns, burnSpan[0], burnSpan[1], cutoff),
+      buybacks: mergeCoverage(coverage.buybacks, buySpan[0], buySpan[1], cutoff),
+    };
+
+    const reconHistory = (store.recon || []).concat(recon ? [{
+      observedAt: recon.chainObservedAt,
+      slot: recon.slot,
+      supply: recon.supply,
+      chainBurned: recon.chainBurned,
+      apiBurned: recon.apiBurned,
+      deltaTokens: recon.deltaTokens,
+      direction: recon.direction,
+    }] : []).slice(-200);
+
+    const next = { burns: burns.rows, buybacks: buybacks.rows, coverage: nextCoverage, recon: reconHistory };
+    saveStore(Object.assign({}, store, next));
+
+    return {
+      intraday: { windowHours: INTRADAY_HOURS, generatedAtMs: now, burns: burns.rows, buybacks: buybacks.rows, coverage: nextCoverage },
+      reconHistory,
+      // A full page of unseen records on a ledger that already had history means
+      // older records rotated out between refreshes.
+      fellBehind: [
+        burns.hadPrior && burns.added >= 100 ? "销毁" : null,
+        buybacks.hadPrior && buybacks.added >= 100 ? "回购" : null,
+      ].filter(Boolean),
+      added: { burns: burns.added, buybacks: buybacks.added },
+    };
+  }
+
+  async function refresh() {
+    const button = document.getElementById("refresh");
+    const errorBox = document.getElementById("refresh-error");
+    button.disabled = true;
+    button.textContent = "更新中…";
+    document.body.dataset.loading = "1";
+    errorBox.hidden = true;
+
+    try {
+      const burnsData = await getJson(`tokens/${MINT}/burns?limit=100`);
+      // Read the chain right after the burn ledger so the two are as close in
+      // time as the network allows; residual skew shows up as the delta.
+      const chain = await getSupply();
+      const [tokenData, revenueData, historyData, statsData] = await Promise.all([
+        getJson(`tokens/${MINT}`),
+        getJson("revenue?limit=100"),
+        getJson("revenue/history"),
+        getJson("stats"),
+      ]);
+
+      const recon = reconcile(chain, burnsData.totals);
+      const store = loadStore();
+      const merged = persistAndBuildIntraday(
+        store,
+        normaliseBurns(burnsData.burns),
+        normaliseBuybacks(revenueData.recentBuybacks),
+        recon
+      );
+
+      SNAPSHOT = {
+        generatedAt: new Date().toISOString(),
+        mint: MINT,
+        apiBase: API_BASE,
+        network: tokenData.network,
+        rpcUrl: rpcUsed,
+        rateLimitRemaining,
+        token: tokenData.token,
+        recon,
+        reconHistory: merged.reconHistory,
+        burnTotals: burnsData.totals,
+        recentBurns: burnsData.burns,
+        sourceMix: sourceMix(burnsData.burns),
+        intraday: merged.intraday,
+        daily: buildDaily(historyData),
+        historyMeta: { start: historyData.start, source: historyData.source, unit: historyData.unit },
+        coverage: summariseCoverage(historyData),
+        usdCrossCheck: crossCheckUsd(historyData, revenueData.revenue, burnsData.totals),
+        platformRevenue: revenueData.revenue,
+        platformBurns: revenueData.burns,
+        platformStats: statsData,
+      };
+
+      const base = loadStore();
+      saveStore(Object.assign({}, base, { baseSnapshot: withoutLedger(SNAPSHOT) }));
+
+      dataSource = "实时";
+      INTRA = SNAPSHOT.intraday;
+      renderEverything();
+
+      if (merged.fellBehind.length) {
+        showError(
+          `采集落后：${merged.fellBehind.join("、")}流返回的 100 条全是新记录，` +
+          `说明两次更新之间有记录被挤出接口。这段区间在分时图上会显示为空档。`,
+          "warn"
+        );
+      }
+    } catch (err) {
+      showError(String(err.message || err), "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = "更新数据";
+      delete document.body.dataset.loading;
+    }
+  }
+
+  // The ledger lives under its own keys; keeping a second copy inside the cached
+  // snapshot would double the storage for no gain.
+  function withoutLedger(snapshot) {
+    const copy = Object.assign({}, snapshot);
+    delete copy.intraday;
+    delete copy.reconHistory;
+    return copy;
+  }
+
+  function showError(message, kind) {
+    const box = document.getElementById("refresh-error");
+    box.replaceChildren();
+    box.appendChild(el("b", null, kind === "warn" ? "提示：" : "更新失败："));
+    box.appendChild(document.createTextNode(message));
+    box.hidden = false;
+  }
+
+  function renderFreshness() {
+    const chip = document.getElementById("freshness");
+    const ageMs = Date.now() - Date.parse(SNAPSHOT.generatedAt);
+    const minutes = Math.max(0, Math.round(ageMs / 60000));
+    const label = minutes < 1 ? "刚刚" : minutes < 90 ? `${minutes} 分钟前` : `${Math.round(minutes / 60)} 小时前`;
+    chip.textContent = `${dataSource} · ${label}`;
+    chip.className = "chip " + (dataSource === "实时" && minutes < 5 ? "flat" : ageMs > 3600000 ? "neg" : "");
+  }
+
+  // Seed the ledger from the build-time snapshot, then let anything already in
+  // this browser extend it, so a reload keeps the intraday history it collected.
+  function hydrate() {
+    const store = loadStore();
+    if (store.baseSnapshot && Date.parse(store.baseSnapshot.generatedAt) > Date.parse(SNAPSHOT.generatedAt)) {
+      SNAPSHOT = Object.assign({}, store.baseSnapshot);
+      dataSource = "本地缓存";
+    }
+    const embedded = SNAPSHOT.intraday || { burns: [], buybacks: [], coverage: {} };
+    const merged = persistAndBuildIntraday(
+      { burns: store.burns || [], buybacks: store.buybacks || [], coverage: store.coverage || {}, recon: store.recon || [] },
+      embedded.burns || [],
+      embedded.buybacks || [],
+      null
+    );
+    // Coverage from the build-time snapshot is a real observation too.
+    const cutoff = Date.now() - INTRADAY_HOURS * 3600000;
+    const embeddedCoverage = embedded.coverage || {};
+    merged.intraday.coverage = {
+      burns: mergeCoverage(
+        merged.intraday.coverage.burns.concat(embeddedCoverage.burns || []).sort(),
+        null, null, cutoff
+      ),
+      buybacks: mergeCoverage(
+        merged.intraday.coverage.buybacks.concat(embeddedCoverage.buybacks || []).sort(),
+        null, null, cutoff
+      ),
+    };
+    const embeddedRecon = SNAPSHOT.reconHistory || [];
+    const seenRecon = new Set(merged.reconHistory.map((r) => r.observedAt));
+    SNAPSHOT.reconHistory = merged.reconHistory
+      .concat(embeddedRecon.filter((r) => !seenRecon.has(r.observedAt)))
+      .sort((a, b) => (a.observedAt < b.observedAt ? -1 : 1))
+      .slice(-200);
+    SNAPSHOT.intraday = merged.intraday;
+    saveStore(Object.assign({}, loadStore(), {
+      burns: merged.intraday.burns,
+      buybacks: merged.intraday.buybacks,
+      coverage: merged.intraday.coverage,
+      recon: SNAPSHOT.reconHistory,
+    }));
+    INTRA = SNAPSHOT.intraday;
+  }
+
   /* ---------- wiring ---------- */
   let currentRange = "all";
   function visibleDays() {
@@ -1525,16 +1969,25 @@
     btn.textContent = target.hidden ? labels[0] : labels[1];
   });
 
-  renderHeader(SNAPSHOT);
-  renderHero(SNAPSHOT);
-  renderRecon(SNAPSHOT);
-  renderBurnsSection(SNAPSHOT);
-  renderCrossCheck(SNAPSHOT);
-  renderCoverage(SNAPSHOT);
-  renderPlatform(SNAPSHOT);
-  renderNotes(SNAPSHOT);
-  renderFooter(SNAPSHOT);
-  drawAll();
+  function renderEverything() {
+    renderHeader(SNAPSHOT);
+    renderHero(SNAPSHOT);
+    renderRecon(SNAPSHOT);
+    renderBurnsSection(SNAPSHOT);
+    renderCrossCheck(SNAPSHOT);
+    renderCoverage(SNAPSHOT);
+    renderPlatform(SNAPSHOT);
+    renderNotes(SNAPSHOT);
+    renderFooter(SNAPSHOT);
+    renderFreshness();
+    drawAll();
+  }
+
+  document.getElementById("refresh").addEventListener("click", refresh);
+
+  hydrate();
+  renderEverything();
+  setInterval(renderFreshness, 30000);
 
   let resizeTimer = null;
   window.addEventListener("resize", () => {
