@@ -8,4 +8,7 @@ Type=oneshot
 WorkingDirectory=/opt/stonk
 EnvironmentFile=-/opt/stonk/.env
 ExecStart=/bin/bash /opt/stonk/deploy/publish.sh
+# The collector is meant to be a guest on a small box: a runaway here must not
+# be what takes the host's other services down with it.
+MemoryMax=256M
 TimeoutStartSec=180

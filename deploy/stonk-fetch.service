@@ -10,4 +10,7 @@ EnvironmentFile=-/opt/stonk/.env
 ExecStart=/opt/stonk/.venv/bin/python main.py fetch
 # One cycle is 5 API calls; if it cannot finish in two minutes the next tick is
 # a better bet than a pile-up of stuck runs.
+# The collector is meant to be a guest on a small box: a runaway here must not
+# be what takes the host's other services down with it.
+MemoryMax=192M
 TimeoutStartSec=120
