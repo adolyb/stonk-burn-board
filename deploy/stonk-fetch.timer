@@ -1,0 +1,13 @@
+[Unit]
+Description=STONK burn board - fetch every 3 minutes
+
+[Timer]
+# 100 records is ~25 minutes of history at ordinary activity but only a few
+# minutes during a burst. 3 minutes leaves headroom without burning rate limit.
+OnBootSec=90s
+OnUnitActiveSec=3min
+AccuracySec=15s
+Persistent=true
+
+[Install]
+WantedBy=timers.target

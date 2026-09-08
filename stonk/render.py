@@ -9,6 +9,7 @@ import json
 from . import config
 
 PLACEHOLDER = "/*__SNAPSHOT__*/ null"
+LIVE_PLACEHOLDER = '/*__LIVE_URL__*/ ""'
 
 TEMPLATE_PATH = config.ROOT_DIR / "stonk" / "template.html"
 
@@ -49,6 +50,7 @@ def render(snapshot, template_path=TEMPLATE_PATH, output_path=config.DASHBOARD_P
     raise ValueError(f"snapshot placeholder missing from {template_path}")
 
   html = template.replace(PLACEHOLDER, _inline_json(snapshot))
+  html = html.replace(LIVE_PLACEHOLDER, _inline_json(config.LIVE_URL or ""))
   if standalone:
     html = _wrap_document(html)
   output_path.parent.mkdir(parents=True, exist_ok=True)

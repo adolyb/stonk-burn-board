@@ -1,0 +1,11 @@
+[Unit]
+Description=STONK burn board - publish live.json to the live branch
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/stonk
+EnvironmentFile=-/opt/stonk/.env
+ExecStart=/bin/bash /opt/stonk/deploy/publish.sh
+TimeoutStartSec=180

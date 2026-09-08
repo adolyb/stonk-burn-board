@@ -216,3 +216,14 @@ def save_snapshot(snapshot, path=config.SNAPSHOT_PATH):
 
 def load_snapshot(path=config.SNAPSHOT_PATH):
   return json.loads(path.read_text(encoding="utf-8"))
+
+
+def save_live(snapshot, path=config.LIVE_PATH):
+  """Write the copy the deployed page fetches.
+
+  Same shape as the snapshot, minified rather than indented: this file is pulled
+  on every page load, and the indentation alone is a third of its bytes.
+  """
+  path.parent.mkdir(parents=True, exist_ok=True)
+  path.write_text(json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+  return path

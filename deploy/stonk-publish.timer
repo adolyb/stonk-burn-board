@@ -1,0 +1,13 @@
+[Unit]
+Description=STONK burn board - publish every 5 minutes
+
+[Timer]
+# The raw host caches for 300s anyway, so publishing faster than this only costs
+# force pushes without making the page any fresher.
+OnBootSec=3min
+OnUnitActiveSec=5min
+AccuracySec=30s
+Persistent=true
+
+[Install]
+WantedBy=timers.target

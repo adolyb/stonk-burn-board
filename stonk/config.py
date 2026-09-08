@@ -25,6 +25,12 @@ COVERAGE_PATH = DATA_DIR / "coverage.json"
 # How much of the local ledger gets embedded in the page.
 INTRADAY_WINDOW_HOURS = int(os.getenv("STONK_INTRADAY_HOURS", "48"))
 
+# Where the 24/7 collector publishes its snapshot, and where the deployed page
+# reads it back from. Without this the intraday ledger only ever exists inside
+# whichever browser happened to be open, so every other visitor sees "未采集".
+LIVE_PATH = DATA_DIR / "live.json"
+LIVE_URL = os.getenv("STONK_LIVE_URL", "")
+
 # Poll interval for `main.py watch`. 100 burns is ~25 min at ordinary activity but
 # only a few minutes during a burst, so the default leaves headroom.
 WATCH_INTERVAL = int(os.getenv("STONK_WATCH_INTERVAL", "180"))

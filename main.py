@@ -4,6 +4,7 @@
   python main.py fetch           # fetch only (also appends one reconciliation row)
   python main.py build           # rebuild the HTML from the saved snapshot
   python main.py watch           # poll on an interval to accumulate intraday history
+  python main.py publish         # write data/live.json for the 24/7 collector to push
 """
 
 import argparse
@@ -39,6 +40,15 @@ def cmd_fetch(_args):
   _report_fetch(snapshot)
   if snapshot["rateLimitRemaining"] is not None:
     print(f"rate limit remaining: {snapshot['rateLimitRemaining']}")
+  return snapshot
+
+
+def cmd_publish(_args):
+  """Write data/live.json from the newest snapshot for the collector to push."""
+  snapshot = collect.load_snapshot()
+  path = collect.save_live(snapshot)
+  size_kb = path.stat().st_size / 1024
+  print(f"live       -> {path}  ({size_kb:,.0f} KB, generatedAt {snapshot['generatedAt']})")
   return snapshot
 
 
@@ -81,13 +91,19 @@ def main(argv=None):
     "command",
     nargs="?",
     default="all",
-    choices=["all", "fetch", "build", "watch"],
+    choices=["all", "fetch", "build", "watch", "publish"],
     help="all (default): fetch then build",
   )
   parser.add_argument("--interval", type=int, default=None, help="watch poll interval in seconds")
   args = parser.parse_args(argv)
 
-  handlers = {"all": cmd_all, "fetch": cmd_fetch, "build": cmd_build, "watch": cmd_watch}
+  handlers = {
+    "all": cmd_all,
+    "fetch": cmd_fetch,
+    "build": cmd_build,
+    "watch": cmd_watch,
+    "publish": cmd_publish,
+  }
   try:
     handlers[args.command](args)
   except FileNotFoundError:

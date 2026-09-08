@@ -681,6 +681,9 @@
 
 <script>
   let SNAPSHOT = /*__SNAPSHOT__*/ null;
+  // Where the 24/7 collector publishes the same snapshot shape. Empty when the
+  // page is built for offline use, in which case the inlined snapshot is all there is.
+  const LIVE_URL = /*__LIVE_URL__*/ "";
 
   /* ---------- formatting ---------- */
   const nf = (v, d = 0) => Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -1965,7 +1968,8 @@
     const minutes = Math.max(0, Math.round(ageMs / 60000));
     const label = minutes < 1 ? "刚刚" : minutes < 90 ? `${minutes} 分钟前` : `${Math.round(minutes / 60)} 小时前`;
     chip.textContent = `${dataSource} · ${label}`;
-    chip.className = "chip " + (dataSource === "实时" && minutes < 5 ? "flat" : ageMs > 3600000 ? "neg" : "");
+    const live = dataSource === "实时" || dataSource === "远端采集";
+    chip.className = "chip " + (live && minutes < 10 ? "flat" : ageMs > 3600000 ? "neg" : "");
   }
 
   // Seed the ledger from the build-time snapshot, then let anything already in
@@ -1976,6 +1980,14 @@
       SNAPSHOT = Object.assign({}, store.baseSnapshot);
       dataSource = "本地缓存";
     }
+    foldLedger();
+  }
+
+  // Merge whatever ledger the current SNAPSHOT carries into this browser's store.
+  // Runs for the inlined snapshot on load and again for every remote pull, so the
+  // two sources of coverage add up instead of replacing each other.
+  function foldLedger() {
+    const store = loadStore();
     const embedded = SNAPSHOT.intraday || { burns: [], buybacks: [], coverage: {} };
     const merged = persistAndBuildIntraday(
       { burns: store.burns || [], buybacks: store.buybacks || [], coverage: store.coverage || {}, recon: store.recon || [] },
@@ -2158,10 +2170,38 @@
     drawAll();
   }
 
+  // A static deployment freezes its inlined snapshot at build time, and until now
+  // the intraday ledger only ever grew inside whichever browser happened to be
+  // open - which is exactly why the charts were mostly "未采集". The 24/7 collector
+  // publishes the same snapshot shape to a static URL; pulling it here hands every
+  // visitor the full ledger, and any gap left in it is a gap the collector really had.
+  async function pullLive() {
+    if (!LIVE_URL) return;
+    try {
+      // The raw host caches per URL for minutes. Bucketing the cache buster by the
+      // minute defeats that without minting an unbounded number of cache keys.
+      const sep = LIVE_URL.includes("?") ? "&" : "?";
+      const response = await fetch(`${LIVE_URL}${sep}t=${Math.floor(Date.now() / 60000)}`, { cache: "no-store" });
+      if (!response.ok) return;
+      const remote = await response.json();
+      if (!remote || !remote.generatedAt || !remote.recon || !remote.daily) return;
+      if (!(Date.parse(remote.generatedAt) > Date.parse(SNAPSHOT.generatedAt))) return;
+      SNAPSHOT = remote;
+      dataSource = "远端采集";
+      saveStore(Object.assign({}, loadStore(), { baseSnapshot: withoutLedger(SNAPSHOT) }));
+      foldLedger();
+      renderEverything();
+    } catch (err) {
+      /* offline, sandboxed, or nothing published yet: the snapshot in hand stands */
+    }
+  }
+
   document.getElementById("refresh").addEventListener("click", refresh);
 
   hydrate();
   renderEverything();
+  pullLive();
+  setInterval(pullLive, 120000);
   setInterval(renderFreshness, 30000);
 
   let resizeTimer = null;

@@ -1,0 +1,13 @@
+[Unit]
+Description=STONK burn board - poll the API and extend the local ledger
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/stonk
+EnvironmentFile=-/opt/stonk/.env
+ExecStart=/opt/stonk/.venv/bin/python main.py fetch
+# One cycle is 5 API calls; if it cannot finish in two minutes the next tick is
+# a better bet than a pile-up of stuck runs.
+TimeoutStartSec=120
