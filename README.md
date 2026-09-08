@@ -140,6 +140,7 @@ stonk/ledger.py      分时台账：去重合并、采集区间记录
 stonk/collect.py     抓取、对账、派生指标
 stonk/render.py      snapshot + 模板 → 自包含 HTML
 stonk/template.html  看板模板（body-only，数据从 /*__SNAPSHOT__*/ 注入）
+deploy/              7×24 采集：install.sh + publish.sh + systemd 单元
 ```
 
 `template.html` 刻意写成 body-only，因此同一份模板既能包成本地 HTML（`render(standalone=True)`，自动补 `<head>` 和 charset），也能直接发布成 Artifact。
