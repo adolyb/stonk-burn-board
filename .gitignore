@@ -1,5 +1,6 @@
+*.pyc
+.live/
 .venv/
 __pycache__/
-*.pyc
-dist/index.html
 build/
+dist/index.html

@@ -55,7 +55,35 @@ python main.py                        # 抓取 + 重建看板（默认）
 python main.py fetch                  # 只抓取，并追加一条对账记录
 python main.py build                  # 用已有 snapshot 重建 HTML
 python main.py watch --interval 180   # 按间隔持续抓取，累积分时数据
+python main.py publish                # 写 data/live.json，给 7×24 采集器推送用
 ```
+
+## 7×24 采集（deploy/）
+
+分时曲线里的"未采集"不是接口限制，是**没人在轮询**——台账只在有进程跑 `fetch`
+的时候才增长。`deploy/` 下是一套跑在 VPS 上的常驻采集：
+
+| 文件 | 作用 |
+|---|---|
+| `deploy/install.sh` | 一条命令在 Debian/Ubuntu 上装好（clone / venv / systemd） |
+| `deploy/stonk-fetch.timer` | 每 3 分钟 `main.py fetch`，台账持续增长 |
+| `deploy/stonk-publish.timer` | 每 5 分钟 `deploy/publish.sh`，把 live.json 推上去 |
+| `deploy/publish.sh` | 推到只有一个 commit 的 `live` 孤儿分支（amend + force push） |
+
+```bash
+ssh root@<host> 'bash -s' < deploy/install.sh
+```
+
+页面在加载时和之后每 2 分钟拉一次 `STONK_LIVE_URL`，比手上这份新就整体替换，并把
+远端与本地浏览器各自的 coverage 合并。所以**换任何设备打开都能看到完整台账**，
+不再依赖"这个浏览器当时正好开着"。
+
+`live` 分支永远只保留一个 commit：payload 每 5 分钟重写一次，留着历史等于让仓库
+每天涨 30MB 存没人会再看第二眼的数据。
+
+新鲜度上限是 5 分钟——`raw.githubusercontent.com` 对同一 URL 缓存 300s，且会把
+cache-busting 的 query 归一化掉，所以推得再勤页面也拿不到更新的。发布间隔就是照
+这个上限定的。
 
 ## 分时看板与本地台账
 
@@ -86,6 +114,7 @@ python main.py watch --interval 180   # 按间隔持续抓取，累积分时数�
 | `STONK_API_BASE` | `https://www.stonkfun.xyz/api/public/v1` | API 根路径 |
 | `STONK_WATCH_INTERVAL` | `180` | `watch` 轮询间隔（秒） |
 | `STONK_INTRADAY_HOURS` | `48` | 嵌入页面的分时窗口长度 |
+| `STONK_LIVE_URL` | 本仓 `live` 分支的 raw 地址 | 页面拉台账的地址，置空则只用内联快照 |
 
 ## 数据口径
 

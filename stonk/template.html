@@ -2178,8 +2178,10 @@
   async function pullLive() {
     if (!LIVE_URL) return;
     try {
-      // The raw host caches per URL for minutes. Bucketing the cache buster by the
-      // minute defeats that without minting an unbounded number of cache keys.
+      // The buster only defeats the browser's own cache - the raw host normalises
+      // the query away and still serves its own copy for up to 300s. That ceiling
+      // is why the collector publishes on a 5 minute timer: pulling faster than
+      // the origin refreshes would just re-download the same bytes.
       const sep = LIVE_URL.includes("?") ? "&" : "?";
       const response = await fetch(`${LIVE_URL}${sep}t=${Math.floor(Date.now() / 60000)}`, { cache: "no-store" });
       if (!response.ok) return;

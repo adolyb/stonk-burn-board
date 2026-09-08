@@ -32,8 +32,11 @@ if [ ! -e "$WORKTREE/.git" ]; then
   fi
 fi
 
+# Ask the package where the payload landed: STONK_DATA_DIR moves it off the
+# checkout on servers, so hardcoding $ROOT/data here would publish a stale file.
+LIVE_JSON="$("$PYTHON" -c 'from stonk import config; print(config.LIVE_PATH)')"
 mkdir -p "$WORKTREE/data"
-cp "$ROOT/data/live.json" "$WORKTREE/data/live.json"
+cp "$LIVE_JSON" "$WORKTREE/data/live.json"
 
 cd "$WORKTREE"
 git add data/live.json
