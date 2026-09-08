@@ -364,6 +364,7 @@
   .legend span { display: inline-flex; align-items: center; gap: 7px; }
   .legend i { width: 11px; height: 11px; border-radius: 3px; flex: none; }
   .legend i.line { height: 3px; border-radius: 2px; width: 15px; }
+  .legend i.dash { background: transparent; border: 1.5px dashed var(--accent); }
 
   .tip {
     position: absolute;
@@ -543,8 +544,10 @@
         <div class="legend">
           <span><i style="background:var(--accent)"></i>回购销毁 dailyHoldersRevenue</span>
           <span><i style="background:var(--neutral-series)"></i>协议留存 dailyProtocolRevenue</span>
+          <span><i class="dash"></i>今日预估（线性外推）</span>
         </div>
         <div class="plot" id="plot-daily"></div>
+        <div class="readout" id="daily-pace" hidden></div>
       </div>
       <div class="card">
         <div class="card-head">
@@ -839,6 +842,35 @@
     });
   }
 
+  /* ---------- today's pace: linear extrapolation over the elapsed UTC day ---------- */
+  // The daily series is keyed by UTC day, so the elapsed fraction has to be measured
+  // on the UTC clock as well - dividing a UTC-day number by the local day's elapsed
+  // share would silently inflate the estimate by up to 8 hours' worth.
+  //
+  // The clock used is the snapshot's own generatedAt, not wall time: the numbers only
+  // cover the period up to the last fetch, so a stale board would otherwise divide a
+  // short day's revenue by a long elapsed span and under-project.
+  const PACE_MIN_ELAPSED = 2 / 24; // under 2h an extrapolation is noise, not a pace
+
+  function todayPace(days) {
+    if (!days.length) return null;
+    const last = days[days.length - 1];
+    const asOf = Date.parse(SNAPSHOT.generatedAt);
+    const dayStart = Date.parse(last.date + "T00:00:00Z");
+    if (Number.isNaN(asOf) || Number.isNaN(dayStart)) return null;
+    const elapsed = (asOf - dayStart) / 86400000;
+    if (elapsed <= 0 || elapsed >= 1) return null; // the last row is a day already closed
+    return {
+      index: days.length - 1,
+      elapsed,
+      enough: elapsed >= PACE_MIN_ELAPSED,
+      revenue: last.revenue / elapsed,
+      holders: last.holders / elapsed,
+      protocol: last.protocol / elapsed,
+      day: last,
+    };
+  }
+
   /* ---------- chart: daily fee split (stacked columns, emphasis on burn) ---------- */
   function drawDaily(days) {
     const plot = document.getElementById("plot-daily");
@@ -847,7 +879,9 @@
     const f = frame(plot, 260, pad);
     if (!days.length) return;
 
-    const max = Math.max(...days.map((d) => d.revenue), 1);
+    const pace = todayPace(days);
+    const projected = pace && pace.enough ? pace.revenue : 0;
+    const max = Math.max(...days.map((d) => d.revenue), projected, 1);
     const ticks = niceTicks(max);
     const top = ticks[ticks.length - 1];
     f.yScale = (v) => f.y1 - (v / top) * (f.y1 - f.y0);
@@ -888,6 +922,24 @@
       }
     });
 
+    // Today's column is still filling. Outline where the current pace lands it, and
+    // tint only the part above what has actually arrived - a solid extension would
+    // read as revenue that already exists.
+    if (pace && pace.enough) {
+      const x = f.bandX(pace.index) + (f.bandW - barW) / 2;
+      const projTop = f.yScale(pace.revenue);
+      const actualTop = f.yScale(pace.day.revenue);
+      f.svg.appendChild(
+        s("rect", { x, y: projTop, width: barW, height: Math.max(0, actualTop - projTop), fill: accent, "fill-opacity": 0.12 })
+      );
+      f.svg.appendChild(
+        s("rect", {
+          x: x - 0.75, y: projTop, width: barW + 1.5, height: f.y1 - projTop, fill: "none",
+          stroke: accent, "stroke-width": 1.2, "stroke-dasharray": "4 3", rx: Math.min(4, barW / 2),
+        })
+      );
+    }
+
     // baseline
     f.svg.appendChild(s("line", { x1: f.x0, x2: f.x1, y1: f.y1, y2: f.y1, stroke: css("--rule"), "stroke-width": 1 }));
 
@@ -905,11 +957,21 @@
       hair.setAttribute("x1", cx);
       hair.setAttribute("x2", cx);
       hair.setAttribute("opacity", 0.35);
-      tip.show(cx, f.yScale(d.revenue), d.date, [
+      const rows = [
         { label: "回购销毁", value: usd(d.holders), color: accent },
         { label: "协议留存", value: usd(d.protocol), color: neutral },
         { label: "合计", value: usd(d.revenue) },
-      ]);
+      ];
+      const isToday = pace && i === pace.index;
+      if (isToday) {
+        rows.push({ label: `已过 ${(pace.elapsed * 24).toFixed(1)}h / 24h`, value: "进行中" });
+        rows.push({
+          label: "预估全天销毁",
+          value: pace.enough ? "~" + usd(pace.holders) : "样本不足",
+        });
+      }
+      const anchorY = f.yScale(isToday && pace.enough ? Math.max(d.revenue, pace.revenue) : d.revenue);
+      tip.show(cx, anchorY, d.date + (isToday ? "（进行中）" : ""), rows);
     };
     hit.addEventListener("pointermove", move);
     hit.addEventListener("pointerleave", () => { hair.setAttribute("opacity", 0); tip.hide(); });
@@ -1963,6 +2025,7 @@
     drawCumulative(days);
     document.getElementById("range-note").textContent =
       days.length ? `${days[0].date} → ${days[days.length - 1].date} · ${days.length} 天` : "";
+    renderPace(days);
     // Newest first: the recent days are what gets read, and a 45-row block should
     // not need scrolling to reach today.
     const sum = (key) => days.reduce((total, d) => total + d[key], 0);
@@ -1993,6 +2056,53 @@
     );
     document.getElementById("daily-detail-note").textContent =
       days.length ? `${days.length} 天 · 新到旧 · 合计行常驻底部` : "";
+  }
+
+  // The projection is deliberately spelled out in words as well as drawn: "on pace"
+  // is an extrapolation, not a measurement, and the readout is where that stays legible.
+  function renderPace(days) {
+    const node = document.getElementById("daily-pace");
+    node.replaceChildren();
+    const pace = todayPace(days);
+    if (!pace) {
+      node.hidden = true;
+      return;
+    }
+    const hours = (pace.elapsed * 24).toFixed(1);
+    const closed = days.filter((d) => d !== pace.day);
+    const avg = closed.length
+      ? closed.slice(-7).reduce((sum, d) => sum + d.holders, 0) / Math.min(7, closed.length)
+      : 0;
+
+    const first = el("div");
+    first.append(
+      document.createTextNode(`${pace.day.date}（UTC 日）已过 ${hours}h，当前已销毁 `),
+      el("b", null, usd(pace.day.holders)),
+      document.createTextNode(`，手续费合计 ${usd(pace.day.revenue)} · 数据截至 ${shortTime(SNAPSHOT.generatedAt)} ${TZ_LABEL}`)
+    );
+    node.appendChild(first);
+
+    const second = el("div");
+    if (pace.enough) {
+      second.append(
+        document.createTextNode("按已过时段线性外推，全天预计销毁 "),
+        el("b", null, "~" + usd(pace.holders)),
+        document.createTextNode(`，手续费 ~${usd(pace.revenue)}`),
+        document.createTextNode(
+          avg > 0 ? ` · 对比前 ${Math.min(7, closed.length)} 日均值 ${usd(avg)}（${signed(((pace.holders / avg) - 1) * 100, 0)}%）` : ""
+        )
+      );
+    } else {
+      second.textContent = `UTC 日才过 ${hours}h，样本太短，外推没有意义，先不给预估。`;
+    }
+    node.appendChild(second);
+
+    const third = el("div", { class: "mono", style: "font-size:11.5px;color:var(--ink-3)" });
+    third.textContent = pace.enough
+      ? `预估 = 当日已入账 ÷ (${hours}h / 24h)，假设余下时段速率不变；不含创作者与 reward 持仓在 Raydium 自领的手续费`
+      : "阈值：UTC 日满 2h 才给预估";
+    node.appendChild(third);
+    node.hidden = false;
   }
 
   function drawAll() {
