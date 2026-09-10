@@ -18,6 +18,7 @@
     --accent-wash: rgba(42, 120, 214, 0.10);
     --accent-track: #cde2fb;
     --neutral-series: #9aa0ad;
+    --series-2: #eb6834;
     --neg: #e34948;
     --neg-wash: rgba(227, 73, 72, 0.10);
     --good: #0ca30c;
@@ -42,6 +43,7 @@
       --accent-wash: rgba(57, 135, 229, 0.14);
       --accent-track: #17325c;
       --neutral-series: #5a5f6d;
+      --series-2: #d95926;
       --neg: #e66767;
       --neg-wash: rgba(230, 103, 103, 0.14);
       --good: #0ca30c;
@@ -64,6 +66,7 @@
     --accent-wash: rgba(57, 135, 229, 0.14);
     --accent-track: #17325c;
     --neutral-series: #5a5f6d;
+    --series-2: #d95926;
     --neg: #e66767;
     --neg-wash: rgba(230, 103, 103, 0.14);
     --good: #0ca30c;
@@ -638,6 +641,35 @@
     </div>
   </section>
 
+  <section style="display:flex;flex-direction:column;gap:16px" id="hod-section" hidden>
+    <div class="section-head">
+      <h2>一天里的销毁节奏</h2>
+      <p>上面那张分时图只有 48 小时的原始事件；这一节读的是采集器按完整台账算出的逐小时汇总，历史一直往前累。均值的分母是真正采到数的时长，断档的小时不摊进去。</p>
+    </div>
+    <div class="tiles wide" id="hod-tiles"></div>
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>分时平均销毁速率</h2>
+          <p>柱高＝该时段每小时平均销毁量。圆点是构成这根柱子的单个完整小时实测值——点越少越散，柱子越读不出规律。</p>
+        </div>
+      </div>
+      <div class="legend" id="hod-legend"></div>
+      <div class="plot" id="plot-hod"></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>逐小时实测销毁</h2>
+          <p id="hod-series-sub"></p>
+        </div>
+        <button class="link-btn" data-toggle="hod-table">表格视图</button>
+      </div>
+      <div class="plot" id="plot-hod-series"></div>
+      <div class="table-wrap scroll-y" id="hod-table" hidden></div>
+    </div>
+  </section>
+
   <section class="split">
     <div class="card">
       <div class="card-head">
@@ -684,6 +716,7 @@
   // Where the 24/7 collector publishes the same snapshot shape. Empty when the
   // page is built for offline use, in which case the inlined snapshot is all there is.
   const LIVE_URL = /*__LIVE_URL__*/ "";
+  const HOURLY_URL = /*__HOURLY_URL__*/ "";
 
   /* ---------- formatting ---------- */
   const nf = (v, d = 0) => Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -1383,6 +1416,366 @@
   }
 
   /* ---------- static sections ---------- */
+
+  /* ---------- hour-of-day: the collector's long-history roll-up ---------- */
+  // hourly.json is published in UTC on purpose: the offset is a whole number of
+  // hours, so one file serves any such zone by rotating the buckets on arrival.
+  let HOURLY = null;
+  const TZ_HOURS = Math.round(TZ_OFFSET_MS / 3600000);
+  const sumOf = (arr) => arr.reduce((a, b) => a + b, 0);
+  const dayOf = (t) => new Date(ms(t) + TZ_OFFSET_MS).toISOString().slice(5, 10);
+  const hourOf = (t) => new Date(ms(t) + TZ_OFFSET_MS).toISOString().slice(11, 13);
+
+  // The one stretch that has held up across every sample so far. Stated as UTC
+  // because that is the clock the platform runs on; the chart shows it shifted.
+  const LOW_UTC = { from: 8, to: 12 };
+
+  function hourlyModel(raw) {
+    const bins = raw.bins.map((b) => ({
+      t: b.t,
+      day: dayOf(b.t),
+      hour: Number(hourOf(b.t)),
+      a: b.a,
+      tokens: sumOf(b.a),
+      usd: b.u,
+      count: b.n,
+    }));
+
+    const samples = new Map();
+    bins.forEach((b) => {
+      if (!samples.has(b.hour)) samples.set(b.hour, []);
+      samples.get(b.hour).push({ day: b.day, v: b.tokens });
+    });
+
+    const hours = raw.hod
+      .map((row) => {
+        const local = ((row.utc + TZ_HOURS) % 24 + 24) % 24;
+        const covered = row.s / 3600;
+        return {
+          hour: local,
+          utc: row.utc,
+          coveredHours: covered,
+          count: row.n,
+          // Null, not zero: an hour-of-day nobody ever watched has no rate at all.
+          rate: covered ? sumOf(row.a) / covered : null,
+          rates: covered ? row.a.map((v) => v / covered) : row.a.map(() => 0),
+          usdRate: covered ? row.u / covered : 0,
+          samples: samples.get(local) || [],
+          low: row.utc >= LOW_UTC.from && row.utc <= LOW_UTC.to,
+        };
+      })
+      .sort((a, b) => a.hour - b.hour);
+
+    const today = bins.length ? bins[bins.length - 1].day : null;
+    const todayBins = bins.filter((b) => b.day === today);
+    const lowHours = hours.filter((h) => h.low && h.rate !== null);
+    const lowSamples = lowHours.flatMap((h) => h.samples.map((s) => s.v));
+
+    return {
+      raw,
+      bins,
+      hours,
+      today,
+      todayBins,
+      todayRate: todayBins.length ? sumOf(todayBins.map((b) => b.tokens)) / todayBins.length : null,
+      lowRate: lowHours.length
+        ? sumOf(lowHours.map((h) => h.rate * h.coveredHours)) / sumOf(lowHours.map((h) => h.coveredHours))
+        : null,
+      lowSamples,
+      sources: raw.sources,
+      totals: raw.totals,
+    };
+  }
+
+  // Two series only ever: the categorical slots stay in a fixed order so a source
+  // keeps its colour when another one appears or drops out.
+  function sourceColor(name) {
+    return name === "buyback" ? css("--accent") : css("--series-2");
+  }
+
+  function renderHourlyTiles(model) {
+    const host = document.getElementById("hod-tiles");
+    host.replaceChildren();
+    const t = model.totals;
+    const cards = [
+      ["平均销毁速率", nf(t.meanPerHour, 0) + " /h", usd(t.meanUsdPerHour) + " / 小时"],
+      ["单小时中位数", nf(t.median, 0), `${t.fullHours} 个完整小时`],
+      ["单小时区间", `${compact(t.min)} – ${compact(t.max)}`,
+        (t.min ? (t.max / t.min).toFixed(1) : "—") + "× 摆幅"],
+      model.todayRate !== null
+        ? [`今天 ${model.today} 至今`, nf(model.todayRate, 0) + " /h",
+           `${model.todayBins.length} 个完整小时 · 全天均值的 ${Math.round(model.todayRate / t.meanPerHour * 100)}%`]
+        : ["折合每天", compact(t.meanPerHour * 24), usd(t.meanUsdPerHour * 24) + " / 天"],
+    ];
+    cards.forEach(([label, value, note]) => {
+      const tile = el("div", { class: "tile" });
+      tile.appendChild(el("div", { class: "tile-label" }, label));
+      tile.appendChild(el("div", { class: "tile-value" }, value));
+      tile.appendChild(el("div", { class: "tile-note" }, note));
+      host.appendChild(tile);
+    });
+  }
+
+  function renderHourlyLegend(model) {
+    const host = document.getElementById("hod-legend");
+    host.replaceChildren();
+    model.sources.forEach((name) => {
+      const span = el("span");
+      span.appendChild(el("i", { style: `background:${sourceColor(name)}` }));
+      span.appendChild(document.createTextNode(name));
+      host.appendChild(span);
+    });
+    const hollow = el("span");
+    hollow.appendChild(el("i", { style: `background:var(--surface);box-shadow:inset 0 0 0 1.5px ${css("--ink-3")};border-radius:50%` }));
+    hollow.appendChild(document.createTextNode("往日实测值"));
+    host.appendChild(hollow);
+    if (model.today) {
+      const solid = el("span");
+      solid.appendChild(el("i", { style: "background:var(--ink);border-radius:50%" }));
+      solid.appendChild(document.createTextNode("今天 " + model.today));
+      host.appendChild(solid);
+    }
+    const mean = el("span");
+    mean.appendChild(el("i", { style: `background:${css("--ink-3")};height:2px;border-radius:0` }));
+    mean.appendChild(document.createTextNode("总体均值 " + nf(model.totals.meanPerHour, 0)));
+    host.appendChild(mean);
+  }
+
+  // Shared by both charts so they can be read against one another without rescaling.
+  function hourlyScale(model) {
+    const dots = model.hours.flatMap((h) => h.samples.map((s) => s.v));
+    const rates = model.hours.map((h) => h.rate || 0);
+    const bars = model.bins.map((b) => b.tokens);
+    return niceTicks(Math.max(1, ...dots, ...rates, ...bars));
+  }
+
+  function stackBar(f, x, w, parts, colors) {
+    let base = f.y1;
+    parts.forEach((value, i) => {
+      if (value <= 0) return;
+      const top = base - (f.y1 - f.yScale(value));
+      const height = base - top;
+      // A 2px gap of page colour separates the segments; no stroke, which would
+      // read as a border on the bar itself.
+      const gap = i > 0 ? 2 : 0;
+      f.svg.appendChild(s("rect", {
+        x, y: top - gap, width: w, height: Math.max(1, height - gap),
+        fill: colors[i], rx: Math.min(4, w / 2),
+      }));
+      base = top - gap;
+    });
+  }
+
+  // Both charts share one y scale, so they also share one plot rectangle - the
+  // right pad is sized for the widest x label, which is the series chart's date.
+  const HOD_PAD = { t: 16, r: 34, b: 34, l: 56 };
+
+  function drawHourOfDay(model) {
+    const plot = document.getElementById("plot-hod");
+    const tip = plot.__tip || (plot.__tip = makeTip(plot));
+    const pad = HOD_PAD;
+    const f = frame(plot, 280, pad);
+    const hours = model.hours;
+    if (!hours.length) return;
+
+    const ticks = hourlyScale(model);
+    const top = ticks[ticks.length - 1];
+    f.yScale = (v) => f.y1 - (v / top) * (f.y1 - f.y0);
+    f.bandW = (f.x1 - f.x0) / 24;
+    f.bandX = (i) => f.x0 + i * f.bandW;
+
+    // The low band goes down before the gridlines, or it would paint over them.
+    const lowIdx = hours.map((h, i) => (h.low ? i : -1)).filter((i) => i >= 0);
+    if (lowIdx.length) {
+      const x = f.bandX(Math.min(...lowIdx));
+      const w = f.bandX(Math.max(...lowIdx)) + f.bandW - x;
+      f.svg.appendChild(s("rect", { x, y: f.y0, width: w, height: f.y1 - f.y0, fill: css("--neutral-series"), "fill-opacity": 0.12 }));
+    }
+    yAxis(f, ticks, (v) => compact(v));
+    if (lowIdx.length) {
+      const x = f.bandX(Math.min(...lowIdx));
+      const w = f.bandX(Math.max(...lowIdx)) + f.bandW - x;
+      if (w > 58) {
+        f.svg.appendChild(s("text", { x: x + w / 2, y: f.y0 + 11, "text-anchor": "middle", "font-size": 10, fill: css("--ink-3") }, "全天最低区"));
+      }
+    }
+
+    const colors = model.sources.map(sourceColor);
+    const barW = Math.max(2, Math.min(30, f.bandW - 6));
+    const surface = css("--surface");
+    const muted = css("--ink-3");
+
+    hours.forEach((h, i) => {
+      const cx = f.bandX(i) + f.bandW / 2;
+      if (h.rate !== null) stackBar(f, cx - barW / 2, barW, h.rates, colors);
+      // Solid for today, hollow for earlier days: shape carries the distinction so
+      // it survives both themes and does not spend a categorical colour.
+      h.samples.forEach((sample, j) => {
+        const dx = cx + (j - (h.samples.length - 1) / 2) * 8;
+        const isToday = sample.day === model.today;
+        f.svg.appendChild(s("circle", isToday
+          ? { cx: dx, cy: f.yScale(sample.v), r: 4.5, fill: css("--ink"), stroke: surface, "stroke-width": 2 }
+          : { cx: dx, cy: f.yScale(sample.v), r: 4, fill: surface, stroke: muted, "stroke-width": 1.5 }));
+      });
+      f.svg.appendChild(s("text", { x: cx, y: f.y1 + 15, "text-anchor": "middle", "font-size": 10, fill: muted },
+        String(h.hour).padStart(2, "0")));
+      f.svg.appendChild(s("text", { x: cx, y: f.y1 + 25, "text-anchor": "middle", "font-size": 7, fill: muted },
+        "●".repeat(h.samples.length)));
+    });
+
+    const meanY = f.yScale(model.totals.meanPerHour);
+    f.svg.appendChild(s("line", { x1: f.x0, x2: f.x1, y1: meanY, y2: meanY, stroke: muted, "stroke-width": 1.5 }));
+    f.svg.appendChild(s("line", { x1: f.x0, x2: f.x1, y1: f.y1, y2: f.y1, stroke: css("--rule"), "stroke-width": 1 }));
+
+    const hit = s("rect", { x: f.x0, y: f.y0, width: f.x1 - f.x0, height: f.y1 - f.y0, fill: "transparent" });
+    f.svg.appendChild(hit);
+    hit.addEventListener("pointermove", (evt) => {
+      const box = f.svg.getBoundingClientRect();
+      const px = ((evt.clientX - box.left) / box.width) * f.width;
+      const i = Math.max(0, Math.min(23, Math.floor((px - f.x0) / f.bandW)));
+      const h = hours[i];
+      const cx = f.bandX(i) + f.bandW / 2;
+      if (h.rate === null) {
+        tip.show(cx, f.y0, `${String(h.hour).padStart(2, "0")}:00 ${TZ_LABEL}`, [{ label: "未采集", value: "无数据" }]);
+        return;
+      }
+      const rows = model.sources.map((name, k) => ({ label: name, value: nf(h.rates[k], 0), color: colors[k] }));
+      rows.push({ label: "合计 / 小时", value: nf(h.rate, 0) });
+      rows.push({ label: "计价 / 小时", value: usd(h.usdRate) });
+      rows.push({ label: "覆盖 / 笔数", value: `${h.coveredHours.toFixed(2)}h / ${h.count}` });
+      h.samples.forEach((sample) => {
+        rows.push({ label: sample.day + (sample.day === model.today ? " 今天" : ""), value: nf(sample.v, 0) });
+      });
+      tip.show(cx, f.yScale(h.rate), `${String(h.hour).padStart(2, "0")}:00 ${TZ_LABEL} · UTC ${String(h.utc).padStart(2, "0")}:00`, rows);
+    });
+    hit.addEventListener("pointerleave", () => tip.hide());
+  }
+
+  function drawHourlySeries(model) {
+    const plot = document.getElementById("plot-hod-series");
+    const tip = plot.__tip || (plot.__tip = makeTip(plot));
+    const pad = HOD_PAD;
+    const f = frame(plot, 260, pad);
+    const bins = model.bins;
+    if (!bins.length) return;
+
+    // One slot per hour of the whole span, so a collector outage stays visibly
+    // empty instead of being closed up by drawing only the hours that exist.
+    const first = ms(bins[0].t);
+    const slots = Math.round((ms(bins[bins.length - 1].t) - first) / 3600000) + 1;
+    const indexOf = (bin) => Math.round((ms(bin.t) - first) / 3600000);
+
+    const ticks = hourlyScale(model);
+    const top = ticks[ticks.length - 1];
+    f.yScale = (v) => f.y1 - (v / top) * (f.y1 - f.y0);
+    f.bandW = (f.x1 - f.x0) / slots;
+    f.bandX = (i) => f.x0 + i * f.bandW;
+
+    const present = new Set(bins.map(indexOf));
+    const holes = [];
+    let run = null;
+    for (let i = 0; i < slots; i += 1) {
+      if (!present.has(i)) { run = run || { from: i, to: i }; run.to = i; }
+      else if (run) { holes.push(run); run = null; }
+    }
+    if (run) holes.push(run);
+
+    if (model.today) {
+      const todayIdx = bins.filter((b) => b.day === model.today).map(indexOf);
+      if (todayIdx.length) {
+        const x = f.bandX(Math.min(...todayIdx));
+        const w = f.bandX(Math.max(...todayIdx)) + f.bandW - x;
+        f.svg.appendChild(s("rect", { x, y: f.y0, width: w, height: f.y1 - f.y0, fill: css("--neutral-series"), "fill-opacity": 0.12 }));
+        if (w > 58) {
+          f.svg.appendChild(s("text", { x: x + w / 2, y: f.y0 + 11, "text-anchor": "middle", "font-size": 10, fill: css("--ink-3") }, "今天 " + model.today));
+        }
+      }
+    }
+    drawGaps(f, null, holes);
+    yAxis(f, ticks, (v) => compact(v));
+
+    const colors = model.sources.map(sourceColor);
+    const barW = Math.max(1.5, Math.min(22, f.bandW - 2));
+    bins.forEach((bin) => {
+      const cx = f.bandX(indexOf(bin)) + f.bandW / 2;
+      stackBar(f, cx - barW / 2, barW, bin.a, colors);
+    });
+
+    const meanY = f.yScale(model.totals.meanPerHour);
+    f.svg.appendChild(s("line", { x1: f.x0, x2: f.x1, y1: meanY, y2: meanY, stroke: css("--ink-3"), "stroke-width": 1.5 }));
+    f.svg.appendChild(s("line", { x1: f.x0, x2: f.x1, y1: f.y1, y2: f.y1, stroke: css("--rule"), "stroke-width": 1 }));
+    xLabels(f, Array.from({ length: slots }, (_, i) => first + i * 3600000),
+      (t) => new Date(t + TZ_OFFSET_MS).toISOString().slice(5, 13).replace("T", " ") + ":00", 78);
+
+    const byIndex = new Map(bins.map((b) => [indexOf(b), b]));
+    const hair = s("line", { y1: f.y0, y2: f.y1, stroke: css("--ink-3"), "stroke-width": 1, opacity: 0 });
+    f.svg.appendChild(hair);
+    const hit = s("rect", { x: f.x0, y: f.y0, width: f.x1 - f.x0, height: f.y1 - f.y0, fill: "transparent" });
+    f.svg.appendChild(hit);
+    hit.addEventListener("pointermove", (evt) => {
+      const box = f.svg.getBoundingClientRect();
+      const px = ((evt.clientX - box.left) / box.width) * f.width;
+      const i = Math.max(0, Math.min(slots - 1, Math.floor((px - f.x0) / f.bandW)));
+      const cx = f.bandX(i) + f.bandW / 2;
+      hair.setAttribute("x1", cx); hair.setAttribute("x2", cx); hair.setAttribute("opacity", 0.35);
+      const bin = byIndex.get(i);
+      const label = new Date(first + i * 3600000 + TZ_OFFSET_MS).toISOString().slice(5, 16).replace("T", " ");
+      if (!bin) { tip.show(cx, f.y0, label + " " + TZ_LABEL, [{ label: "未采集", value: "无数据" }]); return; }
+      const rows = model.sources.map((name, k) => ({ label: name, value: nf(bin.a[k], 0), color: colors[k] }));
+      rows.push({ label: "合计", value: nf(bin.tokens, 0) });
+      rows.push({ label: "计价", value: usd(bin.usd) });
+      rows.push({ label: "笔数", value: nf(bin.count) });
+      tip.show(cx, f.yScale(bin.tokens), label + " " + TZ_LABEL, rows);
+    });
+    hit.addEventListener("pointerleave", () => { hair.setAttribute("opacity", 0); tip.hide(); });
+  }
+
+  function renderHourly() {
+    const section = document.getElementById("hod-section");
+    if (!HOURLY || !HOURLY.bins || !HOURLY.bins.length) { section.hidden = true; return; }
+    section.hidden = false;
+    const model = hourlyModel(HOURLY);
+
+    renderHourlyTiles(model);
+    renderHourlyLegend(model);
+    document.getElementById("hod-series-sub").textContent =
+      `同一批数据不做平均，共 ${model.totals.fullHours} 个完整小时，覆盖 ${nf(HOURLY.coverageHours, 1)} 小时。`
+      + `没采到的整点画成空档，那是没有数据，不是没烧。`;
+
+    table(
+      document.getElementById("hod-table"),
+      ["时间 (" + TZ_LABEL + ")", ...model.sources, "合计 STONK", "USD", "笔数"],
+      model.bins.slice().reverse().map((b) => [
+        b.day + " " + String(b.hour).padStart(2, "0") + ":00",
+        ...b.a.map((v) => nf(v, 0)),
+        nf(b.tokens, 0),
+        "$" + nf(b.usd, 2),
+        b.count,
+      ])
+    );
+
+    drawHourOfDay(model);
+    drawHourlySeries(model);
+  }
+
+  // Published alongside live.json by the same collector cycle, so one pull keeps
+  // both in step; a miss here must never take the rest of the board down.
+  async function pullHourly() {
+    if (!HOURLY_URL) return;
+    try {
+      const sep = HOURLY_URL.includes("?") ? "&" : "?";
+      const response = await fetch(`${HOURLY_URL}${sep}t=${Math.floor(Date.now() / 60000)}`, { cache: "no-store" });
+      if (!response.ok) return;
+      const remote = await response.json();
+      if (!remote || !Array.isArray(remote.bins) || !Array.isArray(remote.hod)) return;
+      if (HOURLY && !(Date.parse(remote.generatedAt) > Date.parse(HOURLY.generatedAt))) return;
+      HOURLY = remote;
+      renderHourly();
+    } catch (err) {
+      /* offline or nothing published yet: the section just stays hidden */
+    }
+  }
+
   function renderHeader(d) {
     const t = d.token;
     const meta = document.getElementById("mast-meta");
@@ -2121,6 +2514,7 @@
     drawRangeCharts();
     renderIntraday();
     drawDrift(SNAPSHOT.reconHistory);
+    if (HOURLY) renderHourly();
   }
 
   document.getElementById("range-picker").addEventListener("click", (evt) => {
@@ -2203,7 +2597,9 @@
   hydrate();
   renderEverything();
   pullLive();
+  pullHourly();
   setInterval(pullLive, 120000);
+  setInterval(pullHourly, 120000);
   setInterval(renderFreshness, 30000);
 
   let resizeTimer = null;

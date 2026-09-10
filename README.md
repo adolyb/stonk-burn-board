@@ -27,6 +27,7 @@ python main.py
 |---|---|
 | `data/snapshot.json` | 一次抓取的全部原始 + 派生数据 |
 | `data/recon_history.jsonl` | 每次抓取一行的对账记录（差额时间序列） |
+| `data/hourly.json` | 逐小时销毁汇总（30 天窗口），"一天里的销毁节奏"那节读它 |
 | `dist/index.html` | 自包含看板，数据内联，双击即可打开，离线可用 |
 
 ## 部署到 Vercel
@@ -67,7 +68,7 @@ python main.py publish                # 写 data/live.json，给 7×24 采集器
 |---|---|
 | `deploy/install.sh` | 一条命令在 Debian/Ubuntu 上装好（clone / venv / systemd） |
 | `deploy/stonk-fetch.timer` | 每 3 分钟 `main.py fetch`，台账持续增长 |
-| `deploy/stonk-publish.timer` | 每 5 分钟 `deploy/publish.sh`，把 live.json 推上去 |
+| `deploy/stonk-publish.timer` | 每 5 分钟 `deploy/publish.sh`，把 live.json + hourly.json 推上去 |
 | `deploy/publish.sh` | 推到只有一个 commit 的 `live` 孤儿分支（amend + force push） |
 
 ```bash
@@ -80,6 +81,21 @@ ssh root@<host> 'bash -s' < deploy/install.sh
 
 `live` 分支永远只保留一个 commit：payload 每 5 分钟重写一次，留着历史等于让仓库
 每天涨 30MB 存没人会再看第二眼的数据。
+
+### 为什么要单独一个 hourly.json
+
+`live.json` 里的 `intraday` 只带最近 48 小时的**逐笔**事件——页面要把它们一条条画出来，
+再长就没法内联了。但"一天 24 小时里哪个时段烧得多"这个问题，48 小时只够每个时段摊到
+1~2 个样本，而单小时销毁量本身能有 10 倍摆幅，这点样本量读出来的全是噪声。
+
+所以 `main.py publish` 另出一份 `data/hourly.json`：不带逐笔明细，只按小时汇总，30 天
+窗口也才 6KB 左右，可以一直往前累。它有两个产物，区别就是这套东西的重点：
+
+- `bins` —— **完整落在采集区间内**的整点。半个小时的观测不会变成一根矮柱子，它根本不出现
+- `hod` —— 同一批事件折到 24 个时段，分母是该时段**实际观测到的秒数**（半小时也算半小时）
+
+发布成 UTC 不做时区偏移：偏移量是整小时，页面按 `TZ_OFFSET_MS` 自己旋转桶位，一份文件
+就能服务任何整点时区。
 
 新鲜度上限是 5 分钟——`raw.githubusercontent.com` 对同一 URL 缓存 300s，且会把
 cache-busting 的 query 归一化掉，所以推得再勤页面也拿不到更新的。发布间隔就是照
@@ -113,7 +129,9 @@ cache-busting 的 query 归一化掉，所以推得再勤页面也拿不到更�
 | `STONK_INITIAL_SUPPLY` | `1000000000` | 初始供应假设，看板会显式标注并反推校验 |
 | `STONK_API_BASE` | `https://www.stonkfun.xyz/api/public/v1` | API 根路径 |
 | `STONK_WATCH_INTERVAL` | `180` | `watch` 轮询间隔（秒） |
-| `STONK_INTRADAY_HOURS` | `48` | 嵌入页面的分时窗口长度 |
+| `STONK_INTRADAY_HOURS` | `48` | 嵌入页面的分时逐笔窗口长度 |
+| `STONK_HOURLY_DAYS` | `30` | `hourly.json` 的回溯天数 |
+| `STONK_HOURLY_URL` | 本仓 `live` 分支的 raw 地址 | 页面拉逐小时汇总的地址，置空则隐藏该板块 |
 | `STONK_LIVE_URL` | 本仓 `live` 分支的 raw 地址 | 页面拉台账的地址，置空则只用内联快照 |
 
 ## 数据口径
@@ -137,10 +155,17 @@ main.py              CLI 入口
 stonk/config.py      配置（环境变量覆盖）
 stonk/api.py         StonkFun API 客户端 + Solana RPC
 stonk/ledger.py      分时台账：去重合并、采集区间记录
+stonk/hourly.py      逐小时汇总：完整小时分箱 + 按覆盖时长加权的时段均值
 stonk/collect.py     抓取、对账、派生指标
 stonk/render.py      snapshot + 模板 → 自包含 HTML
 stonk/template.html  看板模板（body-only，数据从 /*__SNAPSHOT__*/ 注入）
 deploy/              7×24 采集：install.sh + publish.sh + systemd 单元
+tests/               pytest；hourly.py 的覆盖区间语义全在 tests/test_hourly.py
+```
+
+```bash
+.venv/Scripts/python -m pytest tests/ -q     # Windows
+./.venv/bin/python -m pytest tests/ -q       # macOS / Linux
 ```
 
 `template.html` 刻意写成 body-only，因此同一份模板既能包成本地 HTML（`render(standalone=True)`，自动补 `<head>` 和 charset），也能直接发布成 Artifact。

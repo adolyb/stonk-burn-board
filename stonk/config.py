@@ -56,3 +56,13 @@ LIST_LIMIT = 100
 
 HTTP_TIMEOUT = 30
 USER_AGENT = "stonk-burn-board/1.0 (+local dashboard)"
+
+# Hourly burn aggregates. The snapshot's intraday block only carries 48h of raw
+# events; this is the long-history product the "分时" view reads, small enough to
+# republish every cycle for months.
+HOURLY_PATH = DATA_DIR / "hourly.json"
+HOURLY_WINDOW_DAYS = int(os.getenv("STONK_HOURLY_DAYS", "30"))
+HOURLY_URL = os.getenv(
+  "STONK_HOURLY_URL",
+  "https://raw.githubusercontent.com/adolyb/stonk-burn-board/live/data/hourly.json",
+)
