@@ -555,6 +555,35 @@
     </div>
   </section>
 
+  <section style="display:flex;flex-direction:column;gap:16px" id="hod-section" hidden>
+    <div class="section-head">
+      <h2>一天里的销毁节奏</h2>
+      <p>下面那张分时图只有 48 小时的原始事件；这一节读的是采集器按完整台账算出的逐小时汇总，历史一直往前累。均值的分母是真正采到数的时长，断档的小时不摊进去。</p>
+    </div>
+    <div class="tiles wide" id="hod-tiles"></div>
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>分时平均销毁速率</h2>
+          <p>柱高＝该时段每小时平均销毁量。圆点是构成这根柱子的单个完整小时实测值——点越少越散，柱子越读不出规律。</p>
+        </div>
+      </div>
+      <div class="legend" id="hod-legend"></div>
+      <div class="plot" id="plot-hod"></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>逐小时实测销毁</h2>
+          <p id="hod-series-sub"></p>
+        </div>
+        <button class="link-btn" data-toggle="hod-table">表格视图</button>
+      </div>
+      <div class="plot" id="plot-hod-series"></div>
+      <div class="table-wrap scroll-y" id="hod-table" hidden></div>
+    </div>
+  </section>
+
   <section style="display:flex;flex-direction:column;gap:16px">
     <div class="section-head">
       <h2>回购销毁分时</h2>
@@ -619,34 +648,6 @@
     </div>
   </section>
 
-  <section style="display:flex;flex-direction:column;gap:16px" id="hod-section" hidden>
-    <div class="section-head">
-      <h2>一天里的销毁节奏</h2>
-      <p>上面那张分时图只有 48 小时的原始事件；这一节读的是采集器按完整台账算出的逐小时汇总，历史一直往前累。均值的分母是真正采到数的时长，断档的小时不摊进去。</p>
-    </div>
-    <div class="tiles wide" id="hod-tiles"></div>
-    <div class="card">
-      <div class="card-head">
-        <div>
-          <h2>分时平均销毁速率</h2>
-          <p>柱高＝该时段每小时平均销毁量。圆点是构成这根柱子的单个完整小时实测值——点越少越散，柱子越读不出规律。</p>
-        </div>
-      </div>
-      <div class="legend" id="hod-legend"></div>
-      <div class="plot" id="plot-hod"></div>
-    </div>
-    <div class="card">
-      <div class="card-head">
-        <div>
-          <h2>逐小时实测销毁</h2>
-          <p id="hod-series-sub"></p>
-        </div>
-        <button class="link-btn" data-toggle="hod-table">表格视图</button>
-      </div>
-      <div class="plot" id="plot-hod-series"></div>
-      <div class="table-wrap scroll-y" id="hod-table" hidden></div>
-    </div>
-  </section>
 
   <section class="split">
     <div class="card">
