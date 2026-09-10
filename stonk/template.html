@@ -503,28 +503,6 @@
     <div class="tiles" id="tiles"></div>
   </section>
 
-  <section class="card">
-    <div class="card-head">
-      <div>
-        <h2>链上 ↔ API 对账</h2>
-        <p>同一件事的两个独立计数：链上供应量的减少，和平台自己的销毁台账。差多少、往哪边差，比任何一个数本身更有信息量。</p>
-      </div>
-      <span class="chip" id="recon-chip"></span>
-    </div>
-    <div class="rail" id="recon-rail"></div>
-    <div class="readout" id="recon-readout"></div>
-    <div id="recon-drift-block">
-      <div class="card-head" style="margin-bottom:6px">
-        <div>
-          <h2 style="font-size:13.5px">差额漂移</h2>
-          <p>每次抓取记一行。围绕 0 抖动＝取数时点错位；单向漂移＝台账真的缺记或存在平台外销毁。</p>
-        </div>
-        <button class="link-btn" data-toggle="drift-table">表格视图</button>
-      </div>
-      <div class="plot" id="plot-drift"></div>
-      <div class="table-wrap" id="drift-table" hidden></div>
-    </div>
-  </section>
 
   <section style="display:flex;flex-direction:column;gap:16px">
     <div class="toolbar">
@@ -701,6 +679,29 @@
       </div>
     </div>
     <div class="table-wrap" id="platform-table"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>链上 ↔ API 对账</h2>
+        <p>同一件事的两个独立计数：链上供应量的减少，和平台自己的销毁台账。差多少、往哪边差，比任何一个数本身更有信息量。</p>
+      </div>
+      <span class="chip" id="recon-chip"></span>
+    </div>
+    <div class="rail" id="recon-rail"></div>
+    <div class="readout" id="recon-readout"></div>
+    <div id="recon-drift-block">
+      <div class="card-head" style="margin-bottom:6px">
+        <div>
+          <h2 style="font-size:13.5px">差额漂移</h2>
+          <p>每次抓取记一行。围绕 0 抖动＝取数时点错位；单向漂移＝台账真的缺记或存在平台外销毁。</p>
+        </div>
+        <button class="link-btn" data-toggle="drift-table">表格视图</button>
+      </div>
+      <div class="plot" id="plot-drift"></div>
+      <div class="table-wrap" id="drift-table" hidden></div>
+    </div>
   </section>
 
   <section class="card">
