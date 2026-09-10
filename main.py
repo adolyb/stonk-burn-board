@@ -4,14 +4,14 @@
   python main.py fetch           # fetch only (also appends one reconciliation row)
   python main.py build           # rebuild the HTML from the saved snapshot
   python main.py watch           # poll on an interval to accumulate intraday history
-  python main.py publish         # write data/live.json for the 24/7 collector to push
+  python main.py publish         # write data/live.json + data/hourly.json for the collector to push
 """
 
 import argparse
 import sys
 import time
 
-from stonk import collect, config, render
+from stonk import collect, config, hourly, render
 
 
 def _report_fetch(snapshot):
@@ -44,11 +44,22 @@ def cmd_fetch(_args):
 
 
 def cmd_publish(_args):
-  """Write data/live.json from the newest snapshot for the collector to push."""
+  """Write the two files the collector pushes: the snapshot, and the hourly roll-up.
+
+  They are separate payloads because they age differently - live.json is rewritten
+  whole every cycle, while hourly.json only ever gains an hour on the end.
+  """
   snapshot = collect.load_snapshot()
   path = collect.save_live(snapshot)
   size_kb = path.stat().st_size / 1024
   print(f"live       -> {path}  ({size_kb:,.0f} KB, generatedAt {snapshot['generatedAt']})")
+
+  rollup = hourly.build_hourly()
+  hourly_path = hourly.save_hourly(rollup)
+  totals = rollup["totals"]
+  print(f"hourly     -> {hourly_path}  ({hourly_path.stat().st_size / 1024:,.0f} KB, "
+        f"{totals['fullHours']} full hours over {rollup['coverageHours']:,.1f}h covered, "
+        f"mean {totals['meanPerHour']:,.0f}/h)")
   return snapshot
 
 
