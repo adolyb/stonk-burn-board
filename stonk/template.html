@@ -584,6 +584,37 @@
     </div>
   </section>
 
+  <section style="display:flex;flex-direction:column;gap:16px" id="ammo-section" hidden>
+    <div class="section-head">
+      <h2>Bot 里还有多少子弹</h2>
+      <p>手续费先趴在 LaunchLab 池子金库里，回购 bot 逐个池子领到自己钱包，再换成 STONK 烧掉。这一节读的是<b>已经领到钱包、还没换掉</b>的 quote 币，按现价折美元：这是接下来必然会变成买盘的钱。金库里没领的那部分和其他平台混在一起，算不清，不画。</p>
+    </div>
+    <div class="tiles wide" id="ammo-tiles"></div>
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>子弹余额走势</h2>
+          <p id="ammo-history-note"></p>
+        </div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--accent)"></i>已领未换（quote 币折 USD）</span>
+        <span><i style="background:var(--neutral-series);opacity:.35"></i>采集断档</span>
+      </div>
+      <div class="plot" id="plot-ammo"></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>按 quote 币拆开</h2>
+          <p id="ammo-sub"></p>
+        </div>
+        <button class="link-btn" data-toggle="ammo-table" data-label-hidden="展开表格">收起表格</button>
+      </div>
+      <div class="table-wrap scroll-y" id="ammo-table"></div>
+    </div>
+  </section>
+
   <section style="display:flex;flex-direction:column;gap:16px">
     <div class="section-head">
       <h2>回购销毁分时</h2>
@@ -719,6 +750,7 @@
   // page is built for offline use, in which case the inlined snapshot is all there is.
   const LIVE_URL = /*__LIVE_URL__*/ "";
   const HOURLY_URL = /*__HOURLY_URL__*/ "";
+  const AMMO_URL = /*__AMMO_URL__*/ "";
 
   /* ---------- formatting ---------- */
   const nf = (v, d = 0) => Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -1778,6 +1810,165 @@
     }
   }
 
+  /* ---------- ammo: claimed-but-unswapped fee money in the buyback wallet ---------- */
+  // ammo.json is the collector's level series; the snapshot only carries the
+  // latest reading, so the section renders from whichever is fresher and the
+  // chart only appears once the series exists.
+  let AMMO = null;
+
+  function ammoLatest() {
+    const remote = AMMO && AMMO.latest;
+    const inline = SNAPSHOT.ammo && !SNAPSHOT.ammo.error ? SNAPSHOT.ammo : null;
+    if (remote && inline) return Date.parse(inline.observedAt) > Date.parse(remote.observedAt) ? inline : remote;
+    return remote || inline;
+  }
+
+  function renderAmmo() {
+    const section = document.getElementById("ammo-section");
+    const latest = ammoLatest();
+    if (!latest) { section.hidden = true; return; }
+    section.hidden = false;
+
+    const host = document.getElementById("ammo-tiles");
+    host.replaceChildren();
+    const perHour = HOURLY && HOURLY.totals ? HOURLY.totals.meanUsdPerHour : 0;
+    const hours = perHour ? latest.quoteUsd / perHour : null;
+    const top = latest.quoteRows[0];
+    const share = top && top.usd !== null && latest.quoteUsd ? ` · 占 ${Math.round(top.usd / latest.quoteUsd * 100)}%` : "";
+    const solNote = latest.sol.usd !== null ? usd(latest.sol.usd) : nf(latest.sol.amount, 1) + " SOL";
+    const cards = [
+      ["可打的子弹", usd(latest.quoteUsd),
+        `${latest.quoteCount} 种 quote 币` + (latest.unpricedCount ? ` · ${latest.unpricedCount} 种没报价未计入` : "")],
+      ["折合平均销毁", hours !== null ? nf(hours, 1) + " 小时" : "—",
+        perHour ? `按最近 ${HOURLY.windowDays} 天均值 ${usd(perHour)}/小时` : "等逐小时数据"],
+      ["最大一笔", top ? top.symbol : "—",
+        top ? (top.usd !== null ? usd(top.usd) : nf(top.amount, 2) + " 无报价") + share : "钱包里没有 quote 币"],
+      ["买了没烧的 STONK", nf(latest.stonkPending.amount, 0),
+        (latest.stonkPending.usd !== null ? usd(latest.stonkPending.usd) : "—") + ` · 另有 ${solNote} SOL 作 gas`],
+    ];
+    cards.forEach(([label, value, note]) => {
+      const tile = el("div", { class: "tile" });
+      tile.appendChild(el("div", { class: "tile-label" }, label));
+      tile.appendChild(el("div", { class: "tile-value" }, value));
+      tile.appendChild(el("div", { class: "tile-note" }, note));
+      host.appendChild(tile);
+    });
+
+    document.getElementById("ammo-sub").textContent =
+      `钱包 ${trunc(latest.wallet || (AMMO && AMMO.wallet), 6, 6)} · 读数 ${shortTime(latest.observedAt)} ${TZ_LABEL}`
+      + ` · 另有 ${nf(latest.ignoredMints)} 种非 quote 的死币不计入。`;
+
+    table(
+      document.getElementById("ammo-table"),
+      ["quote", "数量", "折 USD", "占比"],
+      latest.quoteRows.map((r) => [
+        r.symbol,
+        nf(r.amount, r.amount >= 1000 ? 0 : r.amount >= 1 ? 2 : 4),
+        r.usd === null ? "无报价" : "$" + nf(r.usd, 0),
+        r.usd === null || !latest.quoteUsd ? "—" : (r.usd / latest.quoteUsd * 100).toFixed(1) + "%",
+      ])
+    );
+
+    drawAmmo();
+  }
+
+  function drawAmmo() {
+    const plot = document.getElementById("plot-ammo");
+    const note = document.getElementById("ammo-history-note");
+    const history = AMMO && Array.isArray(AMMO.history) ? AMMO.history : [];
+    if (history.length < 2) {
+      plot.querySelectorAll("svg").forEach((n) => n.remove());
+      note.textContent = "走势要等采集器多积几个读数才有。";
+      return;
+    }
+    const bucketMs = AMMO.bucketMs || 600000;
+    note.textContent = `最近 ${AMMO.windowDays} 天，每 ${Math.round(bucketMs / 60000)} 分钟取该时段最后一次读数，共 ${history.length} 个点。`
+      + `线往上走是 bot 在攒，往下掉是刚冲了一波。`;
+
+    const tip = plot.__tip || (plot.__tip = makeTip(plot));
+    const f = frame(plot, 220, { t: 16, r: 62, b: 26, l: 52 });
+    const t0 = history[0][0];
+    const span = Math.max(1, history[history.length - 1][0] - t0);
+    const max = Math.max(...history.map((h) => h[1]), 1);
+    const ticks = niceTicks(max);
+    const top = ticks[ticks.length - 1];
+    f.yScale = (v) => f.y1 - (v / top) * (f.y1 - f.y0);
+    const xOf = (t) => f.x0 + ((t - t0) / span) * (f.x1 - f.x0);
+    f.bandW = 0;
+    f.bandX = (i) => xOf(history[i][0]);
+    yAxis(f, ticks, (v) => usd(v));
+    xLabels(f, history, (h) => new Date(h[0] + TZ_OFFSET_MS).toISOString().slice(5, 16).replace("T", " "), 72);
+
+    // A hole wider than a few buckets is the collector being down, not the pile
+    // holding steady: break the line there and shade it, as the hourly chart does.
+    const accent = css("--accent");
+    const pts = history.map((h) => [xOf(h[0]), f.yScale(h[1])]);
+    const runs = [[0]];
+    for (let i = 1; i < history.length; i += 1) {
+      if (history[i][0] - history[i - 1][0] > bucketMs * 3) {
+        f.svg.appendChild(s("rect", {
+          x: pts[i - 1][0], y: f.y0, width: Math.max(1, pts[i][0] - pts[i - 1][0]), height: f.y1 - f.y0,
+          fill: css("--neutral-series"), "fill-opacity": 0.12,
+        }));
+        runs.push([]);
+      }
+      runs[runs.length - 1].push(i);
+    }
+    runs.forEach((run) => {
+      const line = run.map((i) => pts[i].join(",")).join(" ");
+      const first = pts[run[0]][0];
+      const last = pts[run[run.length - 1]][0];
+      f.svg.appendChild(s("polygon", { points: `${first},${f.y1} ${line} ${last},${f.y1}`, fill: accent, "fill-opacity": 0.1 }));
+      f.svg.appendChild(s("polyline", { points: line, fill: "none", stroke: accent, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+    });
+    f.svg.appendChild(s("line", { x1: f.x0, x2: f.x1, y1: f.y1, y2: f.y1, stroke: css("--rule"), "stroke-width": 1 }));
+
+    const end = pts[pts.length - 1];
+    f.svg.appendChild(s("circle", { cx: end[0], cy: end[1], r: 5, fill: accent, stroke: css("--surface"), "stroke-width": 2 }));
+    f.svg.appendChild(
+      s("text", { x: Math.min(end[0] + 9, f.width - 6), y: end[1] + 4, "font-size": 11.5, "font-weight": 600, fill: css("--ink") },
+        usd(history[history.length - 1][1]))
+    );
+
+    const hair = s("line", { y1: f.y0, y2: f.y1, stroke: css("--ink-3"), "stroke-width": 1, opacity: 0 });
+    const dot = s("circle", { r: 4.5, fill: accent, stroke: css("--surface"), "stroke-width": 2, opacity: 0 });
+    f.svg.append(hair, dot);
+    const hit = s("rect", { x: f.x0, y: f.y0, width: f.x1 - f.x0, height: f.y1 - f.y0, fill: "transparent" });
+    f.svg.appendChild(hit);
+    hit.addEventListener("pointermove", (evt) => {
+      const box = f.svg.getBoundingClientRect();
+      const px = ((evt.clientX - box.left) / box.width) * f.width;
+      let i = 0;
+      for (let k = 1; k < pts.length; k += 1) if (Math.abs(pts[k][0] - px) < Math.abs(pts[i][0] - px)) i = k;
+      const h = history[i];
+      const [cx, cy] = pts[i];
+      hair.setAttribute("x1", cx); hair.setAttribute("x2", cx); hair.setAttribute("opacity", 0.35);
+      dot.setAttribute("cx", cx); dot.setAttribute("cy", cy); dot.setAttribute("opacity", 1);
+      tip.show(cx, cy, new Date(h[0] + TZ_OFFSET_MS).toISOString().slice(5, 16).replace("T", " ") + " " + TZ_LABEL, [
+        { label: "已领未换", value: usd(h[1]), color: accent },
+        { label: "买了没烧的 STONK", value: usd(h[3]) },
+        { label: "钱包 SOL", value: usd(h[2]) },
+      ]);
+    });
+    hit.addEventListener("pointerleave", () => { hair.setAttribute("opacity", 0); dot.setAttribute("opacity", 0); tip.hide(); });
+  }
+
+  async function pullAmmo() {
+    if (!AMMO_URL) return;
+    try {
+      const sep = AMMO_URL.includes("?") ? "&" : "?";
+      const response = await fetch(`${AMMO_URL}${sep}t=${Math.floor(Date.now() / 60000)}`, { cache: "no-store" });
+      if (!response.ok) return;
+      const remote = await response.json();
+      if (!remote || !remote.latest || !Array.isArray(remote.history)) return;
+      if (AMMO && !(Date.parse(remote.generatedAt) > Date.parse(AMMO.generatedAt))) return;
+      AMMO = remote;
+      renderAmmo();
+    } catch (err) {
+      /* offline or nothing published yet: the section renders from the snapshot's reading */
+    }
+  }
+
   function renderHeader(d) {
     const t = d.token;
     const meta = document.getElementById("mast-meta");
@@ -2517,6 +2708,7 @@
     renderIntraday();
     drawDrift(SNAPSHOT.reconHistory);
     if (HOURLY) renderHourly();
+    renderAmmo();
   }
 
   document.getElementById("range-picker").addEventListener("click", (evt) => {
@@ -2600,8 +2792,10 @@
   renderEverything();
   pullLive();
   pullHourly();
+  pullAmmo();
   setInterval(pullLive, 120000);
   setInterval(pullHourly, 120000);
+  setInterval(pullAmmo, 120000);
   setInterval(renderFreshness, 30000);
 
   let resizeTimer = null;

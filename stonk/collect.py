@@ -4,7 +4,9 @@ import json
 from collections import OrderedDict
 from datetime import datetime, timezone
 
-from . import config, ledger
+import sys
+
+from . import ammo, config, ledger
 from .api import StonkFunClient, get_token_supply
 
 
@@ -177,6 +179,15 @@ def collect(mint=config.MINT, rpc_url=config.RPC_URL):
   # so the intraday block reflects this fetch too.
   ledger_update = ledger.update(burns_payload["burns"], revenue_payload["recentBuybacks"])
 
+  # The wallet read is the slowest call of the cycle and depends on a second
+  # public service (prices). It must never take the burn snapshot down with it:
+  # a failed gauge is reported as such and the previous history row simply stands.
+  try:
+    ammo_block = ammo.collect_ammo(revenue_payload["recentBuybacks"], stonk_mint=mint, rpc_url=rpc_url)
+  except Exception as exc:  # noqa: BLE001 - any failure here is non-fatal by design
+    print(f"[ammo] skipped: {exc}", file=sys.stderr)
+    ammo_block = {"error": str(exc), "observedAt": _utc_now()}
+
   return {
     "generatedAt": _utc_now(),
     "mint": mint,
@@ -205,6 +216,7 @@ def collect(mint=config.MINT, rpc_url=config.RPC_URL):
     "platformRevenue": revenue_payload["revenue"],
     "platformBurns": revenue_payload["burns"],
     "platformStats": stats_payload,
+    "ammo": ammo_block,
   }
 
 

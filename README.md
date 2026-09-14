@@ -28,6 +28,9 @@ python main.py
 | `data/snapshot.json` | 一次抓取的全部原始 + 派生数据 |
 | `data/recon_history.jsonl` | 每次抓取一行的对账记录（差额时间序列） |
 | `data/hourly.json` | 逐小时销毁汇总（30 天窗口），"一天里的销毁节奏"那节读它 |
+| `data/ammo.json` | 回购钱包里已领未换的 quote 币折美元 + 7 天走势，"Bot 里还有多少子弹"那节读它 |
+| `data/quotes.json` | 从回购流里学到的 quote 币白名单（mint → symbol），只增不删 |
+| `data/ammo_history.jsonl` | 每次抓取一行的子弹余额读数 |
 | `dist/index.html` | 自包含看板，数据内联，双击即可打开，离线可用 |
 
 ## 部署到 Vercel
@@ -100,6 +103,26 @@ ssh root@<host> 'bash -s' < deploy/install.sh
 新鲜度上限是 5 分钟——`raw.githubusercontent.com` 对同一 URL 缓存 300s，且会把
 cache-busting 的 query 归一化掉，所以推得再勤页面也拿不到更新的。发布间隔就是照
 这个上限定的。
+
+### Bot 里还有多少子弹（ammo.json）
+
+手续费不是直接进国库的：先趴在 Raydium LaunchLab 每个池子的金库里，回购钱包
+（`STONK_TREASURY_WALLET`，默认 `5CEbu…SPAG`，即每笔回购 swap 的签名者）逐个池子调
+`ClaimPlatformFeeFromVault` 领出来，再经 Jupiter 换成 STONK 烧掉。所以"攒着没冲"分两层：
+
+- **已领未换**：钱包里的 quote 币余额。公开、可归属、必然会变成买盘。**这一节量的就是它。**
+- **未领**：金库里的。LaunchLab 的金库权限账户是所有平台共用的，里面还混着别家池子的
+  流动性，加总没有意义，**不画**。
+
+钱包名下有上万个代币账户，绝大多数是没毕业的死币（走 `auto` / `reward` 销毁，不是回购）。
+只有在回购流里出现过的 quote 币才计入，白名单从 `/revenue` 的 `recentBuybacks` 逐次学习
+并持久化到 `data/quotes.json`，只增不删——一个 quote 币从最近 100 条里消失了，它剩下的余额
+依然是子弹。报价走 DexScreener（每 30 个 mint 一次请求，取流动性最深的池子）。
+
+每次 `fetch` 追加一行读数到 `data/ammo_history.jsonl`；`publish` 把最新读数 + 7 天走势
+（每 10 分钟取该时段最后一次读数）写成 `data/ammo.json`。走势线往上是 bot 在攒，往下掉是刚冲
+了一波；连续断档超过 3 个桶画成灰带。钱包读取或报价失败时这一轮跳过，快照里 `ammo.error`
+记录原因，页面继续显示上一次的读数。
 
 ## 分时看板与本地台账
 
