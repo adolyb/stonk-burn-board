@@ -27,7 +27,7 @@ cd "$DIR"
 mkdir -p "$DATA"
 # First install only: carry the ledger committed in the repo over to its real home
 # rather than starting the coverage record from scratch.
-for f in burns.jsonl buybacks.jsonl coverage.json recon_history.jsonl snapshot.json; do
+for f in burns.jsonl buybacks.jsonl coverage.json recon_history.jsonl snapshot.json quotes.json ammo_history.jsonl; do
   [ -e "$DATA/$f" ] || [ ! -e "$DIR/data/$f" ] || cp "$DIR/data/$f" "$DATA/$f"
 done
 

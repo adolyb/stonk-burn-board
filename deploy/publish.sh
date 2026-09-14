@@ -37,12 +37,17 @@ fi
 # checkout on servers, so hardcoding $ROOT/data here would publish a stale file.
 LIVE_JSON="$("$PYTHON" -c 'from stonk import config; print(config.LIVE_PATH)')"
 HOURLY_JSON="$("$PYTHON" -c 'from stonk import config; print(config.HOURLY_PATH)')"
+AMMO_JSON="$("$PYTHON" -c 'from stonk import config; print(config.AMMO_PATH)')"
 mkdir -p "$WORKTREE/data"
 cp "$LIVE_JSON" "$WORKTREE/data/live.json"
 cp "$HOURLY_JSON" "$WORKTREE/data/hourly.json"
+# The gauge is optional: a cycle whose wallet read failed leaves the previous
+# ammo.json in place rather than publishing nothing.
+[ -e "$AMMO_JSON" ] && cp "$AMMO_JSON" "$WORKTREE/data/ammo.json"
 
 cd "$WORKTREE"
 git add data/live.json data/hourly.json
+[ -e data/ammo.json ] && git add data/ammo.json
 STAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 if git rev-parse --verify HEAD >/dev/null 2>&1; then
   git commit -q --amend -m "data: live.json @ $STAMP"

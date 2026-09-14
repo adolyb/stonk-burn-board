@@ -66,3 +66,22 @@ HOURLY_URL = os.getenv(
   "STONK_HOURLY_URL",
   "https://raw.githubusercontent.com/adolyb/stonk-burn-board/live/data/hourly.json",
 )
+
+# Buyback ammunition: fee money already claimed into the buyback wallet but not
+# yet swapped into STONK. The wallet is the signer on every buyback swap; it can
+# be re-derived from any buyback signature if the platform ever rotates it.
+TREASURY_WALLET = os.getenv("STONK_TREASURY_WALLET", "5CEbueQnq1Ym2uSSx2xXds3jQAqT1BDnkA59RZobSPAG")
+# Which mints count as "quote" is learned from the buyback stream and persisted,
+# because the wallet also holds thousands of dead launch tokens that are not ammo.
+QUOTES_PATH = DATA_DIR / "quotes.json"
+AMMO_HISTORY_PATH = DATA_DIR / "ammo_history.jsonl"
+AMMO_PATH = DATA_DIR / "ammo.json"
+AMMO_WINDOW_DAYS = int(os.getenv("STONK_AMMO_DAYS", "7"))
+AMMO_ROWS = 20
+AMMO_URL = os.getenv(
+  "STONK_AMMO_URL",
+  "https://raw.githubusercontent.com/adolyb/stonk-burn-board/live/data/ammo.json",
+)
+# DexScreener prices up to 30 mints per call without a key; Jupiter's free price
+# endpoint rate-limited a 100-mint sweep into silence during testing.
+PRICE_API = os.getenv("STONK_PRICE_API", "https://api.dexscreener.com/tokens/v1/solana/")

@@ -11,7 +11,7 @@ import argparse
 import sys
 import time
 
-from stonk import collect, config, hourly, render
+from stonk import ammo, collect, config, hourly, render
 
 
 def _report_fetch(snapshot):
@@ -24,6 +24,13 @@ def _report_fetch(snapshot):
   print(f"delta       = {recon['deltaTokens']:+,.6f} STONK  [{recon['direction']}]")
   print(f"ledger      + {added['burns']} burns, + {added['buybacks']} buybacks"
         f"  (window: {intraday['burnEvents']} burns / {intraday['buybackEvents']} buybacks)")
+  gauge = snapshot.get("ammo") or {}
+  if "error" in gauge:
+    print(f"ammo        skipped: {gauge['error']}", file=sys.stderr)
+  else:
+    print(f"ammo        = ${gauge['quoteUsd']:,.0f} in {gauge['quoteCount']} quotes"
+          f" ({gauge['unpricedCount']} unpriced), SOL {gauge['sol']['amount']:,.1f},"
+          f" STONK pending {gauge['stonkPending']['amount']:,.0f}")
 
   # A page that arrived entirely unseen means older records rotated out before we
   # polled: the intraday series has a hole, and the board will draw it as one.
@@ -60,6 +67,17 @@ def cmd_publish(_args):
   print(f"hourly     -> {hourly_path}  ({hourly_path.stat().st_size / 1024:,.0f} KB, "
         f"{totals['fullHours']} full hours over {rollup['coverageHours']:,.1f}h covered, "
         f"mean {totals['meanPerHour']:,.0f}/h)")
+
+  # The gauge gets its own file for the same reason hourly.json does: the level
+  # series only ever gains a point, while the snapshot is rewritten whole.
+  gauge = snapshot.get("ammo") or {}
+  if "error" not in gauge:
+    payload = ammo.build_payload(gauge)
+    ammo_path = ammo.save_ammo(payload)
+    print(f"ammo       -> {ammo_path}  ({ammo_path.stat().st_size / 1024:,.0f} KB, "
+          f"${gauge['quoteUsd']:,.0f} loaded, {len(payload['history'])} history points)")
+  else:
+    print(f"ammo       skipped: last fetch had no gauge ({gauge.get('error')})", file=sys.stderr)
   return snapshot
 
 
