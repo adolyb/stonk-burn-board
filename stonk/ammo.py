@@ -6,14 +6,19 @@ there. The claimed-but-unswapped balance is the only part of that pipeline that
 is both public and attributable, so that is what this module measures: the
 wallet's quote-token holdings, priced in USD.
 
-Two things it deliberately leaves out:
+Three things it deliberately leaves out:
 
   * the vault side - LaunchLab vault accounts are shared by every launchpad on
     the program and mix fees with live bonding-curve liquidity, so a sum over
     them is not stonkfun's backlog;
   * the wallet's dead launch tokens - thousands of never-graduated mints that
     are burned as "auto"/"reward", not bought back. Only mints seen as a buyback
-    quote (plus the stables) count.
+    quote (plus the stables) count;
+  * every burn path that does not pass through this wallet. Fees on pools quoted
+    in STONK arrive already denominated in it and are burned without a buyback,
+    and the flywheel buys the platform's top mints on its own budget. Both burn
+    real supply while never touching the balance measured here, so this gauge
+    bounds the buyback path alone - not the burn rate.
 
 Every fetch appends one row to a history file so the page can show whether the
 pile is growing or being worked down.

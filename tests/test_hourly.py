@@ -177,3 +177,59 @@ def test_overlapping_coverage_is_not_double_counted(ledger_dir):
   assert out["totals"]["meanPerHour"] == pytest.approx(200.0)
   # And the hour still counts once as a bin, not three times.
   assert [b["t"] for b in out["bins"]] == ["2026-09-08T01:00Z"]
+
+
+def test_usd_is_split_by_source(ledger_dir):
+  """A burn balance can only fund the path that spends it, so the USD rate has to
+  be readable per source - not just as one blended number."""
+  build = ledger_dir(
+    [
+      (at(1, 5), 300.0, 30.0, "buyback"),
+      (at(1, 20), 10.0, 2.0, "quote-revenue"),
+      (at(1, 40), 200.0, 18.0, "buyback"),
+    ],
+    [(at(1), at(2))],
+  )
+  out = build()
+  assert out["sources"] == ["buyback", "quote-revenue"]
+  assert out["bins"][0]["us"] == [48.0, 2.0]
+  assert out["hod"][1]["us"] == [48.0, 2.0]
+
+
+def test_scalar_usd_still_equals_the_total(ledger_dir):
+  """`u` predates the split and the page still reads it; it has to keep meaning
+  every source added together."""
+  build = ledger_dir(
+    [(at(1, 5), 300.0, 30.0, "buyback"), (at(1, 20), 10.0, 2.0, "quote-revenue")],
+    [(at(1), at(2))],
+  )
+  out = build()
+  assert out["bins"][0]["u"] == pytest.approx(32.0)
+  assert out["hod"][1]["u"] == pytest.approx(32.0)
+  assert out["totals"]["usd"] == pytest.approx(32.0)
+
+
+def test_mean_usd_per_hour_by_source_divides_by_covered_hours(ledger_dir):
+  """Two observed hours, so each source's rate is its own USD halved - the ammo
+  gauge divides its balance by the buyback slot alone."""
+  build = ledger_dir(
+    [(at(1, 5), 300.0, 30.0, "buyback"), (at(2, 20), 10.0, 4.0, "quote-revenue")],
+    [(at(1), at(3))],
+  )
+  out = build()
+  assert out["coverageHours"] == pytest.approx(2.0)
+  assert out["totals"]["usdBySource"] == [30.0, 4.0]
+  assert out["totals"]["meanUsdPerHourBySource"] == [15.0, 2.0]
+  # The blended rate is the one the gauge must NOT use: it is larger, so it
+  # would report a shorter runway than the buyback money actually buys.
+  assert out["totals"]["meanUsdPerHour"] == pytest.approx(17.0)
+
+
+def test_uncovered_hours_still_emit_zeroed_usd_slots(ledger_dir):
+  """A watched-but-quiet hour is a real zero, and its per-source array has to be
+  the right width or the page reads the wrong slot."""
+  build = ledger_dir([(at(1, 5), 300.0, 30.0, "buyback")], [(at(1), at(3))])
+  out = build()
+  assert [b["t"] for b in out["bins"]] == ["2026-09-08T01:00Z", "2026-09-08T02:00Z"]
+  assert out["bins"][1]["us"] == [0.0]
+  assert out["bins"][1]["u"] == 0.0

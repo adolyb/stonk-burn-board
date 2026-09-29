@@ -19,6 +19,11 @@
     --accent-track: #cde2fb;
     --neutral-series: #9aa0ad;
     --series-2: #eb6834;
+    /* One hue per burn source. There are six, and reading the stack depends on
+       telling them apart, so they cannot share a colour. */
+    --series-3: #17a08a;
+    --series-4: #8257c8;
+    --series-5: #c4457f;
     --neg: #e34948;
     --neg-wash: rgba(227, 73, 72, 0.10);
     --good: #0ca30c;
@@ -44,6 +49,9 @@
       --accent-track: #17325c;
       --neutral-series: #5a5f6d;
       --series-2: #d95926;
+      --series-3: #2bbfa5;
+      --series-4: #9d78e0;
+      --series-5: #e06aa0;
       --neg: #e66767;
       --neg-wash: rgba(230, 103, 103, 0.14);
       --good: #0ca30c;
@@ -67,6 +75,9 @@
     --accent-track: #17325c;
     --neutral-series: #5a5f6d;
     --series-2: #d95926;
+    --series-3: #2bbfa5;
+    --series-4: #9d78e0;
+    --series-5: #e06aa0;
     --neg: #e66767;
     --neg-wash: rgba(230, 103, 103, 0.14);
     --good: #0ca30c;
@@ -369,6 +380,12 @@
   .legend i.line { height: 3px; border-radius: 2px; width: 15px; }
   .legend i.dash { background: transparent; border: 1.5px dashed var(--accent); }
 
+  /* Ties a glossary line to its slice of the stacked chart above it. */
+  .swatch {
+    width: 9px; height: 9px; border-radius: 2px; flex: none;
+    display: inline-block; margin-right: 7px; vertical-align: 0.5px;
+  }
+
   .tip {
     position: absolute;
     z-index: 5;
@@ -588,7 +605,9 @@
     <div class="section-head">
       <h2>Bot 里还有多少子弹</h2>
       <p>手续费先趴在 LaunchLab 池子金库里，回购 bot 逐个池子领到自己钱包，再换成 STONK 烧掉。这一节读的是<b>已经领到钱包、还没换掉</b>的 quote 币，按现价折美元：这是接下来必然会变成买盘的钱。金库里没领的那部分和其他平台混在一起，算不清，不画。</p>
+      <p><b>只覆盖回购这一条路。</b>报价币直烧和生态飞轮都不经过这个钱包，却一样在烧 STONK，所以这个数是<b>回购买盘的上限，不是销毁速度</b>。两条路各自的量级见页尾的「全平台销毁分布」。</p>
     </div>
+    <div class="legend" id="ammo-config"></div>
     <div class="tiles wide" id="ammo-tiles"></div>
     <div class="card">
       <div class="card-head">
@@ -617,8 +636,9 @@
 
   <section style="display:flex;flex-direction:column;gap:16px">
     <div class="section-head">
-      <h2>回购销毁分时</h2>
+      <h2>销毁与回购分时</h2>
       <p>API 单页上限 100 条且无法回补历史，所以分时序列由本地台账按签名去重累积。没有采集到的时间段会画成空档，不会跟"这段没有销毁"混为一谈。</p>
+      <p><b>两条曲线不是同一批交易。</b>销毁枚数含全部来源（回购 + 报价币直烧 + 飞轮），回购均价只来自回购流——所以销毁的笔数会明显多于回购的笔数，这是机制差异，不是采集漏了。</p>
     </div>
     <div class="toolbar">
       <span class="eyebrow">分箱</span>
@@ -643,7 +663,7 @@
         <div class="card-head">
           <div>
             <h2>每箱销毁枚数</h2>
-            <p>枚数口径——日线端点只给美元，这条曲线只能靠本地累积得到。</p>
+            <p>枚数口径，含全部销毁来源——日线端点只给美元，这条曲线只能靠本地累积得到。</p>
           </div>
           <button class="link-btn" data-toggle="intraday-table">表格视图</button>
         </div>
@@ -711,6 +731,7 @@
       </div>
     </div>
     <div class="table-wrap" id="platform-table"></div>
+    <div class="readout" id="platform-note"></div>
   </section>
 
   <section class="card">
@@ -1521,10 +1542,65 @@
     };
   }
 
-  // Two series only ever: the categorical slots stay in a fixed order so a source
-  // keeps its colour when another one appears or drops out.
+  // Every burn path the platform reports, in its own words. The distinction the
+  // whole page turns on is the last column: only `buyback` spends the wallet the
+  // ammo gauge can see, so a burn count is never a buyback count.
+  const BURN_SOURCES = {
+    "buyback": {
+      label: "回购销毁",
+      color: "--accent",
+      note: "约 60% 平台手续费在公开市场买入 STONK 再烧，其余留存。只有这条路经过回购钱包，也只有这条路被下面的「子弹」量到。",
+    },
+    "quote-revenue": {
+      label: "报价币直烧",
+      color: "--series-2",
+      note: "用 STONK 作 quote 的池子，手续费本来就是 STONK，平台原话：不经回购直接烧（burn without a buyback）。",
+    },
+    "flywheel": {
+      label: "生态飞轮",
+      color: "--series-3",
+      note: "各 v3 池与 LaunchLab 抽一份手续费，按市值加权买烧平台 top-15，STONK 在列。预算独立于回购。",
+    },
+    "reward": {
+      label: "持仓奖励",
+      color: "--series-4",
+      note: "reward 币把转账税分给持有者，销毁的是那些币自己，跟 STONK 供应无关。",
+    },
+    "auto": {
+      label: "自动销毁",
+      color: "--neutral-series",
+      note: "没毕业的死币按流程自动烧掉，跨上万个 mint，跟回购无关。",
+    },
+    "kickstart": {
+      label: "冷启动",
+      color: "--series-5",
+      note: "启动期的零星销毁，量级可忽略。",
+    },
+  };
+  // Order is by how much each path matters to STONK's own supply, not by size:
+  // the two that actually burn STONK lead, and the cross-mint ones trail.
+  const SOURCE_ORDER = ["buyback", "quote-revenue", "flywheel", "reward", "auto", "kickstart"];
+
+  // An unknown name is a source the API added since this page was written. It
+  // still gets drawn and counted - it just says so instead of inventing a gloss.
+  function sourceMeta(name) {
+    return BURN_SOURCES[name] || { label: name, color: "--ink-3", note: "接口新增的来源，本页还没有标注它的含义。" };
+  }
+
+  function sourceLabel(name) {
+    const meta = BURN_SOURCES[name];
+    return meta ? `${meta.label}（${name}）` : name;
+  }
+
   function sourceColor(name) {
-    return name === "buyback" ? css("--accent") : css("--series-2");
+    return css(sourceMeta(name).color);
+  }
+
+  // Known paths first and always in the same slot, so a source keeps its place
+  // when another one appears or drops out; anything new is appended in API order.
+  function orderSources(names) {
+    const known = SOURCE_ORDER.filter((name) => names.includes(name));
+    return known.concat(names.filter((name) => !SOURCE_ORDER.includes(name)));
   }
 
   function renderHourlyTiles(model) {
@@ -1823,15 +1899,48 @@
     return remote || inline;
   }
 
+  // The gauge below asserts this money must become buy pressure. That is only
+  // true while the platform's own switches are on, so show them next to it.
+  function renderAmmoConfig() {
+    const host = document.getElementById("ammo-config");
+    if (!host) return;
+    host.replaceChildren();
+    const cfg = (SNAPSHOT && SNAPSHOT.platformConfig) || null;
+    if (!cfg) return;
+    [["buybacksEnabled", "回购"], ["buybackBurnEnabled", "回购后销毁"]].forEach(([key, label]) => {
+      if (cfg[key] === undefined) return;
+      const on = cfg[key] === true;
+      const span = el("span");
+      span.appendChild(el("i", { style: `background:var(${on ? "--good" : "--neg"})` }));
+      span.appendChild(document.createTextNode(`${label} `));
+      span.appendChild(el("b", { class: on ? "chip pos" : "chip neg" }, on ? "开" : "已关闭"));
+      host.appendChild(span);
+    });
+    if (cfg.buybacksEnabled === false || cfg.buybackBurnEnabled === false) {
+      host.appendChild(el("span", null, "平台已关掉这条路——下面的余额不会再变成买盘。"));
+    }
+  }
+
   function renderAmmo() {
     const section = document.getElementById("ammo-section");
     const latest = ammoLatest();
     if (!latest) { section.hidden = true; return; }
     section.hidden = false;
+    renderAmmoConfig();
 
     const host = document.getElementById("ammo-tiles");
     host.replaceChildren();
-    const perHour = HOURLY && HOURLY.totals ? HOURLY.totals.meanUsdPerHour : 0;
+    // The balance can only fund buybacks, so the runway has to be divided by the
+    // buyback burn rate. Dividing by the blended all-source rate counts burns
+    // this money will never pay for and reports a runway that is too short.
+    // hourly.json published before the split has no per-source USD; fall back to
+    // the blended rate there and label which one is on screen.
+    const hTotals = (HOURLY && HOURLY.totals) || null;
+    const bySourceRate = hTotals && hTotals.meanUsdPerHourBySource;
+    const buybackSlot = HOURLY && HOURLY.sources ? HOURLY.sources.indexOf("buyback") : -1;
+    const buybackRate = bySourceRate && buybackSlot >= 0 ? bySourceRate[buybackSlot] : null;
+    const perHour = buybackRate !== null ? buybackRate : (hTotals ? hTotals.meanUsdPerHour : 0);
+    const rateScope = buybackRate !== null ? "回购口径" : "全来源口径";
     const hours = perHour ? latest.quoteUsd / perHour : null;
     const top = latest.quoteRows[0];
     const share = top && top.usd !== null && latest.quoteUsd ? ` · 占 ${Math.round(top.usd / latest.quoteUsd * 100)}%` : "";
@@ -1839,8 +1948,8 @@
     const cards = [
       ["可打的子弹", usd(latest.quoteUsd),
         `${latest.quoteCount} 种 quote 币` + (latest.unpricedCount ? ` · ${latest.unpricedCount} 种没报价未计入` : "")],
-      ["折合平均销毁", hours !== null ? nf(hours, 1) + " 小时" : "—",
-        perHour ? `按最近 ${HOURLY.windowDays} 天均值 ${usd(perHour)}/小时` : "等逐小时数据"],
+      ["折合平均回购", hours !== null ? nf(hours, 1) + " 小时" : "—",
+        perHour ? `按最近 ${HOURLY.windowDays} 天${rateScope}均值 ${usd(perHour)}/小时` : "等逐小时数据"],
       ["最大一笔", top ? top.symbol : "—",
         top ? (top.usd !== null ? usd(top.usd) : nf(top.amount, 2) + " 无报价") + share : "钱包里没有 quote 币"],
       ["买了没烧的 STONK", nf(latest.stonkPending.amount, 0),
@@ -2078,8 +2187,10 @@
     legend.replaceChildren();
     d.sourceMix.forEach((m) => {
       const span = el("span");
-      span.appendChild(el("i", { style: "background:var(--accent)" }));
-      span.appendChild(document.createTextNode(`${m.source} · ${m.count} 笔 · ${nf(m.amountTokens, 0)} STONK · ${usd(m.valueUsd)}`));
+      span.appendChild(el("i", { style: `background:var(${sourceMeta(m.source).color})` }));
+      span.appendChild(document.createTextNode(
+        `${sourceLabel(m.source)} · ${m.count} 笔 · ${nf(m.amountTokens, 0)} STONK · ${usd(m.valueUsd)}`
+      ));
       legend.appendChild(span);
     });
 
@@ -2090,7 +2201,7 @@
         shortTime(b.burnedAt),
         nf(b.amountTokens, 4),
         "$" + nf(b.valueUsdAtBurn || 0, 2),
-        b.source || "—",
+        b.source ? sourceLabel(b.source) : "—",
         { href: "https://solscan.io/tx/" + b.signature, text: trunc(b.signature, 8, 8) },
       ])
     );
@@ -2098,23 +2209,50 @@
 
   function renderCrossCheck(d) {
     const c = d.usdCrossCheck;
-    table(
-      document.getElementById("crosscheck-table"),
-      ["口径", "端点", "USD"],
-      [
-        ["日线累计 holders 收入", "/revenue/history", "$" + nf(c.historyHoldersRevenueSum, 0)],
-        ["平台累计回购", "/revenue totalBuybackUsd", "$" + nf(c.revenueTotalBuybackUsd, 0)],
-        ["买入 STONK 的成交额", "/revenue boughtBackValueUsd", "$" + nf(c.revenueBoughtBackValueUsd, 0)],
-        ["STONK 销毁时价值", "/tokens/{mint}/burns", "$" + nf(c.tokenBurnValueUsdAtBurn, 0)],
-      ]
-    );
+    const rows = [
+      ["日线累计 holders 收入", "/revenue/history", "$" + nf(c.historyHoldersRevenueSum, 0)],
+      ["平台累计回购", "/revenue totalBuybackUsd", "$" + nf(c.revenueTotalBuybackUsd, 0)],
+      ["买入 STONK 的成交额", "/revenue boughtBackValueUsd", "$" + nf(c.revenueBoughtBackValueUsd, 0)],
+      ["STONK 销毁时价值", "/tokens/{mint}/burns", "$" + nf(c.tokenBurnValueUsdAtBurn, 0)],
+    ];
+    if (c.platformPairExcludedUsd != null) {
+      rows.push(["其中 STONK 计价、未进回购拆分", "/revenue platformPairExcludedUsd", "$" + nf(c.platformPairExcludedUsd, 0)]);
+    }
+    table(document.getElementById("crosscheck-table"), ["口径", "端点", "USD"], rows);
+
+    // Derived here rather than read from the snapshot so the figure is right even
+    // when the collector that produced live.json predates this correction.
+    const burned = d.burnTotals.amountTokens || 0;
+    const bought = c.boughtBackTokens || 0;
+    const nonBuyback = burned - bought;
+
+    // One subtraction, two regimes, and the label has to follow the sign - being
+    // stuck on one reading of it is what made the old version wrong. Burned
+    // ahead of bought means the direct paths carried it; bought ahead of burned
+    // means the buyback wallet is still holding it.
+    const arithmetic = ` 枚 = 台账已烧的 ${nf(burned, 0)} − 回购买到的 ${nf(bought, 0)}。`;
     const note = document.getElementById("crosscheck-note");
     note.replaceChildren();
     const line = el("div");
-    line.appendChild(el("b", null, "已买入未销毁："));
-    line.appendChild(el("span", { class: "mono" }, signed(c.boughtNotYetBurnedTokens, 2)));
+    if (nonBuyback >= 0) {
+      line.appendChild(el("b", null, "没走回购就被烧掉的："));
+      line.appendChild(el("span", { class: "mono" }, signed(nonBuyback, 2)));
+      line.appendChild(document.createTextNode(
+        arithmetic
+        + `两条路不经过回购就能烧 STONK：用 STONK 作 quote 的池子手续费直接烧（报价币直烧），`
+        + `以及飞轮用自己的预算买烧 top-15。回购买了还没烧的缓冲量会抵掉一部分，所以这是下限。`
+      ));
+    } else {
+      line.appendChild(el("b", null, "回购买了还没烧的：" ));
+      line.appendChild(el("span", { class: "mono" }, nf(-nonBuyback, 2)));
+      line.appendChild(document.createTextNode(
+        arithmetic
+        + `买得比烧得多，说明直烧和飞轮这一阵子没盖过回购的缓冲量。`
+        + `这个差值只在缓冲量占上风时才读得通，`
+      ));
+    }
     line.appendChild(document.createTextNode(
-      ` 枚 = 回购买到的 ${nf(c.boughtBackTokens, 0)} − 台账已烧的 ${nf(d.burnTotals.amountTokens, 0)}。正数代表回购已成交但尚未进入销毁交易的缓冲量。`
+      `真正的缓冲量在上面「Bot 里还有多少子弹」里直接读钱包余额，不靠这个减法。`
     ));
     note.appendChild(line);
   }
@@ -2141,9 +2279,11 @@
 
   function renderPlatform(d) {
     const by = d.platformBurns.bySource || {};
-    const rows = Object.entries(by)
-      .sort((a, b) => (b[1].valueUsd || 0) - (a[1].valueUsd || 0))
-      .map(([k, v]) => [k, nf(v.count), compact(v.amountTokens), "$" + nf(v.valueUsd, 0)]);
+    const names = orderSources(Object.keys(by));
+    const rows = names.map((name) => {
+      const v = by[name];
+      return [sourceLabel(name), nf(v.count), compact(v.amountTokens), "$" + nf(v.valueUsd, 0)];
+    });
     rows.push([
       "合计",
       nf(d.platformBurns.burnCount),
@@ -2151,6 +2291,19 @@
       "$" + nf(d.platformBurns.totalValueUsdAtBurn, 0),
     ]);
     table(document.getElementById("platform-table"), ["来源", "笔数", "数量（跨 mint，不可加总）", "价值 USD"], rows);
+
+    // The table is only readable once each key has a meaning attached; without
+    // this the six paths look like one mechanism reported six ways.
+    const note = document.getElementById("platform-note");
+    note.replaceChildren();
+    names.forEach((name) => {
+      const meta = sourceMeta(name);
+      const row = el("div");
+      row.appendChild(el("i", { class: "swatch", style: `background:var(${meta.color})` }));
+      row.appendChild(el("b", null, sourceLabel(name) + "："));
+      row.appendChild(document.createTextNode(meta.note));
+      note.appendChild(row);
+    });
   }
 
   function renderNotes(d) {
@@ -2158,8 +2311,9 @@
     host.replaceChildren();
     const items = [
       ["链上供应", "Solana JSON-RPC getTokenSupply，只信这一侧的供应量。公共 RPC 限速紧，跑定时任务请把 STONK_RPC_URL 指向 Helius / QuickNode。"],
-      ["销毁台账", "/tokens/{mint}/burns：totals 是全量累计，burns 列表单次上限 100 条。"],
-      ["日线收入", "/revenue/history：按 UTC 日 keyed，一次拉全，无日期参数。dailyRevenue 是入库手续费，dailyHoldersRevenue 是拿去回购销毁的部分，dailyProtocolRevenue 是留存。创作者与 reward 持仓的手续费直接从 Raydium 领取，不计入这里。"],
+      ["销毁台账", "/tokens/{mint}/burns：totals 是全量累计，burns 列表单次上限 100 条。totals 不按来源拆分，所以单币的「回购烧了多少」拿不到——只能从 100 条明细里抽样看构成。"],
+      ["销毁的三条路", "烧 STONK 的不止回购：报价币直烧（用 STONK 作 quote 的池子，手续费本来就是 STONK，平台原话 burn without a buyback）和生态飞轮（按市值加权买烧 top-15）都不经过回购钱包。所以销毁笔数 ≠ 回购笔数，子弹余额也只约束回购那一条。"],
+      ["日线收入", "/revenue/history：按 UTC 日 keyed，一次拉全，无日期参数。dailyRevenue 是入库手续费，dailyHoldersRevenue 是拿去回购销毁的部分，dailyProtocolRevenue 是留存。创作者与 reward 持仓的手续费直接从 Raydium 领取，不计入这里。platformPairExcludedUsd 是以 STONK 计价、不进这个拆分的那部分收入。"],
       ["平台汇总", "/revenue 与 /stats：口径是平台全部 mint，不是 STONK 单币，两者不可混用。"],
       ["字段依据", "全部字段名以 /openapi.json 为准；限速 300/min per IP，响应带 X-RateLimit-Remaining，429 时按 Retry-After 退避。"],
     ];
@@ -2340,8 +2494,12 @@
       revenueTotalBuybackUsd: revenue.totalBuybackUsd,
       revenueBoughtBackValueUsd: revenue.boughtBackValueUsd,
       tokenBurnValueUsdAtBurn: totals.valueUsdAtBurn,
+      platformPairExcludedUsd: revenue.platformPairExcludedUsd,
       boughtBackTokens: bought,
-      boughtNotYetBurnedTokens: bought - totals.amountTokens,
+      // Mirrors stonk/collect.py: burned minus bought, not the other way round.
+      // Burns arrive from paths the buyback counter never sees, so the far side
+      // is the larger one and the difference measures those paths.
+      nonBuybackBurnedTokens: (totals.amountTokens || 0) - bought,
     };
   }
 
@@ -2497,6 +2655,7 @@
         usdCrossCheck: crossCheckUsd(historyData, revenueData.revenue, burnsData.totals),
         platformRevenue: revenueData.revenue,
         platformBurns: revenueData.burns,
+        platformConfig: revenueData.config || {},
         platformStats: statsData,
       };
 
