@@ -1864,7 +1864,9 @@
       latest.quoteRows.map((r) => [
         r.symbol,
         nf(r.amount, r.amount >= 1000 ? 0 : r.amount >= 1 ? 2 : 4),
-        r.usd === null ? "无报价" : "$" + nf(r.usd, 0),
+        // Capped: amount x price exceeds the SOL/USDC in the pool pricing it, so
+        // the figure is that pool's depth - all a sale into it could bring back.
+        r.usd === null ? "无报价" : "$" + nf(r.usd, 0) + (r.capped ? " · 池深封顶" : ""),
         r.usd === null || !latest.quoteUsd ? "—" : (r.usd / latest.quoteUsd * 100).toFixed(1) + "%",
       ])
     );
@@ -1882,7 +1884,12 @@
       return;
     }
     const bucketMs = AMMO.bucketMs || 600000;
-    note.textContent = `最近 ${AMMO.windowDays} 天，每 ${Math.round(bucketMs / 60000)} 分钟取该时段最后一次读数，共 ${history.length} 个点。`
+    // ammo.json leaves out readings taken under an older pricing method, so the
+    // series can be shorter than its window: label what it actually covers.
+    const spanH = (history[history.length - 1][0] - history[0][0]) / 3600000;
+    const covered = spanH >= AMMO.windowDays * 24 - 1 ? `${AMMO.windowDays} 天`
+      : spanH >= 48 ? `${nf(spanH / 24, 1)} 天` : `${Math.max(1, Math.round(spanH))} 小时`;
+    note.textContent = `最近 ${covered}，每 ${Math.round(bucketMs / 60000)} 分钟取该时段最后一次读数，共 ${history.length} 个点。`
       + `线往上走是 bot 在攒，往下掉是刚冲了一波。`;
 
     const tip = plot.__tip || (plot.__tip = makeTip(plot));

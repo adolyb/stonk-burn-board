@@ -30,7 +30,7 @@ python main.py
 | `data/hourly.json` | 逐小时销毁汇总（30 天窗口），"一天里的销毁节奏"那节读它 |
 | `data/ammo.json` | 回购钱包里已领未换的 quote 币折美元 + 7 天走势，"Bot 里还有多少子弹"那节读它 |
 | `data/quotes.json` | 从回购流里学到的 quote 币白名单（mint → symbol），只增不删 |
-| `data/ammo_history.jsonl` | 每次抓取一行的子弹余额读数 |
+| `data/ammo_history.jsonl` | 每次抓取一行的子弹余额读数（`p` = 报价口径版本，旧口径的行不发布） |
 | `dist/index.html` | 自包含看板，数据内联，双击即可打开，离线可用 |
 
 ## 部署到 Vercel
@@ -117,12 +117,28 @@ cache-busting 的 query 归一化掉，所以推得再勤页面也拿不到更�
 钱包名下有上万个代币账户，绝大多数是没毕业的死币（走 `auto` / `reward` 销毁，不是回购）。
 只有在回购流里出现过的 quote 币才计入，白名单从 `/revenue` 的 `recentBuybacks` 逐次学习
 并持久化到 `data/quotes.json`，只增不删——一个 quote 币从最近 100 条里消失了，它剩下的余额
-依然是子弹。报价走 DexScreener（每 30 个 mint 一次请求，取流动性最深的池子）。
+依然是子弹。
+
+**报价走 DexScreener，只认 SOL / USDC / USDT 计价的池子。** 其他计价币的美元价是 DexScreener
+自己估的，会错好几个数量级：2026-11-04 起它给 ZEC 挑的池子是 ZEC/AVEN，0.24 枚 ZEC 被算成
+$2.76M 流动性、$577 万一枚；PYTH/JUP 池里 JUP 被折成 $1,102 一枚。子弹读数因此在真实的
+$2 万多和最高 $9,600 万之间来回跳。现在的规则：
+
+- 池子深浅按里面**真实的 SOL/USDC/USDT 那一侧**比（`liquidity.quote` × 计价币价），不用
+  `liquidity.usd`——后者把底币那侧按正在检验的价格算进去，报价越离谱池子"越深"。
+- 批量接口（每 30 个 mint 一次请求）每个币只回 DexScreener 自选的**一个**池子。它不是这三种
+  计价时，单独拉这个币的全部池子重选（`STONK_PAIRS_API`，约八分之一的币，每个一次请求，
+  合计限时 30 秒，超时这一轮跳过）。一个合格池子都没有的币算"没报价"。
+- 每个币的估值**不超过给它报价的那个池子的深度**：卖进一个池子最多换回它里面那么多
+  SOL/USDC。被封顶的行在表格里标"池深封顶"。
 
 每次 `fetch` 追加一行读数到 `data/ammo_history.jsonl`；`publish` 把最新读数 + 7 天走势
 （每 10 分钟取该时段最后一次读数）写成 `data/ammo.json`。走势线往上是 bot 在攒，往下掉是刚冲
 了一波；连续断档超过 3 个桶画成灰带。钱包读取或报价失败时这一轮跳过，快照里 `ammo.error`
 记录原因，页面继续显示上一次的读数。
+
+读数行里的 `p` 是报价口径版本（`stonk/ammo.py` 的 `PRICING_VERSION`），`ammo.json` 只发布
+当前口径的读数。旧口径的行留在 jsonl 里，只是不画——所以改口径后走势从头积累，7 天后填满窗口。
 
 ## 分时看板与本地台账
 

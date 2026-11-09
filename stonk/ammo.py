@@ -20,6 +20,7 @@ pile is growing or being worked down.
 """
 
 import json
+import time
 from datetime import datetime, timezone
 
 import requests
@@ -32,14 +33,31 @@ TOKEN_PROGRAMS = (
   "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
 )
 WSOL_MINT = "So11111111111111111111111111111111111111112"
+USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+USDT_MINT = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
 # Quotes that are always valid even if no buyback happened to use them lately.
 ALWAYS_QUOTES = {
-  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": "USDC",
-  "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB": "USDT",
+  USDC_MINT: "USDC",
+  USDT_MINT: "USDT",
   WSOL_MINT: "SOL",
 }
+# The only quote tokens whose pools may price a holding. DexScreener anchors these
+# itself; any other quote is converted to USD through its own estimate of that
+# token, which has been off by four orders of magnitude - JUP at $1,102 inside a
+# PYTH/JUP pool, an AVEN pool pricing ZEC at $5.77M - and one such row took the
+# gauge from ~$23k to $9M.
+REFERENCE_QUOTES = frozenset((WSOL_MINT, USDC_MINT, USDT_MINT))
 LAMPORTS = 1_000_000_000
 PRICE_BATCH = 30
+# Per-token pool lookups: 58 of them took 10 s from the VPS (p90 0.35 s each).
+# The budget is the ceiling on all of them, so a stalled price API fails this
+# gauge on its own instead of running the whole fetch into systemd's 120 s kill.
+LOOKUP_TIMEOUT_S = 10
+LOOKUP_BUDGET_S = 45
+# Bumped when a change in how holdings are priced makes older history rows
+# incomparable. Rows without it (version 1) were priced from DexScreener's single
+# pick per token and include readings up to $96M against a real ~$23k.
+PRICING_VERSION = 2
 
 
 def _utc_now_ms():
@@ -145,36 +163,99 @@ def fetch_wallet(wallet=None, rpc_url=None, timeout=90):
 
 # ---------- prices ----------
 
+def _num(value):
+  try:
+    return float(value)
+  except (TypeError, ValueError):
+    return None
+
+
 def pick_prices(pairs, mints):
-  """Deepest pool per requested mint. Thin pools quote fantasy prices."""
+  """Deepest SOL/USDC/USDT-quoted pool per requested mint.
+
+  Depth is the pool's reference side - the SOL/USDC/USDT really in it.
+  liquidity.usd also counts the base side at the very price being checked, so a
+  pool quoting a fantasy price reports fantasy depth and wins any ranking by it.
+  A pool that does not report its quote reserve cannot be sized and is skipped.
+  """
   wanted = set(mints)
   best = {}
   for pair in pairs or []:
     mint = (pair.get("baseToken") or {}).get("address")
-    price = pair.get("priceUsd")
-    if mint not in wanted or not price:
+    quote = (pair.get("quoteToken") or {}).get("address")
+    if mint not in wanted or quote not in REFERENCE_QUOTES:
       continue
-    liquidity = float((pair.get("liquidity") or {}).get("usd") or 0)
-    if mint not in best or liquidity > best[mint]["liquidityUsd"]:
-      best[mint] = {"usd": float(price), "liquidityUsd": liquidity}
+    price = _num(pair.get("priceUsd"))
+    native = _num(pair.get("priceNative"))
+    reserve = _num((pair.get("liquidity") or {}).get("quote"))
+    if not price or not native or reserve is None:
+      continue
+    # priceUsd / priceNative is DexScreener's USD price of the quote token, which
+    # is trustworthy here only because the quote is one of its anchors.
+    depth = reserve * price / native
+    if mint not in best or depth > best[mint]["depthUsd"]:
+      best[mint] = {"usd": price, "depthUsd": depth}
   return best
 
 
-def fetch_prices(mints, price_api=None, timeout=30):
+def _get_json(url, timeout, attempts=1):
+  for attempt in range(attempts):
+    try:
+      response = requests.get(url, timeout=timeout, headers={"User-Agent": config.USER_AGENT})
+      response.raise_for_status()
+      return response.json()
+    except requests.RequestException:
+      if attempt == attempts - 1:
+        raise
+
+
+def fetch_prices(mints, price_api=None, pairs_api=None, timeout=30, budget_s=LOOKUP_BUDGET_S):
+  """Price and depth per mint, from SOL/USDC/USDT-quoted pools only.
+
+  The batch endpoint returns one pool per token, DexScreener's own pick. When
+  that pool is quoted in anything else, the token's full pool list is fetched
+  and the pick redone from it - one request per token, 58 of 484 on 2026-11-09.
+  A token the batch returned nothing for has no indexed pool and is not looked up.
+  """
   price_api = price_api or config.PRICE_API
+  pairs_api = pairs_api or config.PAIRS_API
   mints = list(dict.fromkeys(mints))
   prices = {}
+  listed = set()
   for start in range(0, len(mints), PRICE_BATCH):
     chunk = mints[start:start + PRICE_BATCH]
-    response = requests.get(
-      price_api + ",".join(chunk), timeout=timeout, headers={"User-Agent": config.USER_AGENT}
-    )
-    response.raise_for_status()
-    prices.update(pick_prices(response.json(), chunk))
+    pairs = _get_json(price_api + ",".join(chunk), timeout)
+    listed.update((pair.get("baseToken") or {}).get("address") for pair in pairs or [])
+    prices.update(pick_prices(pairs, chunk))
+
+  lookups = [mint for mint in mints if mint not in prices and mint in listed]
+  deadline = time.monotonic() + budget_s
+  for done, mint in enumerate(lookups):
+    if time.monotonic() > deadline:
+      raise ApiError(f"pool lookups ran past {budget_s}s with {len(lookups) - done} mints left")
+    # Dozens of these per cycle, and any failure skips the whole reading: one
+    # retry keeps a single dropped connection from doing that.
+    pairs = _get_json(pairs_api + mint, min(timeout, LOOKUP_TIMEOUT_S), attempts=2)
+    prices.update(pick_prices(pairs, [mint]))
   return prices
 
 
 # ---------- the gauge ----------
+
+def value_holding(amount, price):
+  """(usd, capped) for a balance, never above the depth of the pool pricing it.
+
+  Selling into a pool can bring back at most the SOL/USDC/USDT it holds, so a
+  thin pool quoting a fantasy price moves the total by its depth at most.
+  """
+  if not price:
+    return None, False
+  usd = amount * price["usd"]
+  depth = price.get("depthUsd")
+  if depth is not None and usd > depth:
+    return depth, True
+  return usd, False
+
 
 def build_ammo(balances, quotes, prices, sol_lamports, stonk_mint, observed_at):
   rows = []
@@ -187,19 +268,20 @@ def build_ammo(balances, quotes, prices, sol_lamports, stonk_mint, observed_at):
     if mint not in quotes:
       ignored += 1
       continue
-    price = prices.get(mint)
-    usd = amount * price["usd"] if price else None
+    usd, capped = value_holding(amount, prices.get(mint))
     if usd is None:
       unpriced.append(quotes[mint])
     else:
       quote_usd += usd
-    rows.append({"mint": mint, "symbol": quotes[mint], "amount": amount, "usd": usd})
+    row = {"mint": mint, "symbol": quotes[mint], "amount": amount, "usd": usd}
+    if capped:
+      row["capped"] = True
+    rows.append(row)
 
   rows.sort(key=lambda r: (r["usd"] is None, -(r["usd"] or 0)))
 
   def _usd(amount, mint):
-    price = prices.get(mint)
-    return amount * price["usd"] if price else None
+    return value_holding(amount, prices.get(mint))[0]
 
   sol_amount = sol_lamports / LAMPORTS
   stonk_amount = balances.get(stonk_mint, 0.0)
@@ -265,6 +347,7 @@ def history_entry(ammo):
     "k": round(ammo["stonkPending"]["usd"] or 0.0, 2),
     "n": ammo["quoteCount"],
     "u": ammo["unpricedCount"],
+    "p": PRICING_VERSION,
   }
 
 
@@ -277,13 +360,16 @@ def build_payload(latest, history_path=None, window_days=None, now_ms=None, max_
   since_ms = now_ms - window_days * 86400000
   trimmed = dict(latest)
   trimmed["quoteRows"] = list(latest.get("quoteRows") or [])[:max_rows]
+  # Rows priced the old way stay in the log but are not plotted: one $96M
+  # reading flattens a week of the real line against the axis.
+  history = [row for row in load_history(history_path, since_ms) if row.get("p", 1) >= PRICING_VERSION]
   return {
     "generatedAt": _iso(now_ms),
     "wallet": config.TREASURY_WALLET,
     "windowDays": window_days,
     "bucketMs": bucket_ms,
     "latest": trimmed,
-    "history": downsample(load_history(history_path, since_ms), bucket_ms),
+    "history": downsample(history, bucket_ms),
   }
 
 
