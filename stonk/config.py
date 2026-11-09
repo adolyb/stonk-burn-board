@@ -85,3 +85,6 @@ AMMO_URL = os.getenv(
 # DexScreener prices up to 30 mints per call without a key; Jupiter's free price
 # endpoint rate-limited a 100-mint sweep into silence during testing.
 PRICE_API = os.getenv("STONK_PRICE_API", "https://api.dexscreener.com/tokens/v1/solana/")
+# The batch endpoint above returns a single pool per token, DexScreener's pick.
+# This one lists all of a token's pools, for when that pick is unusable.
+PAIRS_API = os.getenv("STONK_PAIRS_API", "https://api.dexscreener.com/token-pairs/v1/solana/")
