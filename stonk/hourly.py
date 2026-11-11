@@ -116,8 +116,9 @@ def build_hourly(burn_path=None, coverage_path=None, window_days=None, now_ms=No
   def _empty():
     return [0.0] * len(sources)
 
-  bins_by_hour, hod_amounts = {}, [_empty() for _ in range(24)]
-  hod_usd, hod_events = [0.0] * 24, [0] * 24
+  bins_by_hour = {}
+  hod_amounts, hod_usds = [_empty() for _ in range(24)], [_empty() for _ in range(24)]
+  hod_events = [0] * 24
 
   for event in events:
     ms = _epoch_ms(event["t"])
@@ -125,24 +126,28 @@ def build_hourly(burn_path=None, coverage_path=None, window_days=None, now_ms=No
     amount = event.get("a") or 0.0
     usd = event.get("u") or 0.0
 
-    bucket = bins_by_hour.setdefault(ms - ms % HOUR_MS, {"a": _empty(), "u": 0.0, "n": 0})
+    bucket = bins_by_hour.setdefault(ms - ms % HOUR_MS, {"a": _empty(), "us": _empty(), "n": 0})
     bucket["a"][slot] += amount
-    bucket["u"] += usd
+    bucket["us"][slot] += usd
     bucket["n"] += 1
 
     hour = _hour_of(ms)
     hod_amounts[hour][slot] += amount
-    hod_usd[hour] += usd
+    hod_usds[hour][slot] += usd
     hod_events[hour] += 1
 
-  empty = {"a": _empty(), "u": 0.0, "n": 0}
+  empty = {"a": _empty(), "us": _empty(), "n": 0}
   bins = []
   for start in _full_hours(segments):
     bucket = bins_by_hour.get(start, empty)
     bins.append({
       "t": _iso_hour(start),
       "a": [round(v, 3) for v in bucket["a"]],
-      "u": round(bucket["u"], 2),
+      # `u` stays the scalar total it has always been; `us` splits it the same
+      # way `a` splits tokens, because only one source funds the buyback and a
+      # rate that mixes all of them cannot be divided into a buyback balance.
+      "us": [round(v, 2) for v in bucket["us"]],
+      "u": round(sum(bucket["us"]), 2),
       "n": bucket["n"],
     })
 
@@ -153,7 +158,8 @@ def build_hourly(burn_path=None, coverage_path=None, window_days=None, now_ms=No
       "s": round(seconds[hour], 1),
       "n": hod_events[hour],
       "a": [round(v, 3) for v in hod_amounts[hour]],
-      "u": round(hod_usd[hour], 2),
+      "us": [round(v, 2) for v in hod_usds[hour]],
+      "u": round(sum(hod_usds[hour]), 2),
     }
     for hour in range(24)
   ]
@@ -162,6 +168,7 @@ def build_hourly(burn_path=None, coverage_path=None, window_days=None, now_ms=No
   covered_hours = sum(seconds) / 3600
   tokens = sum(sum(row["a"]) for row in hod)
   usd_total = sum(row["u"] for row in hod)
+  usd_by_source = [sum(row["us"][i] for row in hod) for i in range(len(sources))]
 
   return {
     "generatedAt": _iso(now_ms),
@@ -178,6 +185,12 @@ def build_hourly(burn_path=None, coverage_path=None, window_days=None, now_ms=No
       "usd": round(usd_total, 2),
       "meanPerHour": round(tokens / covered_hours, 3) if covered_hours else 0.0,
       "meanUsdPerHour": round(usd_total / covered_hours, 2) if covered_hours else 0.0,
+      # Aligned with `sources`. The ammo gauge divides a buyback-only balance by
+      # a rate, and it has to be the buyback slot's rate, not the blended one.
+      "usdBySource": [round(v, 2) for v in usd_by_source],
+      "meanUsdPerHourBySource": [
+        round(v / covered_hours, 2) if covered_hours else 0.0 for v in usd_by_source
+      ],
       "fullHours": len(bins),
       "median": totals[len(totals) // 2] if totals else 0.0,
       "min": totals[0] if totals else 0.0,

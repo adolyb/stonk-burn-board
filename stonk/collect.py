@@ -70,14 +70,27 @@ def cross_check_usd(history, revenue, burn_totals):
   """Three independent USD figures for the same activity; agreement is the signal."""
   holders_sum = sum(day.get("dailyHoldersRevenue") or 0 for day in history["days"])
   bought_back = revenue.get("boughtBackTokens") or 0
+  burned = burn_totals.get("amountTokens") or 0.0
   return {
     "historyHoldersRevenueSum": holders_sum,
     "revenueTotalBuybackUsd": revenue.get("totalBuybackUsd"),
     "revenueBoughtBackValueUsd": revenue.get("boughtBackValueUsd"),
     "tokenBurnValueUsdAtBurn": burn_totals.get("valueUsdAtBurn"),
-    # Bought but not yet burned: the platform's own two counters, differenced.
+    # Revenue the platform carves out before the buyback split, because it is
+    # denominated in the platform's own token rather than a third-party quote.
+    "platformPairExcludedUsd": revenue.get("platformPairExcludedUsd"),
     "boughtBackTokens": bought_back,
-    "boughtNotYetBurnedTokens": bought_back - burn_totals["amountTokens"],
+    # Burned tokens the buyback counter never saw. Two paths reach the fire
+    # without one: fees on pools quoted in this token, which arrive already
+    # denominated in it and burn directly, and the flywheel, which buys the
+    # platform's top mints on a separate budget. A buffer of bought-but-unburned
+    # tokens nets against both, so this is a lower bound rather than a total.
+    #
+    # It used to be published the other way round, as boughtBackTokens minus
+    # burned, and read as that buffer. That only held while the buyback was the
+    # sole path; once the others carried real volume the difference went
+    # negative and the label stopped describing the number.
+    "nonBuybackBurnedTokens": burned - bought_back,
   }
 
 
@@ -215,6 +228,10 @@ def collect(mint=config.MINT, rpc_url=config.RPC_URL):
     ),
     "platformRevenue": revenue_payload["revenue"],
     "platformBurns": revenue_payload["burns"],
+    # Kill switches for the buyback and for the burn that follows it. The ammo
+    # gauge claims the wallet's balance must become buy pressure; that claim is
+    # only true while these are on, so the page has to be able to show them.
+    "platformConfig": revenue_payload.get("config") or {},
     "platformStats": stats_payload,
     "ammo": ammo_block,
   }
